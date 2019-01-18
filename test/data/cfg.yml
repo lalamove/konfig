@@ -1,0 +1,15 @@
+debug: true
+sqlDebug: true
+vault:
+    enable: true
+    server: "http://127.0.0.1:8200"
+    dbSecret: "/secret/db1"
+db:
+    mysql:
+        username: "username"
+        password: "password"
+        maxOpenConn: 10
+    redis: 
+        host: "127.0.0.1"
+http:
+    port: "8081"
