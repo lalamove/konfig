@@ -35,7 +35,7 @@ Load and watch a json formatted config file.
 ```go
 var configFiles = []klfile.File{
 	{
-		Path: "./konfig.json",
+		Path: "./config.json",
 		Parser: json.Parser,
 	},
 }
@@ -57,7 +57,7 @@ func main() {
 		},
 	)
 
-	if err := konfig.Watch(); err != nil {
+	if err := konfig.LoadWatch(); err != nil {
 		log.Fatal(err)
 	}
 
