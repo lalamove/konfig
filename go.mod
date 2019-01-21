@@ -1,7 +1,6 @@
 module github.com/lalamove/konfig
 
 require (
-	github.com/lalamove/nui v0.0.0-20190108033743-206d8659d444
 	github.com/BurntSushi/toml v0.3.1
 	github.com/coreos/etcd v3.3.10+incompatible
 	github.com/davecgh/go-spew v1.1.1
@@ -20,6 +19,7 @@ require (
 	github.com/hashicorp/hcl v1.0.0
 	github.com/hashicorp/vault v1.0.1
 	github.com/jinzhu/copier v0.0.0-20180308034124-7e38e58719c3
+	github.com/lalamove/nui v0.0.1
 	github.com/mitchellh/go-homedir v1.0.0
 	github.com/mitchellh/mapstructure v1.1.2
 	github.com/pierrec/lz4 v0.0.0-20181005164709-635575b42742

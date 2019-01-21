@@ -130,20 +130,20 @@
   version = "v0.5.1"
 
 [[projects]]
-  branch = "master"
-  digest = "1:ff65bf6fc4d1116f94ac305342725c21b55c16819c2606adc8f527755716937f"
+  digest = "1:c25fc9af3d03f56e1d8827e6d823dcc3318be2902d8182601cf7538834bb346f"
   name = "github.com/hashicorp/go-rootcerts"
   packages = ["."]
   pruneopts = ""
-  revision = "6bb64b370b90e7ef1fa532be9e591a81c3493e00"
+  revision = "63503fb4e1eca22f9ae0f90b49c5d5538a0e87eb"
+  version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
-  digest = "1:d7b37f03787cb57693ded0aae8ef1420492fb94dab8e759bf389e04b99dd9212"
+  digest = "1:ea71015bc8aa9b98a1fde564e24123260330b55bda32d8ed5ce227d3dc58d64e"
   name = "github.com/hashicorp/go-sockaddr"
   packages = ["."]
   pruneopts = ""
-  revision = "e92cdb5343bbaf42b0a596937ae0f382270d6759"
+  revision = "3aed17b5ee41761cc2b04f2a94c7107d428967e5"
+  version = "v1.0.1"
 
 [[projects]]
   digest = "1:d14365c51dd1d34d5c79833ec91413bfbb166be978724f15701e17080dc06dec"
@@ -333,7 +333,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:7ec13687f85b25087fe05f6ea8dd116013a8263f8eb7e057da7664bc7599d2d4"
+  digest = "1:552c5a9b4a2cd4d21efdba35fff561e13f0c666bf4c82fcedbb4e031b704aa61"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -345,7 +345,7 @@
     "trace",
   ]
   pruneopts = ""
-  revision = "915654e7eabcea33ae277abbecf52f0d8b7a9fdc"
+  revision = "ed066c81e75eba56dd9bd2139ade88125b855585"
 
 [[projects]]
   branch = "master"
