@@ -5,11 +5,11 @@
 )](https://godoc.org/github.com/lalamove/konfig)
 
 # Konfig
-Composable, dynamic, observable configurations for Go. 
+Composable, observable and performant config management for Go. 
 It allows you to compose configurations from multiple sources with reload mechanism making it simple to build stateful apps. 
 
 # Why another config package?
-Most config package for Golang are hardly extensible and composable and make it complex to build apps which can reload their state dynamicaly. Also, few of them come with sources such as Vault, Etcd and multiple encoding formats. 
+Most config package for Golang are hardly extensible and composable and make it complex to build apps which can reload their state dynamically. Also, few of them come with sources such as Vault, Etcd and multiple encoding formats. 
 
 konfig is built around 4 small interfaces: 
 - Loader
@@ -21,7 +21,7 @@ Konfig features include:
 - **Dynamic** configuration loading
 - **Composable** load configs from multiple sources. At Lalamove we load configs from Vault, files and etcd. 
 - **Polyglot** load configs from multiple format. Konfig support JSON, YAML, TOML, Key=Value. 
-- **Fast, Lockfree, Thread safe Read** 
+- **Fast, Lockfree, Thread safe Read** Reads are **10x faster than Viper**. 
 - **Observable config, Hot Reload** mechanism and tooling to manage state. 
 - **Typed Read** get typed values from config or bind a struct. 
 - **Metrics** exposed prometheus metrics telling you how many times a config is reloaded, if it failed, and how long it takes to reload!
@@ -479,6 +479,21 @@ konfig.Init(&konfig.Config{
     Name: "root",
 })
 ```
+
+# Benchmark
+Benchmarks are run on both Viper and Konfig. Benchmark are done on reading ops and show that Konfig is 0 allocs on read and at leat 3x fastet than Viper:
+```
+goos: linux
+goarch: amd64
+pkg: github.com/lalamove/konfig/benchmarks
+BenchmarkGetKonfig-4            100000000               18.1 ns/op             0 B/op          0 allocs/op
+BenchmarkStringKonfig-4         10000000               148 ns/op               0 B/op          0 allocs/op
+BenchmarkGetViper-4              5000000               347 ns/op              32 B/op          2 allocs/op
+BenchmarkStringViper-4           3000000               429 ns/op              32 B/op          2 allocs/op
+PASS
+ok      github.com/lalamove/konfig/benchmarks   8.225s
+```
+
 
 # Contributing 
 
