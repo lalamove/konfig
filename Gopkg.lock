@@ -48,6 +48,14 @@
   version = "1.2.7"
 
 [[projects]]
+  digest = "1:eb53021a8aa3f599d29c7102e65026242bdedce998a54837dc67f14b6a97c5fd"
+  name = "github.com/fsnotify/fsnotify"
+  packages = ["."]
+  pruneopts = ""
+  revision = "c2828203cd70a50dcccfb2761f8b1f8ceef9a8e9"
+  version = "v1.4.7"
+
+[[projects]]
   digest = "1:fb6b4ea21671a4a8037cccc0a582caada51b4ac550219f42b9e8ce4671bc568b"
   name = "github.com/go-test/deep"
   packages = ["."]
@@ -152,6 +160,7 @@
     ".",
     "hcl/ast",
     "hcl/parser",
+    "hcl/printer",
     "hcl/scanner",
     "hcl/strconv",
     "hcl/token",
@@ -202,6 +211,14 @@
   version = "0.0.1"
 
 [[projects]]
+  digest = "1:961dc3b1d11f969370533390fdf203813162980c858e1dabe827b60940c909a5"
+  name = "github.com/magiconair/properties"
+  packages = ["."]
+  pruneopts = ""
+  revision = "c2353362d570a7bfa228149c62842019201cfb71"
+  version = "v1.8.0"
+
+[[projects]]
   digest = "1:63722a4b1e1717be7b98fc686e0b30d5e7f734b9e93d7dee86293b6deab7ea28"
   name = "github.com/matttproud/golang_protobuf_extensions"
   packages = ["pbutil"]
@@ -224,6 +241,14 @@
   pruneopts = ""
   revision = "3536a929edddb9a5b34bd6861dc4a9647cb459fe"
   version = "v1.1.2"
+
+[[projects]]
+  digest = "1:894aef961c056b6d85d12bac890bf60c44e99b46292888bfa66caf529f804457"
+  name = "github.com/pelletier/go-toml"
+  packages = ["."]
+  pruneopts = ""
+  revision = "c01d1270ff3e442a8a57cddc1c92dc1138598194"
+  version = "v1.2.0"
 
 [[projects]]
   digest = "1:b1df71d0b2287062b90c6b4c8d3c934440aa0d2eb201d03f22be0f045860b4aa"
@@ -305,12 +330,47 @@
   version = "v0.1"
 
 [[projects]]
+  digest = "1:32c5802989a96ee74cc4e8372efce3cab9cf6355132ad8e80cc32c18757ccd47"
+  name = "github.com/spf13/afero"
+  packages = [
+    ".",
+    "mem",
+  ]
+  pruneopts = ""
+  revision = "a5d6946387efe7d64d09dcba68cdd523dc1273a3"
+  version = "v1.2.0"
+
+[[projects]]
   digest = "1:ae3493c780092be9d576a1f746ab967293ec165e8473425631f06658b6212afc"
   name = "github.com/spf13/cast"
   packages = ["."]
   pruneopts = ""
   revision = "8c9545af88b134710ab1cd196795e7f2388358d7"
   version = "v1.3.0"
+
+[[projects]]
+  digest = "1:9ceffa4ab5f7195ecf18b3a7fff90c837a9ed5e22e66d18069e4bccfe1f52aa0"
+  name = "github.com/spf13/jwalterweatherman"
+  packages = ["."]
+  pruneopts = ""
+  revision = "4a4406e478ca629068e7768fc33f3f044173c0a6"
+  version = "v1.0.0"
+
+[[projects]]
+  digest = "1:cbaf13cdbfef0e4734ed8a7504f57fe893d471d62a35b982bf6fb3f036449a66"
+  name = "github.com/spf13/pflag"
+  packages = ["."]
+  pruneopts = ""
+  revision = "298182f68c66c05229eb03ac171abe6e309ee79a"
+  version = "v1.0.3"
+
+[[projects]]
+  digest = "1:b98ee2c3f1469ab3b494859d3a9c9e595ec2c63660dea130a5154cfcd427b608"
+  name = "github.com/spf13/viper"
+  packages = ["."]
+  pruneopts = ""
+  revision = "6d33b5a963d922d182c91e8a1c88d81fd150cfd4"
+  version = "v1.3.1"
 
 [[projects]]
   digest = "1:381bcbeb112a51493d9d998bbba207a529c73dbb49b3fd789e48c63fac1f192c"
@@ -349,11 +409,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:057806b6e218f4ceac80d27ccd8dd80b2c06b0050289aa46e0edfd82cc4faa2c"
+  digest = "1:851d398c9d0b45a3d8496ad6f50d690dd1df7918a309acd23956d73f1ac9adb4"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = ""
-  revision = "11f53e03133963fb11ae0588e08b5e0b85be8be5"
+  revision = "770c60269bf0ef965e9e7ac8bedcb6bca2a1cefd"
 
 [[projects]]
   digest = "1:5acd3512b047305d49e8763eef7ba423901e85d5dd2fd1e71778a0ea8de10bd4"
@@ -463,6 +523,7 @@
     "github.com/prometheus/client_golang/prometheus",
     "github.com/radovskyb/watcher",
     "github.com/spf13/cast",
+    "github.com/spf13/viper",
     "github.com/stretchr/testify/require",
     "go.etcd.io/etcd/clientv3",
     "gopkg.in/yaml.v2",
