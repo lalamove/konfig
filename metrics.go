@@ -31,18 +31,18 @@ func (lw *loaderWatcher) setMetrics() {
 		configReloadSuccess: configReloadCounterVec.
 			WithLabelValues(
 				metricsSuccessLabel,
-				lw.s.cfg.Name,
+				lw.s.name,
 				lw.Name(),
 			),
 		configReloadFailure: configReloadCounterVec.
 			WithLabelValues(
 				metricsFailureLabel,
-				lw.s.cfg.Name,
+				lw.s.name,
 				lw.Name(),
 			),
 		configReloadDuration: configReloadDurationSummaryVec.
 			WithLabelValues(
-				lw.s.cfg.Name,
+				lw.s.name,
 				lw.Name(),
 			),
 	}
@@ -55,7 +55,7 @@ func (c *store) initMetrics() {
 				Name: MetricsConfigReload,
 				Help: "Number of config loader reload",
 			},
-			[]string{"result", "store_name", "loader_name"},
+			[]string{"result", "store", "loader"},
 		),
 		MetricsConfigReloadDuration: prometheus.NewSummaryVec(
 			prometheus.SummaryOpts{
@@ -63,7 +63,7 @@ func (c *store) initMetrics() {
 				Help:       "Histogram for the config reload duration",
 				Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001},
 			},
-			[]string{"store_name", "loader_name"},
+			[]string{"store", "loader"},
 		),
 	}
 }

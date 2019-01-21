@@ -460,16 +460,16 @@ Example of metrics:
 ```
 # HELP konfig_loader_reload Number of config loader reload
 # TYPE konfig_loader_reload counter
-konfig_loader_reload{loader_name="config-files",result="failure",store_name=""} 0.0
-konfig_loader_reload{loader_name="config-files",result="success",store_name=""} 1.0
+konfig_loader_reload{loader="config-files",result="failure",store="root"} 0.0
+konfig_loader_reload{loader="config-files",result="success",store="root"} 1.0
 
 # HELP konfig_loader_reload_duration Histogram for the config reload duration
 # TYPE konfig_loader_reload_duration summary
-konfig_loader_reload_duration{loader_name="config-files",store_name="",quantile="0.5"} 0.001227641
-konfig_loader_reload_duration{loader_name="config-files",store_name="",quantile="0.9"} 0.001227641
-konfig_loader_reload_duration{loader_name="config-files",store_name="",quantile="0.99"} 0.001227641
-konfig_loader_reload_duration_sum{loader_name="config-files",store_name=""} 0.001227641
-konfig_loader_reload_duration_count{loader_name="config-files",store_name=""} 1.0
+konfig_loader_reload_duration{loader="config-files",store="root",quantile="0.5"} 0.001227641
+konfig_loader_reload_duration{loader="config-files",store="root",quantile="0.9"} 0.001227641
+konfig_loader_reload_duration{loader="config-files",store="root",quantile="0.99"} 0.001227641
+konfig_loader_reload_duration_sum{loader="config-files",store=""} 0.001227641
+konfig_loader_reload_duration_count{loader="config-files",store=""} 1.0
 ```
 
 To enable metrics, you must pass a custom config when creating a config store: 
