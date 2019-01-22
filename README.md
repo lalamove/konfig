@@ -5,7 +5,7 @@
 )](https://godoc.org/github.com/lalamove/konfig)
 
 # Konfig
-Composable, observable and performant config management for Go. Written for larger distributed systems where you may have plenty of configuration sources, it allows you to compose configurations from multiple sources with reload mechanisms making it simple to build stateful apps.
+Composable, observable and performant config handling for Go. Written for larger distributed systems where you may have plenty of configuration sources - it allows you to compose configurations from multiple sources with reload hooks making it simple to build apps that lives in a highly dynamic environment.
 
 ## What's up with the name?
 The name is Swedish for "config". We have a lot of nationalities here at Lalamove and to celebrate cultural diversity most of our open source packages will carry a name derived from a non-English language that is perhaps spoken by at least one of our employees(?).
@@ -24,8 +24,8 @@ Konfig features include:
 - **Dynamic** configuration loading
 - **Composable** load configs from multiple sources, such as vault, files and etcd
 - **Polyglot** load configs from multiple format. Konfig support JSON, YAML, TOML, Key=Value
-- **Fast, Lockfree, Thread safe Read** Reads are **up to 10x faster than Viper**
-- **Observable config, Hot Reload** mechanism and tooling to manage state
+- **Fast, Lock-free, Thread safe Read** Reads are **up to 10x faster than Viper**
+- **Observable config - Hot Reload** mechanism and tooling to manage state
 - **Typed Read** get typed values from config or bind a struct
 - **Metrics** exposed prometheus metrics telling you how many times a config is reloaded, if it failed, and how long it takes to reload
 
@@ -170,7 +170,7 @@ configLoader := konfig.RegisterLoaderWatcher(
 )
 ```
 ### Built in loaders
-Config already has the following loaders, they all have a built in watcher:
+Konfig already has the following loaders, they all have a built in watcher:
 - [File Loader](loader/klfile/README.md)
 
 Loads configs from files which can be watched. Files can have different parsers to load different formats. It has a built in file watcher which triggers a config reload (running hooks) when files are modified. 
@@ -222,18 +222,17 @@ type Watcher interface {
 }
 ```
 ### Built in watchers
-Config already has the following watchers: 
+Konfig already has the following watchers: 
 - [File Watcher](watcher/filewatcher/README.md)
 
 Watches files for changes. 
 
 - [Poll Watcher](watcher/filewatcher/README.md)
 
-Sends events at a given rate, or if diff is enabled. It takes a Getter and fetches the data
-at a given rate. If data is different, it sends an event. 
+Sends events at a given rate, or if diff is enabled. It takes a Getter and fetches the data at a given rate. If data is different, it sends an event. 
 
 # Hooks
-Hooks are functions ran after a successful loader Load call. They are used to reload the state of the application on a config change.
+Hooks are functions ran after a successful loader `Load()` call. They are used to reload the state of the application on a config change.
 
 ### Registering a loader with some hooks
 You can register a loader or a loader watcher with hooks.
@@ -258,7 +257,7 @@ configLoader := konfig.RegisterLoaderWatcher(
 ```
 
 ### Adding hooks to an existing loader
-You can register a loader or a loader watcher with hooks.
+You can register a *Loader* or a *LoaderWatcher* with hooks.
 ```go
 configLoader.AddHooks(
 	func(s konfig.Store) error {
@@ -273,7 +272,7 @@ configLoader.AddHooks(
 ```
 
 # Closers
-Closers can be added to the config so that if config fails to load it will close the registered Closers.
+*Closers* can be added to konfig so that if konfig fails to load, it will execute `Close()` on the registered *Closers*.
 ```go
 type Closer interface {
 	Close() error
@@ -284,7 +283,7 @@ type Closer interface {
 konfig.RegisterCloser(closer)
 ```
 
-# Config groups
+# Config Groups
 You can namespace your configs using config Groups. 
 ```go
 konfig.Group("db").RegisterLoaderWatcher(	
@@ -305,7 +304,7 @@ konfig.Group("db").RegisterLoaderWatcher(
 dbHost := konfig.Group("db").MustString("credentials.host")
 ```
 
-# Binding a type to a Store
+# Binding a Type to a Store
 You can bind a type to the konfig store if you want your config values to be unmarshaled to a **struct** or a **map[string]interface{}**. Then you can access an instance of that type in a thread safe manner (in order to be safe for dynamic config updates).
 
 Let's see with an example of a json config file: 
@@ -443,7 +442,7 @@ StringMapString(k string) map[string]string
 ```
 
 # Getter
-To easily build services which can use dynamically loaded configs you can create getters for specific keys. A getter implements `ngetter.GetterTyped` from [nui](github.com/lalamove/nui) package. It is useful when building stateful apps.
+To easily build services which can use dynamically loaded configs you can create getters for specific keys. A getter implements `ngetter.GetterTyped` from [nui](github.com/lalamove/nui) package. It is useful when building apps in larger distributed environments.
 
 Example with a config value set for the debug key: 
 ```go
