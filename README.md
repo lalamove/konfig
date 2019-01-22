@@ -9,7 +9,7 @@ Composable, observable and performant config management for Go.
 It allows you to compose configurations from multiple sources with reload mechanism making it simple to build stateful apps. 
 
 # Why another config package?
-Most config package for Golang are hardly extensible and composable and make it complex to build apps which can reload their state dynamicaly. Also, few of them come with sources such as Vault, Etcd and multiple encoding formats. 
+Most config packages for Golang are hardly extensible and composable and make it complex to build apps which can reload their state dynamically. Also, few of them come with sources such as Vault, Etcd and multiple encoding formats. 
 
 konfig is built around 4 small interfaces: 
 - Loader
