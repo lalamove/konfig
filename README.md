@@ -5,11 +5,14 @@
 )](https://godoc.org/github.com/lalamove/konfig)
 
 # Konfig
-Composable, observable and performant config management for Go. 
-It allows you to compose configurations from multiple sources with reload mechanism making it simple to build stateful apps. 
+Composable, observable and performant config management for Go. Written for larger distributed systems where you may have plenty of configuration sources, it allows you to compose configurations from multiple sources with reload mechanisms making it simple to build stateful apps.
+
+## What's up with the name?
+The name is Swedish for "config". We have a lot of nationalities here at Lalamove and to celebrate cultural diversity most of our open source packages will carry a name derived from a non-English language that is perhaps spoken by at least one of our employees(?).
 
 # Why another config package?
-Most config packages for Golang are hardly extensible and composable and make it complex to build apps which can reload their state dynamically. Also, few of them come with sources such as Vault, Etcd and multiple encoding formats. 
+Most config packages for Golang are not very extensible and rarely expose interfaces. This makes it complex to build apps which can reload their state dynamically and difficult to mock. Fewer still come with sources such as Vault, Etcd and multiple encoding formats.
+In short, we didn't find a package that satisfied all of our requirements when we started out.
 
 konfig is built around 4 small interfaces: 
 - Loader
@@ -19,12 +22,12 @@ konfig is built around 4 small interfaces:
 
 Konfig features include: 
 - **Dynamic** configuration loading
-- **Composable** load configs from multiple sources. At Lalamove we load configs from Vault, files and etcd. 
-- **Polyglot** load configs from multiple format. Konfig support JSON, YAML, TOML, Key=Value. 
-- **Fast, Lockfree, Thread safe Read** Reads are **up to 10x faster than Viper**. 
-- **Observable config, Hot Reload** mechanism and tooling to manage state. 
-- **Typed Read** get typed values from config or bind a struct. 
-- **Metrics** exposed prometheus metrics telling you how many times a config is reloaded, if it failed, and how long it takes to reload!
+- **Composable** load configs from multiple sources, such as vault, files and etcd
+- **Polyglot** load configs from multiple format. Konfig support JSON, YAML, TOML, Key=Value
+- **Fast, Lockfree, Thread safe Read** Reads are **up to 10x faster than Viper**
+- **Observable config, Hot Reload** mechanism and tooling to manage state
+- **Typed Read** get typed values from config or bind a struct
+- **Metrics** exposed prometheus metrics telling you how many times a config is reloaded, if it failed, and how long it takes to reload
 
 # Get started 
 ```sh
