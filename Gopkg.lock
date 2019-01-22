@@ -197,7 +197,7 @@
   revision = "7e38e58719c33e0d44d585c4ab477a30f8cb82dd"
 
 [[projects]]
-  digest = "1:74fe97a8a2fa454ad9a70a4f1822ccbca39797a20432412d82d1742754fa3406"
+  digest = "1:958764f129807f59232e2a0f15488801d288b0a3f85cc97946f7ff1e135af490"
   name = "github.com/lalamove/nui"
   packages = [
     "ncontext",
@@ -207,8 +207,8 @@
     "nstrings",
   ]
   pruneopts = ""
-  revision = "7a3fba8943388cf350245bcdd5686d10e9d3bb1b"
-  version = "0.0.1"
+  revision = "946f150453be5edf6cf02fa06c85d076e562bce3"
+  version = "v0.0.2"
 
 [[projects]]
   digest = "1:961dc3b1d11f969370533390fdf203813162980c858e1dabe827b60940c909a5"
