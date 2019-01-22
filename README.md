@@ -483,17 +483,19 @@ konfig.Init(&konfig.Config{
 ```
 
 # Benchmark
-Benchmarks are run on both Viper and Konfig. Benchmark are done on reading ops and show that Konfig is 0 allocs on read and at leat 3x fastet than Viper:
+Benchmarks are run on `viper`, `go-config` and `konfig`. Benchmark are done on reading ops and show that Konfig is 0 allocs on read and at leat 3x fastet than Viper:
 ```
+cd benchmarks && go test -bench . && cd ../
 goos: linux
 goarch: amd64
 pkg: github.com/lalamove/konfig/benchmarks
-BenchmarkGetKonfig-4            100000000               18.1 ns/op             0 B/op          0 allocs/op
-BenchmarkStringKonfig-4         10000000               148 ns/op               0 B/op          0 allocs/op
-BenchmarkGetViper-4              5000000               347 ns/op              32 B/op          2 allocs/op
-BenchmarkStringViper-4           3000000               429 ns/op              32 B/op          2 allocs/op
+BenchmarkGetKonfig-4            200000000                7.75 ns/op            0 B/op          0 allocs/op
+BenchmarkStringKonfig-4         30000000                49.9 ns/op             0 B/op          0 allocs/op
+BenchmarkGetViper-4             20000000               101 ns/op              32 B/op          2 allocs/op
+BenchmarkStringViper-4          10000000               152 ns/op              32 B/op          2 allocs/op
+BenchmarkGetGoConfig-4          10000000               118 ns/op              40 B/op          3 allocs/op
+BenchmarkStringGoConfig-4       10000000               125 ns/op              40 B/op          3 allocs/op
 PASS
-ok      github.com/lalamove/konfig/benchmarks   8.225s
 ```
 
 

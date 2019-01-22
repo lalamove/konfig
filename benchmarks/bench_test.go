@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	"github.com/lalamove/konfig"
+	config "github.com/micro/go-config"
+	"github.com/micro/go-config/source/memory"
 	"github.com/spf13/viper"
 )
 
@@ -50,5 +52,40 @@ func BenchmarkStringViper(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		v.GetString("foo")
 	}
+}
 
+var data = []byte(`{
+    "foo": "bar"
+}`)
+
+func newGoConfig() config.Config {
+	memorySource := memory.NewSource(
+		memory.WithData(data),
+	)
+	// Create new config
+	conf := config.NewConfig()
+	// Load file source
+	conf.Load(memorySource)
+
+	return conf
+}
+
+func BenchmarkGetGoConfig(b *testing.B) {
+	conf := newGoConfig()
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		conf.Get("foo")
+	}
+}
+
+func BenchmarkStringGoConfig(b *testing.B) {
+	conf := newGoConfig()
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		conf.Get("foo").String("bar")
+	}
 }
