@@ -39,7 +39,7 @@ Load and watch a json formatted config file.
 var configFiles = []klfile.File{
 	{
 		Path: "./config.json",
-		Parser: json.Parser,
+		Parser: kpjson.Parser,
 	},
 }
 
