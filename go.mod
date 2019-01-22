@@ -19,11 +19,12 @@ require (
 	github.com/hashicorp/hcl v1.0.0
 	github.com/hashicorp/vault v1.0.1
 	github.com/jinzhu/copier v0.0.0-20180308034124-7e38e58719c3
-	github.com/lalamove/nui v0.0.2-0.20190122032433-946f150453be
+	github.com/lalamove/nui v0.0.2
 	github.com/mitchellh/go-homedir v1.0.0
 	github.com/mitchellh/mapstructure v1.1.2
 	github.com/pierrec/lz4 v0.0.0-20181005164709-635575b42742
 	github.com/pmezard/go-difflib v1.0.0
+	github.com/prometheus/client_golang v0.9.2
 	github.com/radovskyb/watcher v1.0.5
 	github.com/ryanuber/go-glob v0.0.0-20160226084822-572520ed46db
 	github.com/spf13/cast v1.3.0
