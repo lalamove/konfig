@@ -19,7 +19,7 @@ require (
 	github.com/hashicorp/hcl v1.0.0
 	github.com/hashicorp/vault v1.0.1
 	github.com/jinzhu/copier v0.0.0-20180308034124-7e38e58719c3
-	github.com/lalamove/nui v0.0.1
+	github.com/lalamove/nui v0.0.2-0.20190122032433-946f150453be
 	github.com/mitchellh/go-homedir v1.0.0
 	github.com/mitchellh/mapstructure v1.1.2
 	github.com/pierrec/lz4 v0.0.0-20181005164709-635575b42742
