@@ -85,7 +85,7 @@ s := konfig.New(konfig.DefaultConfig())
 ```
 
 ## Loading and Watching a Store
-After registering Loaders and Watchers in the konfig.Store, you must load and watch the store. 
+After registering Loaders and Watchers in the `konfig.Store`, you must load and watch the store. 
 
 You can do both by calling `LoadWatch`:
 ```go
@@ -94,7 +94,7 @@ if err := konfig.LoadWatch(); err != nil {
 }
 ```
 
-You can call `Load` onlyi, it will load all loaders and return:
+You can call `Load` only, it will load all loaders and return:
 ```go
 if err := konfig.Load(); err != nil {
     log.Fatal(err)
@@ -140,7 +140,7 @@ configLoader := konfig.RegisterLoader(
 ```
 
 ### Register a loader with a watcher:  
-To register a loader and a watcher together, you must register a LoaderWatcher which is an interface that implements both the Loader and the Watcher interface.
+To register a loader and a watcher together, you must register a `LoaderWatcher` which is an interface that implements both the `Loader` and the `Watcher` interface.
 ```go
 configLoader := konfig.RegisterLoaderWatcher(
 	klfile.New(
@@ -156,7 +156,7 @@ configLoader := konfig.RegisterLoaderWatcher(
 	),
 )
 ```
-You can also compose a loader and a watcher to create a LoaderWatcher: 
+You can also compose a loader and a watcher to create a `LoaderWatcher`: 
 ```go
 configLoader := konfig.RegisterLoaderWatcher(
 	// it creates a LoaderWatcher from a loader and a watcher
@@ -194,7 +194,7 @@ Loads configs from command line flags.
 
 
 ### Parsers
-Parsers parse an io.Reader into a konfig.Store. There are used by some loaders to parse the data they fetch into the config store. the File Loader, Etcd Loader and HTTP Loader use Parsers. 
+Parsers parse an `io.Reader` into a `konfig.Store`. These are used by some loaders to parse the data they fetch into the config store. the File Loader, Etcd Loader and HTTP Loader use Parsers. 
 
 Config already has the following parsers: 
 - [JSON Parser](parser/kpjson/README.md)
@@ -204,7 +204,7 @@ Config already has the following parsers:
 - [Map Parser](parser/kpmap/README.md)
 
 # Watchers
-Watchers trigger a call on a Loader on events. A watcher is an implementation of the Watcher interface.
+Watchers trigger a call on a Loader on events. A watcher is an implementation of the `Watcher` interface.
 ```go
 type Watcher interface {
 	// Start starts the watcher, it must not be blocking.
@@ -226,8 +226,8 @@ Watches files for changes.
 
 - [Poll Watcher](watcher/filewatcher/README.md)
 
-Sends events at a given rate, or if diff is enabled, it takes a Getter and fetches the data
-at a given rate, if data is different, it sends an event. 
+Sends events at a given rate, or if diff is enabled. It takes a Getter and fetches the data
+at a given rate. If data is different, it sends an event. 
 
 # Hooks
 Hooks are functions ran after a successful loader Load call. They are used to reload the state of the application on a config change.
@@ -303,7 +303,7 @@ dbHost := konfig.Group("db").MustString("credentials.host")
 ```
 
 # Binding a type to a Store
-You can bind a type to the konfig store if you want your config values to be unmarshaled to a **struct** or a **map[string]interface{}**. Then you can access an instance of that type in a thread safe manner(in order to be safe for dynamic config updates).
+You can bind a type to the konfig store if you want your config values to be unmarshaled to a **struct** or a **map[string]interface{}**. Then you can access an instance of that type in a thread safe manner (in order to be safe for dynamic config updates).
 
 Let's see with an example of a json config file: 
 ```json
@@ -375,8 +375,8 @@ When a Loader calls *konfig.Set()*, if the konfig store has a value bound to it,
 Apart from reading from the bound config value, konfig provides several methods to read values.
 
 Every method to retrieve config values come in 2 flavours:
-- **Get** | reads a the value at the given key. If key is not present it returns the zero value of the type.
-- **MustGet** |  reads a the value at the given key. If key is not present it panics.
+- **Get** reads a the value at the given key. If key is not present it returns the zero value of the type.
+- **MustGet**  reads a the value at the given key. If key is not present it panics.
 
 All methods to read values from a Store:
 ```go
