@@ -1,7 +1,9 @@
 package konfig
 
 import (
+	"fmt"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 )
@@ -208,4 +210,83 @@ func TestSetStruct(t *testing.T) {
 			require.Equal(t, 2, configValue["subt.tt"])
 		},
 	)
+}
+
+func TestCastValue(t *testing.T) {
+	var testCases = []struct {
+		x         interface{}
+		y         interface{}
+		expectedV interface{}
+	}{
+		{
+			x:         "",
+			y:         1,
+			expectedV: "1",
+		},
+		{
+			x:         true,
+			y:         "true",
+			expectedV: true,
+		},
+		{
+			x:         int32(1),
+			y:         "1",
+			expectedV: int32(1),
+		},
+		{
+			x:         float32(1),
+			y:         "1",
+			expectedV: float32(1),
+		},
+		{
+			x:         uint64(1),
+			y:         "1",
+			expectedV: uint64(1),
+		},
+		{
+			x:         uint32(1),
+			y:         "1",
+			expectedV: uint32(1),
+		},
+		{
+			x:         uint8(1),
+			y:         "1",
+			expectedV: uint8(1),
+		},
+		{
+			x:         []string{},
+			y:         []interface{}{1},
+			expectedV: []string{"1"},
+		},
+		{
+			x:         []int{},
+			y:         []interface{}{"1"},
+			expectedV: []int{1},
+		},
+		{
+			x:         time.Time{},
+			y:         "2015-01-01",
+			expectedV: time.Date(2015, time.January, 1, 0, 0, 0, 0, time.UTC),
+		},
+		{
+			x:         time.Duration(1 * time.Millisecond),
+			y:         "1ms",
+			expectedV: time.Duration(1 * time.Millisecond),
+		},
+		{
+			x:         map[string]string{},
+			y:         map[interface{}]interface{}{"foo": "bar"},
+			expectedV: map[string]string{"foo": "bar"},
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(
+			fmt.Sprintf("%T", testCase.x),
+			func(t *testing.T) {
+				var v = castValue(testCase.x, testCase.y)
+				require.Equal(t, testCase.expectedV, v)
+			},
+		)
+	}
 }
