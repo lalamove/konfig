@@ -177,26 +177,16 @@ func (t *PollWatcher) valuesEqual(v konfig.Values) bool {
 		return false
 	}
 
-	// we copy previous value
-	var cpPrevVal = make(konfig.Values, len(t.pv))
-	for k, x := range t.pv {
-		cpPrevVal[k] = x
-	}
-
 	for k, x := range v {
-		if y, ok := cpPrevVal[k]; ok {
+		if y, ok := t.pv[k]; ok {
 			if y != x {
 				return false
 			}
-			delete(cpPrevVal, k)
 			continue
 		}
 		return false
 	}
 
-	if len(cpPrevVal) > 0 {
-		return false
-	}
 	return true
 }
 
