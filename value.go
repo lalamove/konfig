@@ -279,8 +279,6 @@ func castValue(f interface{}, v interface{}) interface{} {
 		return cast.ToTime(v)
 	case time.Duration:
 		return cast.ToDuration(v)
-	case map[string]interface{}:
-		return cast.ToStringMap(v)
 	case map[string]string:
 		return cast.ToStringMapString(v)
 	}
