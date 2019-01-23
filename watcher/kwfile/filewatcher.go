@@ -68,6 +68,7 @@ func (fw *FileWatcher) Start() error {
 	go fw.watch()
 	go func() error {
 		if err := fw.w.Start(fw.cfg.Rate); err != nil {
+			fw.cfg.Logger.Error(err.Error())
 			return err
 		}
 		return nil

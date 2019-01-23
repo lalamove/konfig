@@ -1,6 +1,7 @@
 package kwfile
 
 import (
+	"io/ioutil"
 	"os"
 	"testing"
 	"time"
@@ -27,14 +28,14 @@ func TestWatcher(t *testing.T) {
 	t.Run(
 		"new with watcher",
 		func(t *testing.T) {
-			f, err := os.OpenFile("./test", os.O_RDWR|os.O_CREATE, 0755)
+			f, err := ioutil.TempFile("", "konfig")
 			f.Write([]byte(`ABC`))
 			require.Nil(t, err)
 
 			defer os.Remove(f.Name())
 
 			var n = New(&Config{
-				Files: []string{"./test"},
+				Files: []string{f.Name()},
 				Rate:  100 * time.Millisecond,
 				Debug: true,
 			})
@@ -53,12 +54,59 @@ func TestWatcher(t *testing.T) {
 			select {
 			case <-timer.C:
 				break
+			case <-n.Done():
+				break
 			case <-n.Watch():
 				watched = true
 				break
 			}
 
 			require.True(t, watched)
+		},
+	)
+
+	t.Run(
+		"close",
+		func(t *testing.T) {
+			f, err := ioutil.TempFile("", "konfig")
+			f.Write([]byte(`ABC`))
+			require.Nil(t, err)
+
+			defer os.Remove(f.Name())
+
+			var n = New(&Config{
+				Files: []string{f.Name()},
+				Rate:  100 * time.Millisecond,
+				Debug: true,
+			})
+
+			require.Nil(t, n.Start())
+			n.w.Wait()
+			time.Sleep(100 * time.Millisecond)
+
+			n.Close()
+			<-n.Done()
+		},
+	)
+
+	t.Run(
+		"start panics",
+		func(t *testing.T) {
+			f, err := ioutil.TempFile("", "konfig")
+			f.Write([]byte(`ABC`))
+			require.Nil(t, err)
+
+			defer os.Remove(f.Name())
+
+			var n = New(&Config{
+				Files: []string{f.Name()},
+				Rate:  100 * time.Millisecond,
+				Debug: true,
+			})
+
+			n.cfg.Rate = 0
+
+			n.Start()
 		},
 	)
 }
