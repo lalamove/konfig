@@ -9,10 +9,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/lalamove/konfig/loader/klvault"
-	"github.com/lalamove/nui/nfs"
 	"github.com/francoispqt/gojay"
 	vault "github.com/hashicorp/vault/api"
+	"github.com/lalamove/konfig/loader/klvault"
+	"github.com/lalamove/nui/nfs"
 )
 
 var _ klvault.AuthProvider = (*VaultAuth)(nil)
