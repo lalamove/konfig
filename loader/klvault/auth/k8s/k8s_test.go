@@ -8,10 +8,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/lalamove/konfig/mocks"
-	"github.com/lalamove/nui/nfs"
 	"github.com/golang/mock/gomock"
 	vault "github.com/hashicorp/vault/api"
+	"github.com/lalamove/konfig/mocks"
+	"github.com/lalamove/nui/nfs"
 	"github.com/stretchr/testify/require"
 )
 
@@ -78,6 +78,37 @@ func TestNewK8sAuth(t *testing.T) {
 	)
 
 	t.Run(
+		"new no error, uses config role error invalid base64",
+		func(t *testing.T) {
+			var ctrl = gomock.NewController(t)
+			defer ctrl.Finish()
+
+			var fs = nfs.NewMockFileSystem(ctrl)
+
+			fs.EXPECT().
+				Open("test").
+				Return(
+					ioutil.NopCloser(strings.NewReader(
+						"12345.!##%$.12345")),
+					nil,
+				)
+
+			var c, _ = vault.NewClient(vault.DefaultConfig())
+
+			require.Panics(
+				t,
+				func() {
+					New(&Config{
+						K8sTokenPath: "test",
+						Client:       c,
+						FileSystem:   fs,
+					})
+				},
+			)
+		},
+	)
+
+	t.Run(
 		"new no error, uses config role func",
 		func(t *testing.T) {
 			var ctrl = gomock.NewController(t)
@@ -107,6 +138,39 @@ func TestNewK8sAuth(t *testing.T) {
 			})
 
 			require.Equal(t, "foobar", k8sAuth.role)
+		},
+	)
+
+	t.Run(
+		"new no error, uses config role func with error",
+		func(t *testing.T) {
+			var ctrl = gomock.NewController(t)
+			defer ctrl.Finish()
+
+			var fs = nfs.NewMockFileSystem(ctrl)
+
+			fs.EXPECT().
+				Open("test").
+				Return(
+					ioutil.NopCloser(strings.NewReader(
+						"12345."+base64.RawStdEncoding.EncodeToString([]byte(
+							`{"kubernetes.io/serviceaccount/namespace":"dev","kubernetes.io/serviceaccount/service-account.name":"vault-config-loader"}`,
+						))+".12345")),
+					nil,
+				)
+
+			var c, _ = vault.NewClient(vault.DefaultConfig())
+
+			require.Panics(t, func() {
+				New(&Config{
+					K8sTokenPath: "test",
+					Client:       c,
+					FileSystem:   fs,
+					RoleFunc: func(string) (string, error) {
+						return "", errors.New("err")
+					},
+				})
+			})
 		},
 	)
 
