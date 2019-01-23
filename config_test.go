@@ -41,6 +41,28 @@ func (d *DummyLoader) RetryDelay() time.Duration {
 	return d.retryDelay
 }
 
+func TestSingleton(t *testing.T) {
+	t.Run(
+		"Instance",
+		func(t *testing.T) {
+			Init(DefaultConfig())
+			var v = c
+			var i = Instance()
+			require.Equal(t, v, i)
+		},
+	)
+
+	t.Run(
+		"RegisterCloser",
+		func(t *testing.T) {
+			Init(DefaultConfig())
+			var v = instance()
+			RegisterCloser(nil)
+			require.Equal(t, Closers{nil}, v.Closers)
+		},
+	)
+}
+
 func TestConfigWatcherLoader(t *testing.T) {
 	var testCases = []struct {
 		name     string
