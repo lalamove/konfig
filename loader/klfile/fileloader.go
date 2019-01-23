@@ -163,12 +163,13 @@ func (f *Loader) Load(cfg konfig.Values) error {
 		if err != nil {
 			return err
 		}
-		defer fd.Close()
 
 		// we parse the file
 		if err := file.Parser.Parse(fd, cfg); err != nil {
+			fd.Close()
 			return err
 		}
+		fd.Close()
 	}
 	return nil
 }
