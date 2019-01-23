@@ -3,7 +3,6 @@ package klhttp
 import (
 	"errors"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"time"
 
@@ -56,6 +55,8 @@ type Config struct {
 	Watch bool
 	// Rater is the rater to pass to the poll write
 	Rater kwpoll.Rater
+	// Debug sets the debug mode
+	Debug bool
 }
 
 // Loader loads a configuration remotely
@@ -90,14 +91,17 @@ func New(cfg *Config) *Loader {
 	}
 
 	if cfg.Watch {
-		var r, err = l.Get()
+		var v = konfig.Values{}
+		var err = l.Load(v)
 		if err != nil {
 			panic(err)
 		}
 		l.PollWatcher = kwpoll.New(&kwpoll.Config{
-			Getter:    l,
+			Loader:    l,
 			Rater:     cfg.Rater,
-			InitValue: r,
+			InitValue: v,
+			Diff:      true,
+			Debug:     cfg.Debug,
 		})
 	}
 
@@ -119,28 +123,6 @@ func (r *Loader) Load(s konfig.Values) error {
 		}
 	}
 	return nil
-}
-
-// Get implements the kwpoll.Getter interface.
-// It calls all sources and combines them in a slice an returns it.
-func (r *Loader) Get() (interface{}, error) {
-	var result = make([][]byte, len(r.cfg.Sources))
-
-	for i, source := range r.cfg.Sources {
-
-		if b, err := source.Do(r.cfg.Client); err == nil {
-
-			var b, err = ioutil.ReadAll(b)
-			if err != nil {
-				return nil, err
-			}
-			result[i] = b
-
-		} else {
-			return nil, err
-		}
-	}
-	return result, nil
 }
 
 // MaxRetry returns the MaxRetry config property, it implements the konfig.Loader interface

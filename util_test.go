@@ -13,6 +13,16 @@ func TestUtils(t *testing.T) {
 		test func(t *testing.T)
 	}{
 		{
+			name: "MustGet",
+			test: func(t *testing.T) {
+				Set("test", true)
+				require.Equal(t, true, MustGet("test"))
+				require.Panics(t, func() {
+					MustGet("foo")
+				})
+			},
+		},
+		{
 			name: "IntSuccess",
 			test: func(t *testing.T) {
 				Set("foo", 1)
@@ -256,6 +266,14 @@ func TestUtils(t *testing.T) {
 			name: "MustStringMapStringPanics",
 			test: func(t *testing.T) {
 				require.Panics(t, func() { MustStringMapString("foo") })
+			},
+		},
+		{
+			name: "Exists",
+			test: func(t *testing.T) {
+				Set("test", true)
+				require.True(t, Exists("test"))
+				require.False(t, Exists("foo"))
 			},
 		},
 	}

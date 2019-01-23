@@ -54,8 +54,10 @@ type Config struct {
 	MaxRetry int
 	// RetryDelay is the time between each retry when a load fails
 	RetryDelay time.Duration
-
-	contexter ncontext.Contexter
+	// Debug sets debug mode on the etcdloader
+	Debug bool
+	// Contexter provides a context, default value is contexter wrapping context package. It is used mostly for testing.
+	Contexter ncontext.Contexter
 }
 
 // Loader is the structure of a loader
@@ -70,8 +72,8 @@ func New(cfg *Config) *Loader {
 		cfg.Timeout = defaultTimeout
 	}
 
-	if cfg.contexter == nil {
-		cfg.contexter = ncontext.DefaultContexter
+	if cfg.Contexter == nil {
+		cfg.Contexter = ncontext.DefaultContexter
 	}
 
 	if cfg.Name == "" {
@@ -83,14 +85,17 @@ func New(cfg *Config) *Loader {
 	}
 
 	if cfg.Watch {
-		var r, err = l.Get()
+		var v = konfig.Values{}
+		var err = l.Load(v)
 		if err != nil {
 			panic(err)
 		}
 		l.PollWatcher = kwpoll.New(&kwpoll.Config{
-			Getter:    l,
+			Loader:    l,
 			Rater:     cfg.Rater,
-			InitValue: r,
+			InitValue: v,
+			Debug:     cfg.Debug,
+			Diff:      true,
 		})
 	}
 
@@ -130,29 +135,6 @@ func (l *Loader) Load(s konfig.Values) error {
 	return nil
 }
 
-// Get implements kwpoll.Getter, it returns a representation of the keys and their values
-func (l *Loader) Get() (interface{}, error) {
-	var result = make(map[string]map[string][]byte)
-	for _, k := range l.cfg.Keys {
-
-		values, err := l.keyValue(k.Key)
-		if err != nil {
-			return nil, err
-		}
-
-		result[k.Key] = make(map[string][]byte)
-
-		for _, v := range values {
-			var configKey = l.cfg.Prefix + string(v.Key)
-			if l.cfg.Replacer != nil {
-				configKey = l.cfg.Replacer.Replace(configKey)
-			}
-			result[k.Key][configKey] = v.Value
-		}
-	}
-	return result, nil
-}
-
 // MaxRetry is the maximum number of time to retry when a load fails
 func (l *Loader) MaxRetry() int {
 	return l.cfg.MaxRetry
@@ -164,7 +146,7 @@ func (l *Loader) RetryDelay() time.Duration {
 }
 
 func (l *Loader) keyValue(k string) ([]*mvccpb.KeyValue, error) {
-	var ctx, cancel = l.cfg.contexter.WithTimeout(
+	var ctx, cancel = l.cfg.Contexter.WithTimeout(
 		context.Background(),
 		l.cfg.Timeout,
 	)

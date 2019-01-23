@@ -4,18 +4,17 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"strings"
 	"time"
 
-	"github.com/go-test/deep"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/lalamove/konfig"
 	"github.com/lalamove/nui/nlogger"
 )
 
 var (
 	_ konfig.Watcher = (*PollWatcher)(nil)
-	// ErrNoGetter is the error returned when no getter is set and Diff is set to true
-	ErrNoGetter = errors.New("You must give a non nil getter to the poll diff watcher")
+	// ErrNoLoader is the error returned when no Loader is set and Diff is set to true
+	ErrNoLoader = errors.New("You must give a non nil Loader to the poll diff watcher")
 	// ErrAlreadyClosed is the error returned when trying to close an already closed PollDiffWatcher
 	ErrAlreadyClosed = errors.New("PollDiffWatcher already closed")
 )
@@ -24,11 +23,6 @@ var (
 // Time method which returns the time until the next tick
 type Rater interface {
 	Time() time.Duration
-}
-
-// Getter is the interface to implement to fetch data to compare
-type Getter interface {
-	Get() (interface{}, error)
 }
 
 // Time is a time.Duration which implements the Rater interface
@@ -50,25 +44,25 @@ type Config struct {
 	// Diff tells wether we should check for diffs
 	// If diff is set, a Getter is required
 	Diff bool
-	// Getter is a getter to fetch data to check diff
-	Getter Getter
+	// Loader is a loader to fetch data to check diff
+	Loader konfig.Loader
 	// InitValue is the initial value to compare with whe Diff is true
-	InitValue interface{}
+	InitValue konfig.Values
 }
 
 // PollWatcher is a konfig.Watcher that sends events every x time given in the konfig.
 type PollWatcher struct {
 	cfg       *Config
 	err       error
-	pv        interface{}
+	pv        konfig.Values
 	watchChan chan struct{}
 	done      chan struct{}
 }
 
 // New creates a new PollWatcher fromt the given config
 func New(cfg *Config) *PollWatcher {
-	if cfg.Diff && cfg.Getter == nil {
-		panic(ErrNoGetter)
+	if cfg.Diff && cfg.Loader == nil {
+		panic(ErrNoLoader)
 	}
 	if cfg.Logger == nil {
 		cfg.Logger = defaultLogger()
@@ -92,8 +86,8 @@ func (t *PollWatcher) Start() error {
 	if t.cfg.Debug {
 		t.cfg.Logger.Debug(
 			fmt.Sprintf(
-				"Starting ticker watcher with rate: %d",
-				t.cfg.Rater.Time()/time.Second,
+				"Starting ticker watcher with rate: %dms",
+				t.cfg.Rater.Time()/time.Millisecond,
 			),
 		)
 	}
@@ -116,8 +110,8 @@ func (t *PollWatcher) watch() {
 
 	t.cfg.Logger.Debug(
 		fmt.Sprintf(
-			"Waiting rater duration: %v seconds",
-			rate/time.Second,
+			"Waiting rater duration: %dms",
+			rate/time.Millisecond,
 		),
 	)
 
@@ -130,12 +124,12 @@ func (t *PollWatcher) watch() {
 				t.cfg.Logger.Debug("Tick")
 			}
 			if t.cfg.Diff {
-
 				t.cfg.Logger.Debug(
 					"Checking difference",
 				)
 
-				var r, err = t.cfg.Getter.Get()
+				var v = konfig.Values{}
+				var err = t.cfg.Loader.Load(v)
 				// We got error, we close
 				if err != nil {
 					t.cfg.Logger.Error(err.Error())
@@ -143,26 +137,23 @@ func (t *PollWatcher) watch() {
 					t.Close()
 					return
 				}
-
-				if diff := deep.Equal(t.pv, r); diff != nil {
+				if !t.valuesEqual(v) {
 					if t.cfg.Debug {
 						t.cfg.Logger.Debug(
-							"Value is different: " + strings.Join(diff, "\n"),
+							"Value is different: " + spew.Sdump(t.pv, v) + "\n",
 						)
 					}
 					t.watchChan <- struct{}{}
-					t.pv = r
+					t.pv = v
+				} else {
+					t.cfg.Logger.Debug(
+						"Value are the same, not updating",
+					)
 				}
-
-				t.cfg.Logger.Debug(
-					"Value are the same, not updating",
-				)
 			} else {
-
 				t.cfg.Logger.Debug(
 					"Sending watch event",
 				)
-
 				t.watchChan <- struct{}{}
 			}
 			time.Sleep(t.cfg.Rater.Time())
@@ -179,6 +170,24 @@ func (t *PollWatcher) Close() error {
 		close(t.done)
 	}
 	return nil
+}
+
+func (t *PollWatcher) valuesEqual(v konfig.Values) bool {
+	if len(v) != len(t.pv) {
+		return false
+	}
+
+	for k, x := range v {
+		if y, ok := t.pv[k]; ok {
+			if y != x {
+				return false
+			}
+			continue
+		}
+		return false
+	}
+
+	return true
 }
 
 func defaultLogger() nlogger.Logger {

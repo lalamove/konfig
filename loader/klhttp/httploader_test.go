@@ -177,6 +177,9 @@ func TestLoad(t *testing.T) {
 					),
 				)
 
+				p1.EXPECT().Parse(r, konfig.Values{}).Times(1).Return(nil)
+				p2.EXPECT().Parse(r, konfig.Values{}).Times(1).Return(nil)
+
 				var hl = New(&Config{
 					Client: c,
 					Watch:  true,
@@ -363,7 +366,7 @@ func TestNew(t *testing.T) {
 	)
 }
 
-func TestMaxRetryRetryDelay(t *testing.T) {
+func TestLoaderMethods(t *testing.T) {
 
 	var ctrl = gomock.NewController(t)
 	defer ctrl.Finish()
@@ -371,6 +374,7 @@ func TestMaxRetryRetryDelay(t *testing.T) {
 	var p = mocks.NewMockParser(ctrl)
 
 	var hl = New(&Config{
+		Name:       "httploader",
 		MaxRetry:   1,
 		RetryDelay: 1 * time.Second,
 		Sources: []Source{
@@ -381,6 +385,7 @@ func TestMaxRetryRetryDelay(t *testing.T) {
 		},
 	})
 
+	require.Equal(t, "httploader", hl.Name())
 	require.Equal(t, 1*time.Second, hl.RetryDelay())
 	require.Equal(t, 1, hl.MaxRetry())
 }
