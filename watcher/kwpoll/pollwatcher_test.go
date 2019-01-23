@@ -5,6 +5,7 @@ import (
 	"time"
 
 	gomock "github.com/golang/mock/gomock"
+	"github.com/lalamove/konfig"
 	"github.com/lalamove/konfig/mocks"
 )
 
@@ -35,23 +36,36 @@ func TestWatcher(t *testing.T) {
 			var ctrl = gomock.NewController(t)
 			defer ctrl.Finish()
 
-			var g = mocks.NewMockGetter(ctrl)
+			var g = mocks.NewMockLoader(ctrl)
+
+			var v = konfig.Values{"foo": "bar"}
 
 			gomock.InOrder(
-				g.EXPECT().Get().Times(1).Return(nil, nil),
-				g.EXPECT().Get().Times(1).Return(1, nil),
+				g.EXPECT().Load(konfig.Values{}).Times(1).Do(func(v konfig.Values) {
+					v.Set("foo", "bar")
+				}).Return(nil),
+				g.EXPECT().Load(konfig.Values{}).Do(func(v konfig.Values) {
+					v.Set("foo", "bar")
+				}).Return(nil),
+				g.EXPECT().Load(konfig.Values{}).Do(func(v konfig.Values) {
+					v.Set("foo", "bar")
+				}).Return(nil),
+				g.EXPECT().Load(konfig.Values{}).Do(func(v konfig.Values) {
+					v.Set("foo", "barr")
+				}).Return(nil),
 			)
 
 			var w = New(&Config{
-				Rater:  Time(100 * time.Millisecond),
-				Getter: g,
-				Diff:   true,
-				Debug:  true,
+				Rater:     Time(100 * time.Millisecond),
+				Loader:    g,
+				Diff:      true,
+				Debug:     true,
+				InitValue: v,
 			})
 			w.Start()
 
-			time.Sleep(200 * time.Millisecond)
-			var timer = time.NewTimer(200 * time.Millisecond)
+			time.Sleep(400 * time.Millisecond)
+			var timer = time.NewTimer(400 * time.Millisecond)
 			select {
 			case <-timer.C:
 				t.Error("watcher should have ticked")
