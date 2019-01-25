@@ -209,10 +209,10 @@ func (c *store) watchLoader(wl *loaderWatcher) {
 						wl.metrics.configReloadFailure.Inc()
 						t.ObserveDuration()
 					}
-
-					if !c.cfg.NoStopOnFailure {
-						c.stop()
+					if c.cfg.NoStopOnFailure {
+						continue
 					}
+					c.stop()
 					return
 				}
 
