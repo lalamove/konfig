@@ -23,7 +23,7 @@ konfig is built around 4 small interfaces:
 Konfig features include: 
 - **Dynamic** configuration loading
 - **Composable** load configs from multiple sources, such as vault, files and etcd
-- **Polyglot** load configs from multiple format. Konfig support JSON, YAML, TOML, Key=Value
+- **Polyglot** load configs from multiple format. Konfig supports JSON, YAML, TOML, Key=Value
 - **Fast, Lock-free, Thread safe Read** Reads are **up to 10x faster than Viper**
 - **Observable config - Hot Reload** mechanism and tooling to manage state
 - **Typed Read** get typed values from config or bind a struct
