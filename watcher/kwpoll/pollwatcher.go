@@ -17,6 +17,8 @@ var (
 	ErrNoLoader = errors.New("You must give a non nil Loader to the poll diff watcher")
 	// ErrAlreadyClosed is the error returned when trying to close an already closed PollDiffWatcher
 	ErrAlreadyClosed = errors.New("PollDiffWatcher already closed")
+	// defaultDuration is used in Rater if no Rater was supplied
+	defaultDuration = time.Second * 5
 )
 
 // Rater is an interface that exposes a single
@@ -66,6 +68,9 @@ func New(cfg *Config) *PollWatcher {
 	}
 	if cfg.Logger == nil {
 		cfg.Logger = defaultLogger()
+	}
+	if cfg.Rater == nil {
+		cfg.Rater = defaultRater()
 	}
 
 	return &PollWatcher{
@@ -147,7 +152,7 @@ func (t *PollWatcher) watch() {
 					t.pv = v
 				} else {
 					t.cfg.Logger.Debug(
-						"Value are the same, not updating",
+						"Values are the same, not updating",
 					)
 				}
 			} else {
@@ -192,4 +197,8 @@ func (t *PollWatcher) valuesEqual(v konfig.Values) bool {
 
 func defaultLogger() nlogger.Logger {
 	return nlogger.New(os.Stdout, "POLLWATCHER | ")
+}
+
+func defaultRater() Rater {
+	return Time(defaultDuration)
 }
