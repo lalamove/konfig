@@ -17,6 +17,8 @@ var (
 	ErrNoLoader = errors.New("You must give a non nil Loader to the poll diff watcher")
 	// ErrAlreadyClosed is the error returned when trying to close an already closed PollDiffWatcher
 	ErrAlreadyClosed = errors.New("PollDiffWatcher already closed")
+	// ErrNoWatcherSupplied is the error returned when Watch in general config is false but a watcher is still being registered
+	ErrNoWatcherSupplied = errors.New("watcher has to be supplied when registering a watcher")
 	// defaultDuration is used in Rater if no Rater was supplied
 	defaultDuration = time.Second * 5
 )
@@ -88,6 +90,10 @@ func (t *PollWatcher) Done() <-chan struct{} {
 
 // Start starts the ticker watcher
 func (t *PollWatcher) Start() error {
+	if t == nil {
+		panic(ErrNoWatcherSupplied)
+	}
+
 	if t.cfg.Debug {
 		t.cfg.Logger.Debug(
 			fmt.Sprintf(
