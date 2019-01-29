@@ -138,6 +138,6 @@ func (r *Loader) RetryDelay() time.Duration {
 }
 
 // StopOnFailure returns wether a load failure should stop the config and the registered closers
-func (l *Loader) StopOnFailure() bool {
-	return l.cfg.StopOnFailure
+func (r *Loader) StopOnFailure() bool {
+	return r.cfg.StopOnFailure
 }

@@ -177,8 +177,8 @@ func (f *Loader) Load(cfg konfig.Values) error {
 }
 
 // StopOnFailure returns wether a load failure should stop the config and the registered closers
-func (l *Loader) StopOnFailure() bool {
-	return l.cfg.StopOnFailure
+func (f *Loader) StopOnFailure() bool {
+	return f.cfg.StopOnFailure
 }
 
 func defaultLogger() nlogger.Logger {
