@@ -31,6 +31,13 @@ type Key struct {
 	// Parser is the parser for the key
 	// If nil, the value is casted to a string before adding to the config.Store
 	Parser parser.Parser
+	// QueryOptions is the query options to pass when retrieving the key from consul
+	QueryOptions *api.QueryOptions
+}
+
+// KVClient is an interface that consul client.KV implements. It is used to retrieve keys.
+type KVClient interface {
+	Get(key string, q *api.QueryOptions) (*api.KVPair, *api.QueryMeta, error)
 }
 
 // Config is the structure representing the config of a Loader
@@ -63,6 +70,8 @@ type Config struct {
 	// In false state, konfig will try to reload desired key(s)
 	// up until they are not found
 	StrictMode bool
+
+	kvClient KVClient
 }
 
 // Loader is the structure of a loader
@@ -88,6 +97,8 @@ func New(cfg *Config) *Loader {
 	if cfg.Name == "" {
 		cfg.Name = defaultName
 	}
+
+	cfg.kvClient = cfg.Client.KV()
 
 	var l = &Loader{
 		cfg: cfg,
@@ -164,7 +175,7 @@ func (l *Loader) RetryDelay() time.Duration {
 // keyValue is a quick helper to load KVPair from
 // the consul server
 func (l *Loader) keyValue(k string) (pair *api.KVPair, qm *api.QueryMeta, err error) {
-	return l.cfg.Client.KV().Get(k, nil)
+	return l.cfg.kvClient.Get(k, nil)
 }
 
 func defaultLogger() nlogger.Logger {

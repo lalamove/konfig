@@ -6,29 +6,21 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/hashicorp/consul/api"
-	"github.com/hashicorp/consul/testutil"
 	"github.com/lalamove/konfig"
+	"github.com/lalamove/konfig/mocks"
 	"github.com/stretchr/testify/require"
 )
 
 func TestLoad(t *testing.T) {
-	srv, err := testutil.NewTestServerConfigT(t, func(c *testutil.TestServerConfig) {
-		c.LogLevel = "err"
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer srv.Stop()
-
 	var testCases = []struct {
-		name  string
-		setUp func(ctrl *gomock.Controller) *Loader
-		err   bool
+		name string
+		run  func(t *testing.T, ctrl *gomock.Controller) *Loader
+		err  bool
 	}{
 		{
 			name: "key exists, no panic, no errors",
-			setUp: func(ctrl *gomock.Controller) *Loader {
-				c, _ := api.NewClient(&api.Config{Address: srv.HTTPAddr})
+			run: func(t *testing.T, ctrl *gomock.Controller) *Loader {
+				c, _ := api.NewClient(&api.Config{Address: "http://localhost"})
 
 				var hl = New(&Config{
 					Client: c,
@@ -37,47 +29,33 @@ func TestLoad(t *testing.T) {
 					}},
 				})
 
-				srv.SetKV(t, "foo", []byte("bar"))
+				var kvClient = mocks.NewMockKVClient(ctrl)
+				kvClient.EXPECT().Get("foo", nil).Times(1).Return(
+					&api.KVPair{
+						Key:   "foo",
+						Value: []byte(`bar`),
+					},
+					&api.QueryMeta{},
+					nil,
+				)
 
-				kv, _, err := c.KV().Get("foo", nil)
+				hl.cfg.kvClient = kvClient
+
+				var v = konfig.Values{}
+				var err = hl.Load(v)
+
 				if err != nil {
 					t.Fatal(err)
 				}
-
-				require.Equal(t, []byte("bar"), kv.Value)
-
+				require.Equal(t, "bar", v["foo"])
 				return hl
 			},
 			err: false,
 		},
 		{
-			name: "strict mode on, key doesn't exist, no panic, error",
-			setUp: func(ctrl *gomock.Controller) *Loader {
-				c, _ := api.NewClient(&api.Config{Address: srv.HTTPAddr})
-
-				var hl = New(&Config{
-					Client:     c,
-					StrictMode: true,
-					Keys: []Key{{
-						Key: "bar",
-					}},
-				})
-
-				kv, _, err := c.KV().Get("bar", nil)
-				if err != nil {
-					t.Fatal(err)
-				}
-
-				require.Nil(t, kv)
-
-				return hl
-			},
-			err: true,
-		},
-		{
-			name: "strict mode off, key doesn't exist, no panic, error",
-			setUp: func(ctrl *gomock.Controller) *Loader {
-				c, _ := api.NewClient(&api.Config{Address: srv.HTTPAddr})
+			name: "strict mode off, key doesn't exist, no panic, no error",
+			run: func(t *testing.T, ctrl *gomock.Controller) *Loader {
+				c, _ := api.NewClient(&api.Config{Address: "http://localhost"})
 
 				var hl = New(&Config{
 					Client:     c,
@@ -87,12 +65,54 @@ func TestLoad(t *testing.T) {
 					}},
 				})
 
-				kv, _, err := c.KV().Get("bar", nil)
+				var kvClient = mocks.NewMockKVClient(ctrl)
+				kvClient.EXPECT().Get("bar", nil).Return(
+					nil,
+					nil,
+					nil,
+				)
+				hl.cfg.kvClient = kvClient
+
+				var v = konfig.Values{}
+				var err = hl.Load(v)
+
 				if err != nil {
 					t.Fatal(err)
 				}
 
-				require.Nil(t, kv)
+				var _, ok = v["bar"]
+
+				require.False(t, ok)
+
+				return hl
+			},
+			err: true,
+		},
+		{
+			name: "strict mode on, key doesn't exist, no panic, error",
+			run: func(t *testing.T, ctrl *gomock.Controller) *Loader {
+				c, _ := api.NewClient(&api.Config{Address: "http://localhost"})
+
+				var hl = New(&Config{
+					Client:     c,
+					StrictMode: true,
+					Keys: []Key{{
+						Key: "bar",
+					}},
+				})
+
+				var kvClient = mocks.NewMockKVClient(ctrl)
+				kvClient.EXPECT().Get("bar", nil).Return(
+					nil,
+					nil,
+					nil,
+				)
+				hl.cfg.kvClient = kvClient
+
+				var v = konfig.Values{}
+				var err = hl.Load(v)
+
+				require.NotNil(t, err, "err should not be nil as key was not found and strict mode is off")
 
 				return hl
 			},
@@ -100,8 +120,8 @@ func TestLoad(t *testing.T) {
 		},
 		{
 			name: "multiple keys, no panic, no error",
-			setUp: func(ctrl *gomock.Controller) *Loader {
-				c, _ := api.NewClient(&api.Config{Address: srv.HTTPAddr})
+			run: func(t *testing.T, ctrl *gomock.Controller) *Loader {
+				c, _ := api.NewClient(&api.Config{Address: "http://localhost"})
 
 				var hl = New(&Config{
 					Client:     c,
@@ -115,21 +135,35 @@ func TestLoad(t *testing.T) {
 						}},
 				})
 
-				srv.SetKV(t, "key1", []byte("test"))
-				srv.SetKV(t, "key2", []byte("test"))
+				var kvClient = mocks.NewMockKVClient(ctrl)
+				kvClient.EXPECT().Get("key1", nil).Return(
+					&api.KVPair{
+						Key:   "key1",
+						Value: []byte(`test1`),
+					},
+					&api.QueryMeta{},
+					nil,
+				)
 
-				kv1, _, err := c.KV().Get("key1", nil)
+				kvClient.EXPECT().Get("key2", nil).Return(
+					&api.KVPair{
+						Key:   "key2",
+						Value: []byte(`test2`),
+					},
+					&api.QueryMeta{},
+					nil,
+				)
+
+				hl.cfg.kvClient = kvClient
+
+				var v = konfig.Values{}
+				var err = hl.Load(v)
+
 				if err != nil {
 					t.Fatal(err)
 				}
-
-				kv2, _, err := c.KV().Get("key2", nil)
-				if err != nil {
-					t.Fatal(err)
-				}
-
-				require.Equal(t, []byte("test"), kv1.Value)
-				require.Equal(t, []byte("test"), kv2.Value)
+				require.Equal(t, "test1", v["key1"])
+				require.Equal(t, "test2", v["key2"])
 
 				return hl
 			},
@@ -145,14 +179,7 @@ func TestLoad(t *testing.T) {
 				defer ctrl.Finish()
 
 				konfig.Init(konfig.DefaultConfig())
-				var hl = testCase.setUp(ctrl)
-
-				var err = hl.Load(konfig.Values{})
-				if testCase.err {
-					require.NotNil(t, err, "err should not be nil")
-					return
-				}
-				require.Nil(t, err, "err should be nil")
+				testCase.run(t, ctrl)
 			},
 		)
 	}
