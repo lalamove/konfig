@@ -185,7 +185,11 @@ Loads configs from HTTP sources. Sources can have different parsers to load diff
 
 - [Etcd Loader](loader/kletcd/README.md)
 
-Loads configs from Etcd keys. Keys can have different parser to load different formats. It has a build in Poll Diff Watcher which triggers a config reload (running hooks) if data is different.
+Loads configs from Etcd keys. Keys can have different parser to load different formats. It has a built in Poll Diff Watcher which triggers a config reload (running hooks) if data is different.
+
+- [Consul loader](loader/klconsul/README.md)
+
+Loads configs from Consul KV. Keys can have different parser to load different formats. It has built in Poll Diff Watcher which triggers a config reload (running hooks) if data is different. 
 
 - [ENV Loader](loader/klenv/README.md)
 
