@@ -17,6 +17,10 @@ var (
 	ErrNoLoader = errors.New("You must give a non nil Loader to the poll diff watcher")
 	// ErrAlreadyClosed is the error returned when trying to close an already closed PollDiffWatcher
 	ErrAlreadyClosed = errors.New("PollDiffWatcher already closed")
+	// ErrNoWatcherSupplied is the error returned when Watch in general config is false but a watcher is still being registered
+	ErrNoWatcherSupplied = errors.New("watcher has to be supplied when registering a watcher")
+	// defaultDuration is used in Rater if no Rater was supplied
+	defaultDuration = time.Second * 5
 )
 
 // Rater is an interface that exposes a single
@@ -67,6 +71,9 @@ func New(cfg *Config) *PollWatcher {
 	if cfg.Logger == nil {
 		cfg.Logger = defaultLogger()
 	}
+	if cfg.Rater == nil {
+		cfg.Rater = defaultRater()
+	}
 
 	return &PollWatcher{
 		cfg:       cfg,
@@ -83,6 +90,10 @@ func (t *PollWatcher) Done() <-chan struct{} {
 
 // Start starts the ticker watcher
 func (t *PollWatcher) Start() error {
+	if t == nil {
+		panic(ErrNoWatcherSupplied)
+	}
+
 	if t.cfg.Debug {
 		t.cfg.Logger.Debug(
 			fmt.Sprintf(
@@ -147,7 +158,7 @@ func (t *PollWatcher) watch() {
 					t.pv = v
 				} else {
 					t.cfg.Logger.Debug(
-						"Value are the same, not updating",
+						"Values are the same, not updating",
 					)
 				}
 			} else {
@@ -192,4 +203,8 @@ func (t *PollWatcher) valuesEqual(v konfig.Values) bool {
 
 func defaultLogger() nlogger.Logger {
 	return nlogger.New(os.Stdout, "POLLWATCHER | ")
+}
+
+func defaultRater() Rater {
+	return Time(defaultDuration)
 }

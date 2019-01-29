@@ -10,13 +10,15 @@ require (
 	github.com/golang/mock v1.2.0
 	github.com/golang/protobuf v1.2.0
 	github.com/golang/snappy v0.0.0-20180518054509-2e65f85255db
+	github.com/hashicorp/consul v1.4.1
 	github.com/hashicorp/errwrap v1.0.0
 	github.com/hashicorp/go-cleanhttp v0.5.0
 	github.com/hashicorp/go-multierror v1.0.0
 	github.com/hashicorp/go-retryablehttp v0.5.0
 	github.com/hashicorp/go-rootcerts v0.0.0-20160503143440-6bb64b370b90
-	github.com/hashicorp/go-sockaddr v0.0.0-20190103214136-e92cdb5343bb
+	github.com/hashicorp/go-sockaddr v1.0.0
 	github.com/hashicorp/hcl v1.0.0
+	github.com/hashicorp/serf v0.8.2 // indirect
 	github.com/hashicorp/vault v1.0.1
 	github.com/jinzhu/copier v0.0.0-20180308034124-7e38e58719c3
 	github.com/lalamove/nui v0.0.2

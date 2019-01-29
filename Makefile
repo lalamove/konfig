@@ -28,5 +28,6 @@ mocks:
 	mockgen -package mocks go.etcd.io/etcd/clientv3 KV > ./mocks/kv_mock.go
 	mockgen -package mocks github.com/lalamove/nui/ncontext Contexter > ./mocks/contexter_mock.go
 	mockgen -source ./parser/parser.go -package mocks Parser > ./mocks/parser_mock.go
+	mockgen -source ./loader/klconsul/consulloader.go -package mocks ConsulKV > ./mocks/consulkv_mock.go
 
 .PHONY: test test-race coverage coverage-html lint benchmarks mocks
