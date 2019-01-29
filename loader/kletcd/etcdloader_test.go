@@ -339,12 +339,15 @@ func TestLoaderMethods(t *testing.T) {
 	var ctrl = gomock.NewController(t)
 	defer ctrl.Finish()
 
+	var mockClient = mocks.NewMockKV(ctrl)
+
 	var l = New(&Config{
 		Name:          "etcdloader",
 		StopOnFailure: true,
 		MaxRetry:      1,
 		RetryDelay:    10 * time.Second,
 		Client:        newClient(),
+		kvClient:      mockClient,
 		Keys:          []Key{{Key: "key1"}},
 	})
 
