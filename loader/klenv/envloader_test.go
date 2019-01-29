@@ -118,13 +118,15 @@ func TestEnvLoader(t *testing.T) {
 	)
 
 	t.Run(
-		"test max retry",
+		"test max retry stop on failure",
 		func(t *testing.T) {
 			var l = New(&Config{
-				MaxRetry:   1,
-				RetryDelay: 1 * time.Second,
+				MaxRetry:      1,
+				RetryDelay:    1 * time.Second,
+				StopOnFailure: true,
 			})
 
+			require.True(t, l.StopOnFailure())
 			require.Equal(t, 1, l.MaxRetry())
 			require.Equal(t, 1*time.Second, l.RetryDelay())
 		},

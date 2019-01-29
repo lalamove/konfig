@@ -23,6 +23,8 @@ const (
 type Config struct {
 	// Name is the name of the loader
 	Name string
+	// StopOnFailure tells wether a failure to load configs should closed the config and all registered closers
+	StopOnFailure bool
 	// Regexp will load the environment variable if it matches the given regexp
 	Regexp string
 	// Vars will load vars only present in the vars slice
@@ -106,4 +108,9 @@ func (l *Loader) loadVars(s konfig.Values) error {
 		s.Set(k, v)
 	}
 	return nil
+}
+
+// StopOnFailure returns wether a load failure should stop the config and the registered closers
+func (l *Loader) StopOnFailure() bool {
+	return l.cfg.StopOnFailure
 }

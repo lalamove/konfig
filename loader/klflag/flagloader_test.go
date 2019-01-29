@@ -60,9 +60,11 @@ func TestFlagLoader(t *testing.T) {
 	)
 
 	t.Run(
-		"max retry retry delay",
+		"max retry retry delay stop on failure",
 		func(t *testing.T) {
-			var loader = New(&Config{MaxRetry: 1, RetryDelay: 10 * time.Second})
+			var loader = New(&Config{StopOnFailure: true, MaxRetry: 1, RetryDelay: 10 * time.Second})
+
+			require.True(t, loader.StopOnFailure())
 			require.Equal(t, 1, loader.MaxRetry())
 			require.Equal(t, 10*time.Second, loader.RetryDelay())
 		},

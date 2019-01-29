@@ -288,14 +288,16 @@ func TestMaxRetryRetryDelay(t *testing.T) {
 		vault.DefaultConfig(),
 	)
 	var vl = New(&Config{
-		Secrets:      []Secret{{Key: "/dummy/secretr/path"}},
-		AuthProvider: aP,
-		Client:       c,
-		Renew:        true,
-		MaxRetry:     1,
-		RetryDelay:   1 * time.Second,
+		Secrets:       []Secret{{Key: "/dummy/secretr/path"}},
+		AuthProvider:  aP,
+		Client:        c,
+		Renew:         true,
+		StopOnFailure: true,
+		MaxRetry:      1,
+		RetryDelay:    1 * time.Second,
 	})
 
+	require.True(t, vl.StopOnFailure())
 	require.Equal(t, 1, vl.MaxRetry())
 	require.Equal(t, 1*time.Second, vl.RetryDelay())
 }

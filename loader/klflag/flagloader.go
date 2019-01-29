@@ -16,6 +16,8 @@ const defaultName = "flag"
 type Config struct {
 	// Name is the name of the loader
 	Name string
+	// StopOnFailure tells wether a failure to load configs should closed the config and all registered closers
+	StopOnFailure bool
 	// FlagSet is the flag set from which to load flags in config
 	// default value is flag.CommandLine
 	FlagSet *flag.FlagSet
@@ -74,4 +76,9 @@ func (l *Loader) MaxRetry() int {
 // RetryDelay implements the konfig.Loader interface, is the delay between each retry
 func (l *Loader) RetryDelay() time.Duration {
 	return l.cfg.RetryDelay
+}
+
+// StopOnFailure returns wether a load failure should stop the config and the registered closers
+func (l *Loader) StopOnFailure() bool {
+	return l.cfg.StopOnFailure
 }

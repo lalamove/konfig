@@ -34,6 +34,20 @@ func (m *MockLoader) EXPECT() *MockLoaderMockRecorder {
 	return m.recorder
 }
 
+// StopOnFailure mocks base method
+func (m *MockLoader) StopOnFailure() bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "StopOnFailure")
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// StopOnFailure indicates an expected call of StopOnFailure
+func (mr *MockLoaderMockRecorder) StopOnFailure() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StopOnFailure", reflect.TypeOf((*MockLoader)(nil).StopOnFailure))
+}
+
 // Name mocks base method
 func (m *MockLoader) Name() string {
 	m.ctrl.T.Helper()

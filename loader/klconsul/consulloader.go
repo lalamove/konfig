@@ -46,6 +46,8 @@ type Config struct {
 	Name string
 	// Client is the consul KV client
 	Client *api.Client
+	// StopOnFailure tells wether a load failure(after the retries) leads to closing the config and all registered closers
+	StopOnFailure bool
 	// Keys is the list of keys to fetch
 	Keys []Key
 	// Timeout is the timeout duration when fetching a key
@@ -170,6 +172,11 @@ func (l *Loader) MaxRetry() int {
 // RetryDelay is the delay between each retry
 func (l *Loader) RetryDelay() time.Duration {
 	return l.cfg.RetryDelay
+}
+
+// StopOnFailure returns wether a load failure should stop the config and the registered closers
+func (l *Loader) StopOnFailure() bool {
+	return l.cfg.StopOnFailure
 }
 
 // keyValue is a quick helper to load KVPair from

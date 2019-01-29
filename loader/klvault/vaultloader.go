@@ -49,6 +49,8 @@ type Secret struct {
 type Config struct {
 	// Name is the name of the loader
 	Name string
+	// StopOnFailure tells wether a failure to load configs should closed the config and all registered closers
+	StopOnFailure bool
 	// Secrets is the list of secrets to load
 	Secrets []Secret
 	// AuthProvider is the vault auth provider
@@ -188,6 +190,11 @@ func (vl *Loader) Load(cs konfig.Values) error {
 // It is used in the ticker watcher a source.
 func (vl *Loader) Time() time.Duration {
 	return vl.ttl
+}
+
+// StopOnFailure returns wether a load failure should stop the config and the registered closers
+func (vl *Loader) StopOnFailure() bool {
+	return vl.cfg.StopOnFailure
 }
 
 func (vl *Loader) resetTTL(tokenTTL, secretTTL time.Duration) {
