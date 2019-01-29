@@ -35,8 +35,8 @@ type Key struct {
 	QueryOptions *api.QueryOptions
 }
 
-// KVClient is an interface that consul client.KV implements. It is used to retrieve keys.
-type KVClient interface {
+// ConsulKV is an interface that consul client.KV implements. It is used to retrieve keys.
+type ConsulKV interface {
 	Get(key string, q *api.QueryOptions) (*api.KVPair, *api.QueryMeta, error)
 }
 
@@ -71,7 +71,7 @@ type Config struct {
 	// up until they are not found
 	StrictMode bool
 
-	kvClient KVClient
+	kvClient ConsulKV
 }
 
 // Loader is the structure of a loader

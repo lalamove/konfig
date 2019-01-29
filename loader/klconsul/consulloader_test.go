@@ -29,7 +29,7 @@ func TestLoad(t *testing.T) {
 					}},
 				})
 
-				var kvClient = mocks.NewMockKVClient(ctrl)
+				var kvClient = mocks.NewMockConsulKV(ctrl)
 				kvClient.EXPECT().Get("foo", nil).Times(1).Return(
 					&api.KVPair{
 						Key:   "foo",
@@ -65,7 +65,7 @@ func TestLoad(t *testing.T) {
 					}},
 				})
 
-				var kvClient = mocks.NewMockKVClient(ctrl)
+				var kvClient = mocks.NewMockConsulKV(ctrl)
 				kvClient.EXPECT().Get("bar", nil).Return(
 					nil,
 					nil,
@@ -101,7 +101,7 @@ func TestLoad(t *testing.T) {
 					}},
 				})
 
-				var kvClient = mocks.NewMockKVClient(ctrl)
+				var kvClient = mocks.NewMockConsulKV(ctrl)
 				kvClient.EXPECT().Get("bar", nil).Return(
 					nil,
 					nil,
@@ -135,7 +135,7 @@ func TestLoad(t *testing.T) {
 						}},
 				})
 
-				var kvClient = mocks.NewMockKVClient(ctrl)
+				var kvClient = mocks.NewMockConsulKV(ctrl)
 				kvClient.EXPECT().Get("key1", nil).Return(
 					&api.KVPair{
 						Key:   "key1",
