@@ -38,6 +38,8 @@ type File struct {
 type Config struct {
 	// Name is the name of the loader
 	Name string
+	// StopOnFailure tells wether a failure to load configs should closed the config and all registered closers
+	StopOnFailure bool
 	// Files is the path to the files to load
 	Files []File
 	// MaxRetry is the maximum number of times load can be retried in config
@@ -172,6 +174,11 @@ func (f *Loader) Load(cfg konfig.Values) error {
 		fd.Close()
 	}
 	return nil
+}
+
+// StopOnFailure returns wether a load failure should stop the config and the registered closers
+func (l *Loader) StopOnFailure() bool {
+	return l.cfg.StopOnFailure
 }
 
 func defaultLogger() nlogger.Logger {

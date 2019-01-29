@@ -207,13 +207,15 @@ func TestLoaderMethods(t *testing.T) {
 	client, _ := api.NewClient(&api.Config{})
 
 	var l = New(&Config{
-		Name:       "consulloader",
-		MaxRetry:   3,
-		RetryDelay: 10 * time.Second,
-		Client:     client,
-		Keys:       []Key{{Key: "key1"}},
+		Name:          "consulloader",
+		MaxRetry:      3,
+		RetryDelay:    10 * time.Second,
+		StopOnFailure: true,
+		Client:        client,
+		Keys:          []Key{{Key: "key1"}},
 	})
 
+	require.True(t, l.StopOnFailure())
 	require.Equal(t, "consulloader", l.Name())
 	require.Equal(t, 3, l.MaxRetry())
 	require.Equal(t, 10*time.Second, l.RetryDelay())

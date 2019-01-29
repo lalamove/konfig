@@ -329,13 +329,15 @@ func TestLoaderMethods(t *testing.T) {
 	var mockClient = mocks.NewMockKV(ctrl)
 
 	var l = New(&Config{
-		Name:       "etcdloader",
-		MaxRetry:   1,
-		RetryDelay: 10 * time.Second,
-		Client:     mockClient,
-		Keys:       []Key{{Key: "key1"}},
+		Name:          "etcdloader",
+		StopOnFailure: true,
+		MaxRetry:      1,
+		RetryDelay:    10 * time.Second,
+		Client:        mockClient,
+		Keys:          []Key{{Key: "key1"}},
 	})
 
+	require.True(t, l.StopOnFailure())
 	require.Equal(t, "etcdloader", l.Name())
 	require.Equal(t, 1, l.MaxRetry())
 	require.Equal(t, 10*time.Second, l.RetryDelay())

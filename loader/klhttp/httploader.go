@@ -43,6 +43,8 @@ type Source struct {
 type Config struct {
 	// Name is the name of the loader
 	Name string
+	// StopOnFailure tells wether a failure to load configs should closed the config and all registered closers
+	StopOnFailure bool
 	// Sources is a list of remote sources
 	Sources []Source
 	// Client is the client used to fetch the file, default is http.DefaultClient
@@ -133,4 +135,9 @@ func (r *Loader) MaxRetry() int {
 // RetryDelay returns the RetryDelay config property, it implements the konfig.Loader interface
 func (r *Loader) RetryDelay() time.Duration {
 	return r.cfg.RetryDelay
+}
+
+// StopOnFailure returns wether a load failure should stop the config and the registered closers
+func (l *Loader) StopOnFailure() bool {
+	return l.cfg.StopOnFailure
 }

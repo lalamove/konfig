@@ -36,6 +36,8 @@ type Key struct {
 type Config struct {
 	// Name is the name of the loader
 	Name string
+	// StopOnFailure tells wether a failure to load configs should closed the config and all registered closers
+	StopOnFailure bool
 	// Client is the etcd KV client
 	Client clientv3.KV
 	// Keys is the list of keys to fetch
@@ -158,4 +160,9 @@ func (l *Loader) keyValue(k string) ([]*mvccpb.KeyValue, error) {
 	}
 
 	return values.Kvs, nil
+}
+
+// StopOnFailure returns wether a load failure should stop the config and the registered closers
+func (l *Loader) StopOnFailure() bool {
+	return l.cfg.StopOnFailure
 }

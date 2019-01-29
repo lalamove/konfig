@@ -11,10 +11,11 @@ import (
 )
 
 type DummyLoader struct {
-	DataToLoad [][2]string
-	maxRetry   int
-	retryDelay time.Duration
-	err        bool
+	DataToLoad    [][2]string
+	maxRetry      int
+	retryDelay    time.Duration
+	stopOnFailure bool
+	err           bool
 }
 
 func (d *DummyLoader) Load(s Values) error {
@@ -35,6 +36,10 @@ func (d *DummyLoader) Name() string {
 
 func (d *DummyLoader) MaxRetry() int {
 	return d.maxRetry
+}
+
+func (d *DummyLoader) StopOnFailure() bool {
+	return d.stopOnFailure
 }
 
 func (d *DummyLoader) RetryDelay() time.Duration {
@@ -83,6 +88,7 @@ func TestConfigWatcherLoader(t *testing.T) {
 						},
 						1,
 						3 * time.Second,
+						false,
 						false,
 					},
 				)
@@ -153,6 +159,7 @@ func TestConfigWatcherLoader(t *testing.T) {
 					l.EXPECT().Load(Values{}).Return(errors.New("")),
 					l.EXPECT().Load(Values{}).Return(errors.New("")),
 					l.EXPECT().Load(Values{}).Return(errors.New("")),
+					l.EXPECT().StopOnFailure().Return(true),
 				)
 				wl.EXPECT().Start().Times(1).Return(nil)
 				wl.EXPECT().Done().MinTimes(1).Return(d)
@@ -199,6 +206,7 @@ func TestConfigWatcherLoader(t *testing.T) {
 					l.EXPECT().Load(Values{}).Return(errors.New("")),
 					l.EXPECT().Load(Values{}).Return(errors.New("")),
 					l.EXPECT().Load(Values{}).Return(errors.New("")),
+					l.EXPECT().StopOnFailure().Return(true),
 				)
 				wl2.EXPECT().Start().Times(1).Return(nil)
 				wl2.EXPECT().Done().MinTimes(1).Return(d2)
@@ -258,16 +266,15 @@ func TestConfigWatcherLoader(t *testing.T) {
 				gomock.InOrder(
 					l.EXPECT().Load(Values{}).Return(nil),
 					l.EXPECT().Load(Values{}).Return(nil),
+					l.EXPECT().StopOnFailure().Return(false),
 				)
 				wl2.EXPECT().Start().Times(1).Return(nil)
 				wl2.EXPECT().Done().MinTimes(1).Return(d2)
 				wl2.EXPECT().Watch().MinTimes(1).Return(c2)
-				wl2.EXPECT().Close().Times(1).Return(nil)
 
 				wl1.EXPECT().Start().Times(1).Return(nil)
 				wl1.EXPECT().Done().MinTimes(1).Return(d)
-				wl1.EXPECT().Watch().Return(c)
-				wl1.EXPECT().Close().Return(nil)
+				wl1.EXPECT().Watch().MinTimes(1).Return(c)
 
 				var i int
 				// register the loader
@@ -295,8 +302,7 @@ func TestConfigWatcherLoader(t *testing.T) {
 				)
 
 				// close the watch chan so that it always goes through
-				close(c)
-				close(c2)
+				c <- struct{}{}
 			},
 			asserts: func(t *testing.T) {
 				log.Print("sleeping")

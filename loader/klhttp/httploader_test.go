@@ -374,9 +374,10 @@ func TestLoaderMethods(t *testing.T) {
 	var p = mocks.NewMockParser(ctrl)
 
 	var hl = New(&Config{
-		Name:       "httploader",
-		MaxRetry:   1,
-		RetryDelay: 1 * time.Second,
+		Name:          "httploader",
+		MaxRetry:      1,
+		RetryDelay:    1 * time.Second,
+		StopOnFailure: true,
 		Sources: []Source{
 			{
 				URL:    "http://url.com",
@@ -385,6 +386,7 @@ func TestLoaderMethods(t *testing.T) {
 		},
 	})
 
+	require.True(t, hl.StopOnFailure())
 	require.Equal(t, "httploader", hl.Name())
 	require.Equal(t, 1*time.Second, hl.RetryDelay())
 	require.Equal(t, 1, hl.MaxRetry())
