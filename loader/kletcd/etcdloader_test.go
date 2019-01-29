@@ -16,6 +16,14 @@ import (
 	"go.etcd.io/etcd/clientv3"
 )
 
+func newClient() *clientv3.Client {
+	c, _ := clientv3.New(clientv3.Config{
+		Endpoints:   []string{"http://254.0.0.1:12345"},
+		DialTimeout: 2 * time.Second,
+	})
+	return c
+}
+
 func TestEtcdLoader(t *testing.T) {
 	t.Run(
 		"basic no error",
@@ -63,7 +71,8 @@ func TestEtcdLoader(t *testing.T) {
 			)
 
 			var l = New(&Config{
-				Client: mockClient,
+				Client:   newClient(),
+				kvClient: mockClient,
 				Keys: []Key{
 					{Key: "key1"},
 					{Key: "key2"},
@@ -121,7 +130,8 @@ func TestEtcdLoader(t *testing.T) {
 			)
 
 			var l = New(&Config{
-				Client: mockClient,
+				Client:   newClient(),
+				kvClient: mockClient,
 				Keys: []Key{
 					{Key: "key1"},
 				},
@@ -178,7 +188,8 @@ func TestEtcdLoader(t *testing.T) {
 			)
 
 			var l = New(&Config{
-				Client: mockClient,
+				Client:   newClient(),
+				kvClient: mockClient,
 				Keys: []Key{
 					{Key: "key1"},
 				},
@@ -260,7 +271,8 @@ func TestEtcdLoader(t *testing.T) {
 			)
 
 			var l = New(&Config{
-				Client: mockClient,
+				Client:   newClient(),
+				kvClient: mockClient,
 				Keys: []Key{
 					{Key: "key1"},
 				},
@@ -307,7 +319,8 @@ func TestEtcdLoader(t *testing.T) {
 			)
 
 			var l = New(&Config{
-				Client:    mockClient,
+				Client:    newClient(),
+				kvClient:  mockClient,
 				Keys:      []Key{{Key: "key1"}},
 				Prefix:    "pfx_",
 				Replacer:  strings.NewReplacer("key", "yek"),
@@ -333,7 +346,8 @@ func TestLoaderMethods(t *testing.T) {
 		StopOnFailure: true,
 		MaxRetry:      1,
 		RetryDelay:    10 * time.Second,
-		Client:        mockClient,
+		Client:        newClient(),
+		kvClient:      mockClient,
 		Keys:          []Key{{Key: "key1"}},
 	})
 

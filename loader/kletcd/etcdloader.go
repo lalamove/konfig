@@ -38,8 +38,8 @@ type Config struct {
 	Name string
 	// StopOnFailure tells wether a failure to load configs should closed the config and all registered closers
 	StopOnFailure bool
-	// Client is the etcd KV client
-	Client clientv3.KV
+	// Client is the etcd client
+	Client *clientv3.Client
 	// Keys is the list of keys to fetch
 	Keys []Key
 	// Timeout is the timeout duration when fetching a key
@@ -60,6 +60,8 @@ type Config struct {
 	Debug bool
 	// Contexter provides a context, default value is contexter wrapping context package. It is used mostly for testing.
 	Contexter ncontext.Contexter
+
+	kvClient clientv3.KV
 }
 
 // Loader is the structure of a loader
@@ -80,6 +82,10 @@ func New(cfg *Config) *Loader {
 
 	if cfg.Name == "" {
 		cfg.Name = defaultName
+	}
+
+	if cfg.kvClient == nil {
+		cfg.kvClient = cfg.Client.KV
 	}
 
 	var l = &Loader{
@@ -154,7 +160,7 @@ func (l *Loader) keyValue(k string) ([]*mvccpb.KeyValue, error) {
 	)
 	defer cancel()
 
-	values, err := l.cfg.Client.Get(ctx, k)
+	values, err := l.cfg.kvClient.Get(ctx, k)
 	if err != nil {
 		return nil, err
 	}
