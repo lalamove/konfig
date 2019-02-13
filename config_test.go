@@ -3,10 +3,12 @@ package konfig
 import (
 	"errors"
 	"log"
+	"os"
 	"testing"
 	"time"
 
 	"github.com/golang/mock/gomock"
+	"github.com/lalamove/nui/nlogger"
 	"github.com/stretchr/testify/require"
 )
 
@@ -396,6 +398,48 @@ func TestConfigWatcherLoader(t *testing.T) {
 		})
 	}
 
+}
+
+func TestStoreMisc(t *testing.T) {
+	t.Run(
+		"Strict",
+		func(t *testing.T) {
+			reset()
+
+			Init(DefaultConfig())
+			Strict("test", "test1")
+
+			var c = instance()
+
+			require.Equal(t, []string{"test", "test1"}, c.strictKeys)
+		},
+	)
+
+	t.Run(
+		"Name",
+		func(t *testing.T) {
+			var s = New(&Config{
+				Name: "test",
+			})
+			require.Equal(t, "test", s.Name())
+		},
+	)
+
+	t.Run(
+		"SetLogger",
+		func(t *testing.T) {
+			reset()
+			Init(DefaultConfig())
+
+			var l = nlogger.New(os.Stdout, "")
+
+			SetLogger(l)
+
+			var c = instance()
+
+			require.True(t, c.cfg.Logger == l)
+		},
+	)
 }
 
 func TestRegisterLoaderHooks(t *testing.T) {
