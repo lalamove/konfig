@@ -70,14 +70,15 @@ func TestSingleton(t *testing.T) {
 
 func TestConfigWatcherLoader(t *testing.T) {
 	var testCases = []struct {
-		name     string
-		setUp    func(ctrl *gomock.Controller)
-		asserts  func(t *testing.T)
-		loadErr  bool
-		watchErr bool
+		name       string
+		setUp      func(ctrl *gomock.Controller)
+		asserts    func(t *testing.T)
+		strictKeys []string
+		loadErr    bool
+		watchErr   bool
 	}{
 		{
-			name: "OneLoaderNoWatcher",
+			name: "OneLoaderStrictKeysNoWatcher",
 			setUp: func(ctrl *gomock.Controller) {
 				RegisterLoader(
 					&DummyLoader{
@@ -96,6 +97,55 @@ func TestConfigWatcherLoader(t *testing.T) {
 			asserts: func(t *testing.T) {
 				require.Equal(t, "bar", MustString("foo"))
 			},
+			strictKeys: []string{
+				"foo",
+			},
+		},
+		{
+			name:    "OneLoaderStrictKeysErrNoWatcher",
+			loadErr: true,
+			setUp: func(ctrl *gomock.Controller) {
+				RegisterLoader(
+					&DummyLoader{
+						[][2]string{
+							[2]string{
+								"foo", "bar",
+							},
+						},
+						1,
+						3 * time.Second,
+						false,
+						false,
+					},
+				)
+			},
+			asserts: func(t *testing.T) {
+				require.Equal(t, "bar", MustString("foo"))
+			},
+			strictKeys: []string{
+				"bar",
+			},
+		},
+		{
+			name: "OneLoaderNoWatcherOneError",
+			setUp: func(ctrl *gomock.Controller) {
+
+				// set our expectations
+				var l = NewMockLoader(ctrl)
+
+				l.EXPECT().MaxRetry().MinTimes(1).Return(2)
+				l.EXPECT().RetryDelay().MinTimes(1).Return(1 * time.Millisecond)
+
+				gomock.InOrder(
+					l.EXPECT().Load(Values{}).Return(errors.New("")),
+					l.EXPECT().Load(Values{}).Return(nil),
+				)
+
+				RegisterLoader(
+					l,
+				)
+			},
+			asserts: func(t *testing.T) {},
 		},
 		{
 			name: "OneLoaderNoWatcherOneError",
@@ -314,18 +364,28 @@ func TestConfigWatcherLoader(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
+			// init the test
 			reset()
 			Init(DefaultConfig())
 			var c = instance()
 			c.cfg.NoExitOnError = true
+
+			// setup the test
 			var ctrl = gomock.NewController(t)
 			defer ctrl.Finish()
 			testCase.setUp(ctrl)
+
+			if testCase.strictKeys != nil {
+				c.Strict(testCase.strictKeys...)
+			}
+
+			// run the test
 			var err = Load()
 			if testCase.loadErr {
 				require.NotNil(t, err, "there should be an error")
 				return
 			}
+
 			require.Nil(t, err, "there should be no error")
 			err = Watch()
 			if testCase.watchErr {

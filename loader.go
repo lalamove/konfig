@@ -74,6 +74,14 @@ func (c *store) Load() error {
 			return err
 		}
 	}
+
+	// now that we've loaded everything, let's check strict keys
+	if err := c.checkStrictKeys(); err != nil {
+		c.cfg.Logger.Error("Error while checking strict keys: " + err.Error())
+		return err
+	}
+	c.loaded = true
+
 	return nil
 }
 
@@ -131,6 +139,15 @@ func (c *store) loaderLoadRetry(wl *loaderWatcher, retry int) error {
 	// we add the values to the store
 	v.load(wl.values, c)
 	wl.values = v
+
+	// if we have strict keys setup on the store and we have already loaded configs
+	// we check those keys now, if they are not present, we will return the error.
+	if c.strictKeys != nil && c.loaded {
+		if err := c.checkStrictKeys(); err != nil {
+			c.cfg.Logger.Error("Error while checking strict keys: " + err.Error())
+			return err
+		}
+	}
 
 	// we run the hooks
 	if wl.loaderHooks != nil {
