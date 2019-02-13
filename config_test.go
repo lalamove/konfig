@@ -461,6 +461,84 @@ func TestRegisterLoaderHooks(t *testing.T) {
 	require.Equal(t, 1, len(c.WatcherLoaders[0].loaderHooks))
 }
 
+func TestRunHooks(t *testing.T) {
+	t.Run(
+		"no error multiple hooks",
+		func(t *testing.T) {
+			var ctrl = gomock.NewController(t)
+			defer ctrl.Finish()
+			reset()
+			Init(DefaultConfig())
+
+			var ran = [3]bool{}
+			RegisterLoader(
+				NewMockLoader(ctrl),
+				func(Store) error {
+					ran[0] = true
+					return nil
+				},
+			)
+			RegisterLoader(
+				NewMockLoader(ctrl),
+				func(Store) error {
+					ran[1] = true
+					return nil
+				},
+			)
+			RegisterLoader(
+				NewMockLoader(ctrl),
+				func(Store) error {
+					ran[2] = true
+					return nil
+				},
+			)
+
+			require.Nil(t, RunHooks())
+			require.True(t, ran[0])
+			require.True(t, ran[1])
+			require.True(t, ran[2])
+		},
+	)
+
+	t.Run(
+		"with error multiple hooks",
+		func(t *testing.T) {
+			var ctrl = gomock.NewController(t)
+			defer ctrl.Finish()
+			reset()
+			Init(DefaultConfig())
+
+			var ran = [3]bool{}
+			RegisterLoader(
+				NewMockLoader(ctrl),
+				func(Store) error {
+					ran[0] = true
+					return nil
+				},
+			)
+			RegisterLoader(
+				NewMockLoader(ctrl),
+				func(Store) error {
+					ran[1] = true
+					return errors.New("err")
+				},
+			)
+			RegisterLoader(
+				NewMockLoader(ctrl),
+				func(Store) error {
+					ran[2] = true
+					return nil
+				},
+			)
+
+			require.NotNil(t, RunHooks())
+			require.True(t, ran[0])
+			require.True(t, ran[1])
+			require.False(t, ran[2])
+		},
+	)
+}
+
 type TestCloser struct {
 	err    error
 	closed bool

@@ -80,6 +80,8 @@ type Store interface {
 	// Strict specifies mandatory keys on the konfig. When Strict is called, konfig will check that the specified keys are present, else it will return a non nil error.
 	// Then, after every following `Load` of a loader, it will check if the strict keys are still present in the konfig and consider the load a failure if a key is not present anymore.
 	Strict(...string) Store
+	// RunHooks runs all hooks and child groups hooks
+	RunHooks() error
 
 	// Load loads all loaders registered in the store. If it faisl it returns a non nil error
 	Load() error
@@ -259,6 +261,32 @@ func (c *store) checkStrictKeys() error {
 			return fmt.Errorf(ErrStrictKeyNotFoundMsg, k)
 		}
 	}
+	return nil
+}
+
+// RunHooks runs all hooks and child groups hooks
+func RunHooks() error {
+	return instance().RunHooks()
+}
+func (c *store) RunHooks() error {
+	// run all hooks
+	for _, wl := range c.WatcherLoaders {
+		if wl.loaderHooks != nil {
+			if err := wl.loaderHooks.Run(c); err != nil {
+				return err
+			}
+		}
+	}
+
+	// run hooks on chil groups
+	if c.groups != nil {
+		for _, gr := range c.groups {
+			if err := gr.RunHooks(); err != nil {
+				return err
+			}
+		}
+	}
+
 	return nil
 }
 
