@@ -445,6 +445,24 @@ MustStringMapString(k string) map[string]string
 StringMapString(k string) map[string]string 
 ```
 
+# Strict Keys
+You can define required keys on the `konfig.Store` by calling the `Strict` method. When calling strict method, konfig will set required keys on the store and during the first `Load` call on the store it will check if the keys are present, if not, Load will return a non nil error. Then, after every `Load` on a loader, konfig will check again if the keys are still present, if not, the loader Load will be considered a failure.
+
+Usage:
+```
+// We init the root konfig store
+konfig.Init(konfig.DefaultConfig()).Strict("debug", "username")
+
+// Register our loaders
+...
+
+// We load our config and start watching.
+// If strict keys are not found after the load operation, LoadWatch will return a non nil error. 
+if err := konfig.LoadWatch(); err != nil {
+    log.Fatal(err)
+}
+```
+
 # Getter
 To easily build services which can use dynamically loaded configs you can create getters for specific keys. A getter implements `ngetter.GetterTyped` from [nui](github.com/lalamove/nui) package. It is useful when building apps in larger distributed environments.
 
