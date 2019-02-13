@@ -87,8 +87,8 @@ func TestLoaderLoadRetry(t *testing.T) {
 				var mockL = NewMockLoader(ctrl)
 				gomock.InOrder(
 					mockL.EXPECT().Load(Values{}).Return(errors.New("")),
-					mockL.EXPECT().RetryDelay().Return(1*time.Millisecond),
 					mockL.EXPECT().MaxRetry().Return(1),
+					mockL.EXPECT().RetryDelay().Return(1*time.Millisecond),
 					mockL.EXPECT().Load(Values{}).Return(nil),
 				)
 				var wl = &loaderWatcher{
@@ -107,10 +107,9 @@ func TestLoaderLoadRetry(t *testing.T) {
 				var mockL = NewMockLoader(ctrl)
 				gomock.InOrder(
 					mockL.EXPECT().Load(Values{}).Return(errors.New("")),
-					mockL.EXPECT().RetryDelay().Return(1*time.Millisecond),
 					mockL.EXPECT().MaxRetry().Return(1),
-					mockL.EXPECT().Load(Values{}).Return(errors.New("")),
 					mockL.EXPECT().RetryDelay().Return(1*time.Millisecond),
+					mockL.EXPECT().Load(Values{}).Return(errors.New("")),
 					mockL.EXPECT().MaxRetry().Return(1),
 				)
 				var wl = &loaderWatcher{
@@ -128,8 +127,8 @@ func TestLoaderLoadRetry(t *testing.T) {
 				var mockL = NewMockLoader(ctrl)
 				gomock.InOrder(
 					mockL.EXPECT().Load(Values{}).Return(errors.New("")),
-					mockL.EXPECT().RetryDelay().Return(1*time.Millisecond),
 					mockL.EXPECT().MaxRetry().Return(1),
+					mockL.EXPECT().RetryDelay().Return(1*time.Millisecond),
 					mockL.EXPECT().Load(Values{}).Return(nil),
 				)
 				var wl = &loaderWatcher{
@@ -155,8 +154,8 @@ func TestLoaderLoadRetry(t *testing.T) {
 				var mockL = NewMockLoader(ctrl)
 				gomock.InOrder(
 					mockL.EXPECT().Load(Values{}).Return(errors.New("")),
-					mockL.EXPECT().RetryDelay().Return(1*time.Millisecond),
 					mockL.EXPECT().MaxRetry().Return(1),
+					mockL.EXPECT().RetryDelay().Return(1*time.Millisecond),
 					mockL.EXPECT().Load(Values{}).Return(nil),
 				)
 				var wl = &loaderWatcher{
@@ -233,7 +232,7 @@ func TestLoaderLoadWatch(t *testing.T) {
 				mockL.EXPECT().Name().MinTimes(1).Return("test")
 				mockL.EXPECT().Load(Values{}).Times(4).Return(errors.New(""))
 				mockL.EXPECT().MaxRetry().Times(4).Return(3)
-				mockL.EXPECT().RetryDelay().Times(4).Return(50 * time.Millisecond)
+				mockL.EXPECT().RetryDelay().Times(3).Return(50 * time.Millisecond)
 				mockL.EXPECT().StopOnFailure().Return(true)
 				mockW.EXPECT().Close().MinTimes(1).Return(nil)
 
