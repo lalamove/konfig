@@ -198,7 +198,9 @@ func New(cfg *Config) Store {
 // SetLogger sets the logger used in the global store
 func SetLogger(l nlogger.Logger) {
 	var c = instance()
+	c.mut.Lock()
 	c.cfg.Logger = l
+	c.mut.Unlock()
 }
 
 func (c *store) Name() string {
@@ -266,12 +268,17 @@ func (c *store) checkStrictKeys() error {
 
 // RunHooks runs all hooks and child groups hooks
 func RunHooks() error {
+
+	fmt.Println("running hooks here")
 	return instance().RunHooks()
 }
 func (c *store) RunHooks() error {
+
+	fmt.Println("running hooks here")
 	// run all hooks
 	for _, wl := range c.WatcherLoaders {
 		if wl.loaderHooks != nil {
+			fmt.Println("running hooks")
 			if err := wl.loaderHooks.Run(c); err != nil {
 				return err
 			}
