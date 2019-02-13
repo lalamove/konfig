@@ -182,5 +182,5 @@ func (f *Loader) StopOnFailure() bool {
 }
 
 func defaultLogger() nlogger.Logger {
-	return nlogger.New(os.Stdout, "FILWATCHER | ")
+	return nlogger.New(os.Stdout, "FILEWATCHER | ")
 }
