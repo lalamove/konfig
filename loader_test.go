@@ -196,6 +196,59 @@ func TestLoaderLoadRetry(t *testing.T) {
 	}
 }
 
+func TestLoaderLoadRetryStrictKeys(t *testing.T) {
+	var ctrl = gomock.NewController(t)
+	defer ctrl.Finish()
+
+	reset()
+	var c = instance()
+	c.loaded = true
+	c.Strict("test")
+	c.cfg.NoExitOnError = true
+
+	var mockW = NewMockWatcher(ctrl)
+	var mockL = NewMockLoader(ctrl)
+
+	gomock.InOrder(
+		mockL.EXPECT().Load(Values{}).Do(func(v Values) {
+			v["test"] = "test"
+		}).Return(errors.New("")),
+		mockL.EXPECT().MaxRetry().Return(1),
+		mockL.EXPECT().RetryDelay().Return(1*time.Millisecond),
+		mockL.EXPECT().Load(Values{}).Do(func(v Values) {
+			v["test"] = "test"
+		}).Return(nil),
+
+		mockL.EXPECT().Load(Values{}).Do(func(v Values) {
+			v["test"] = "test"
+		}).Return(errors.New("")),
+		mockL.EXPECT().MaxRetry().Return(1),
+		mockL.EXPECT().RetryDelay().Return(1*time.Millisecond),
+		mockL.EXPECT().Load(Values{}).Do(func(v Values) {
+			v["test2"] = "test"
+		}).Return(nil),
+	)
+
+	var wl = &loaderWatcher{
+		Watcher: mockW,
+		Loader:  mockL,
+		loaderHooks: LoaderHooks{
+			func(Store) error {
+				return nil
+			},
+			func(Store) error {
+				return nil
+			},
+		},
+	}
+
+	var err = c.loaderLoadRetry(wl, 0)
+	require.Nil(t, err, "err should be nil")
+
+	err = c.loaderLoadRetry(wl, 0)
+	require.NotNil(t, err, "err should not be nil")
+}
+
 func TestLoaderLoadWatch(t *testing.T) {
 	var testCases = []struct {
 		name  string

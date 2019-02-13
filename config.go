@@ -2,6 +2,7 @@ package konfig
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"sync"
@@ -22,7 +23,9 @@ var (
 	// ErrLoaderNotFound is the error thrown when the loader with the given name cannot be found in the config store
 	ErrLoaderNotFound = errors.New("Err loader not found")
 	// ErrConfigNotFoundMsg is the error message thrown when a config key is not set
-	ErrConfigNotFoundMsg = "Err config %s not found"
+	ErrConfigNotFoundMsg = "Err config '%s' not found"
+	// ErrStrictKeyNotFoundMsg is the error returned when a strict key is not found in the konfig store
+	ErrStrictKeyNotFoundMsg = "Err strict key '%s' not found"
 )
 
 const (
@@ -74,6 +77,9 @@ type Store interface {
 	RegisterLoaderWatcher(lw LoaderWatcher, loaderHooks ...func(Store) error) *ConfigLoader
 	// RegisterCloser registers an io.Closer in the store. A closer closes when konfig fails to load configs.
 	RegisterCloser(closer io.Closer) Store
+	// Strict specifies mandatory keys on the konfig. When Strict is called, konfig will check that the specified keys are present, else it will return a non nil error.
+	// Then, after every following `Load` of a loader, it will check if the strict keys are still present in the konfig and consider the load a failure if a key is not present anymore.
+	Strict(...string) Store
 
 	// Load loads all loaders registered in the store. If it faisl it returns a non nil error
 	Load() error
@@ -157,13 +163,15 @@ type Store interface {
 
 // store is the concrete implementation of the Store
 type store struct {
-	name    string
-	cfg     *Config
-	m       *atomic.Value
-	mut     *sync.Mutex
-	groups  map[string]*store
-	v       *value
-	metrics map[string]prometheus.Collector
+	name       string
+	cfg        *Config
+	m          *atomic.Value
+	mut        *sync.Mutex
+	groups     map[string]*store
+	v          *value
+	metrics    map[string]prometheus.Collector
+	strictKeys []string
+	loaded     bool
 
 	WatcherLoaders []*loaderWatcher
 	WatcherClosers Closers
@@ -234,6 +242,24 @@ func RegisterCloser(closer io.Closer) Store {
 func (c *store) RegisterCloser(closer io.Closer) Store {
 	c.Closers = append(c.Closers, closer)
 	return c
+}
+
+// Strict specifies mandatory keys on the konfig. After strict is called, konfig will wait for the first config Load to happen and will check if the
+// specified strict keys are present, if not, Load will return a non nil error. Then, after every following `Load` of a loader, it will check if the strict keys are still present in the konfig and consider the load a failure if a key is not present anymore.
+func Strict(keys ...string) Store {
+	return instance().Strict(keys...)
+}
+func (c *store) Strict(keys ...string) Store {
+	c.strictKeys = keys
+	return c
+}
+func (c *store) checkStrictKeys() error {
+	for _, k := range c.strictKeys {
+		if !c.Exists(k) {
+			return fmt.Errorf(ErrStrictKeyNotFoundMsg, k)
+		}
+	}
+	return nil
 }
 
 // Instance returns the singleton global config store
