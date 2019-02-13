@@ -234,6 +234,7 @@ func TestLoaderLoadWatch(t *testing.T) {
 				mockL.EXPECT().Load(Values{}).Times(4).Return(errors.New(""))
 				mockL.EXPECT().MaxRetry().Times(4).Return(3)
 				mockL.EXPECT().RetryDelay().Times(4).Return(50 * time.Millisecond)
+				mockL.EXPECT().StopOnFailure().Return(true)
 				mockW.EXPECT().Close().MinTimes(1).Return(nil)
 
 				var wl = &loaderWatcher{

@@ -64,7 +64,14 @@ func (c *store) Load() error {
 	for _, l := range c.WatcherLoaders {
 		// we load the loader once, then we start the reload worker with the watcher
 		if err := c.loaderLoadRetry(l, 0); err != nil {
-			c.stop()
+
+			c.cfg.Logger.Error(err.Error())
+			// if loader says we should stop in failure, stop the world
+			// else just return the error
+			if l.StopOnFailure() {
+				c.stop()
+			}
+
 			return err
 		}
 	}
