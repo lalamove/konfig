@@ -133,6 +133,7 @@ func TestConfigWatcherLoader(t *testing.T) {
 					l.EXPECT().Load(Values{}).Return(errors.New("")),
 					l.EXPECT().Load(Values{}).Return(errors.New("")),
 					l.EXPECT().Load(Values{}).Return(errors.New("")),
+					l.EXPECT().StopOnFailure().Return(false),
 				)
 
 				RegisterLoader(
