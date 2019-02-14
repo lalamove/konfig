@@ -118,11 +118,6 @@ func (fw *FileWatcher) Err() error {
 	return fw.err
 }
 
-<<<<<<< HEAD
-func defaultLogger() nlogger.Logger {
-	return nlogger.New(os.Stdout, "FILEWATCHER | ")
-=======
 func defaultLogger() nlogger.Provider {
-	return nlogger.NewProvider(nlogger.New(os.Stdout, "FILWATCHER | "))
->>>>>>> change logger to use nlogger.Provider across the project
+	return nlogger.NewProvider(nlogger.New(os.Stdout, "FILEWATCHER | "))
 }
