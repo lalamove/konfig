@@ -119,5 +119,5 @@ func (fw *FileWatcher) Err() error {
 }
 
 func defaultLogger() nlogger.Logger {
-	return nlogger.New(os.Stdout, "FILWATCHER | ")
+	return nlogger.New(os.Stdout, "FILEWATCHER | ")
 }
