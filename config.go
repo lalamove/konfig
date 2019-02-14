@@ -45,7 +45,7 @@ func (e ErrMissingConfig) Error() string {
 func DefaultConfig() *Config {
 	return &Config{
 		ExitCode: 1,
-		Logger:   nlogger.New(os.Stdout, "CONFIG | "),
+		Logger:   nlogger.NewProvider(nlogger.New(os.Stdout, "CONFIG | ")),
 		Name:     defaultName,
 	}
 }
@@ -62,7 +62,7 @@ type Config struct {
 	// when a Loader fails to load or a Loader Hook fails. If true, nothing happens when a Loader fails.
 	NoStopOnFailure bool
 	// Logger is the logger used internally
-	Logger nlogger.Logger
+	Logger nlogger.Provider
 	// Metrics sets whether a konfig.Store should record metrics for config loaders
 	Metrics bool
 }
@@ -71,6 +71,9 @@ type Config struct {
 type Store interface {
 	// Name returns the name of the store
 	Name() string
+	// SetLogger sets the logger within the store
+	// it will propagate to all children groups
+	SetLogger(l nlogger.Logger)
 	// RegisterLoader registers a Loader in the store and adds the given loader hooks.
 	RegisterLoader(l Loader, loaderHooks ...func(Store) error) *ConfigLoader
 	// RegisterLoaderWatcher reigsters a LoaderWatcher in the store and adds the given loader hooks.
@@ -197,10 +200,10 @@ func New(cfg *Config) Store {
 
 // SetLogger sets the logger used in the global store
 func SetLogger(l nlogger.Logger) {
-	var c = instance()
-	c.mut.Lock()
-	c.cfg.Logger = l
-	c.mut.Unlock()
+	instance().SetLogger(l)
+}
+func (c *store) SetLogger(l nlogger.Logger) {
+	c.cfg.Logger.Replace(l)
 }
 
 func (c *store) Name() string {
@@ -303,11 +306,11 @@ func Instance() Store {
 // Stop stops the config store
 func (c *store) stop() {
 	if err := c.WatcherClosers.Close(); err != nil {
-		c.cfg.Logger.Error(err.Error())
+		c.cfg.Logger.Get().Error(err.Error())
 	}
 
 	if err := c.Closers.Close(); err != nil {
-		c.cfg.Logger.Error(err.Error())
+		c.cfg.Logger.Get().Error(err.Error())
 	}
 
 	// exit on error unless specified
@@ -331,6 +334,7 @@ func reset() {
 }
 
 func newStore(cfg *Config) *store {
+	// check if logger exists, else set default logger
 	if cfg.Logger == nil {
 		cfg.Logger = defaultLogger()
 	}
@@ -362,6 +366,6 @@ func newStore(cfg *Config) *store {
 	return s
 }
 
-func defaultLogger() nlogger.Logger {
-	return nlogger.New(os.Stdout, "CONFIG | ")
+func defaultLogger() nlogger.Provider {
+	return nlogger.NewProvider(nlogger.New(os.Stdout, "CONFIG | "))
 }

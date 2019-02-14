@@ -49,7 +49,7 @@ type Config struct {
 	// Debug sets the debug mode on the file loader
 	Debug bool
 	// Logger is the logger used to print messages
-	Logger nlogger.Logger
+	Logger nlogger.Provider
 	// Watch sets whether the fileloader should also watch be a konfig.Watcher
 	Watch bool
 	// Rate is the kwfile polling rate
@@ -181,6 +181,6 @@ func (f *Loader) StopOnFailure() bool {
 	return f.cfg.StopOnFailure
 }
 
-func defaultLogger() nlogger.Logger {
-	return nlogger.New(os.Stdout, "FILEWATCHER | ")
+func defaultLogger() nlogger.Provider {
+	return nlogger.NewProvider(nlogger.New(os.Stdout, "FILEWATCHER | "))
 }

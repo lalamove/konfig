@@ -44,7 +44,7 @@ type Config struct {
 	// Debug sets the debug mode
 	Debug bool
 	// Logger is the logger used to log debug messages
-	Logger nlogger.Logger
+	Logger nlogger.Provider
 	// Diff tells wether we should check for diffs
 	// If diff is set, a Getter is required
 	Diff bool
@@ -95,7 +95,7 @@ func (t *PollWatcher) Start() error {
 	}
 
 	if t.cfg.Debug {
-		t.cfg.Logger.Debug(
+		t.cfg.Logger.Get().Debug(
 			fmt.Sprintf(
 				"Starting ticker watcher with rate: %dms",
 				t.cfg.Rater.Time()/time.Millisecond,
@@ -119,7 +119,7 @@ func (t *PollWatcher) Err() error {
 func (t *PollWatcher) watch() {
 	var rate = t.cfg.Rater.Time()
 
-	t.cfg.Logger.Debug(
+	t.cfg.Logger.Get().Debug(
 		fmt.Sprintf(
 			"Waiting rater duration: %dms",
 			rate/time.Millisecond,
@@ -132,10 +132,10 @@ func (t *PollWatcher) watch() {
 		case <-t.done:
 		default:
 			if t.cfg.Debug {
-				t.cfg.Logger.Debug("Tick")
+				t.cfg.Logger.Get().Debug("Tick")
 			}
 			if t.cfg.Diff {
-				t.cfg.Logger.Debug(
+				t.cfg.Logger.Get().Debug(
 					"Checking difference",
 				)
 
@@ -143,26 +143,26 @@ func (t *PollWatcher) watch() {
 				var err = t.cfg.Loader.Load(v)
 				// We got error, we close
 				if err != nil {
-					t.cfg.Logger.Error(err.Error())
+					t.cfg.Logger.Get().Error(err.Error())
 					t.err = err
 					t.Close()
 					return
 				}
 				if !t.valuesEqual(v) {
 					if t.cfg.Debug {
-						t.cfg.Logger.Debug(
+						t.cfg.Logger.Get().Debug(
 							"Value is different: " + spew.Sdump(t.pv, v) + "\n",
 						)
 					}
 					t.watchChan <- struct{}{}
 					t.pv = v
 				} else {
-					t.cfg.Logger.Debug(
+					t.cfg.Logger.Get().Debug(
 						"Values are the same, not updating",
 					)
 				}
 			} else {
-				t.cfg.Logger.Debug(
+				t.cfg.Logger.Get().Debug(
 					"Sending watch event",
 				)
 				t.watchChan <- struct{}{}
@@ -201,8 +201,8 @@ func (t *PollWatcher) valuesEqual(v konfig.Values) bool {
 	return true
 }
 
-func defaultLogger() nlogger.Logger {
-	return nlogger.New(os.Stdout, "POLLWATCHER | ")
+func defaultLogger() nlogger.Provider {
+	return nlogger.NewProvider(nlogger.New(os.Stdout, "POLLWATCHER | "))
 }
 
 func defaultRater() Rater {

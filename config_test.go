@@ -437,7 +437,7 @@ func TestStoreMisc(t *testing.T) {
 
 			var c = instance()
 
-			require.True(t, c.cfg.Logger == l)
+			require.True(t, c.cfg.Logger.Get().(nlogger.Logger) == l)
 		},
 	)
 }

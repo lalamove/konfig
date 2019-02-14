@@ -64,7 +64,7 @@ type Config struct {
 	// Debug enables debug mode
 	Debug bool
 	// Logger is the logger used for debug logs
-	Logger nlogger.Logger
+	Logger nlogger.Provider
 	// Renew sets wether the vault loader should renew it self
 	Renew bool
 }
@@ -135,7 +135,7 @@ func (vl *Loader) RetryDelay() time.Duration {
 // Then it loads the secret and assigns it values to the konfig.Store.
 func (vl *Loader) Load(cs konfig.Values) error {
 	if vl.cfg.Debug {
-		vl.cfg.Logger.Debug(
+		vl.cfg.Logger.Get().Debug(
 			"Loading vault config",
 		)
 	}
@@ -143,7 +143,7 @@ func (vl *Loader) Load(cs konfig.Values) error {
 	// maybe we could improve implementation to use a shorter ticker and check if config if different, if yes, reload it
 	var token, ttl, err = vl.cfg.AuthProvider.Token()
 	if err != nil {
-		vl.cfg.Logger.Error(err.Error())
+		vl.cfg.Logger.Get().Error(err.Error())
 
 		return err
 	}
@@ -160,7 +160,7 @@ func (vl *Loader) Load(cs konfig.Values) error {
 		}
 
 		if vl.cfg.Debug {
-			vl.cfg.Logger.Debug(
+			vl.cfg.Logger.Get().Debug(
 				fmt.Sprintf("Got secret, expiring in: %d", s.LeaseDuration),
 			)
 		}
@@ -210,6 +210,6 @@ func (vl *Loader) resetTTL(tokenTTL, secretTTL time.Duration) {
 	vl.mut.Unlock()
 }
 
-func defaultLogger() nlogger.Logger {
-	return nlogger.New(os.Stdout, "VAULT CONFIG | ")
+func defaultLogger() nlogger.Provider {
+	return nlogger.NewProvider(nlogger.New(os.Stdout, "VAULT CONFIG | "))
 }

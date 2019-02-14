@@ -22,7 +22,7 @@ type Config struct {
 	// Debug sets the debug mode on the filewatcher
 	Debug bool
 	// Logger is the logger used to print messages
-	Logger nlogger.Logger
+	Logger nlogger.Provider
 }
 
 // FileWatcher watches over a file given in the config
@@ -45,7 +45,7 @@ func New(cfg *Config) *FileWatcher {
 	var w = watcher.New()
 
 	for _, file := range cfg.Files {
-		cfg.Logger.Info("adding file to watch: " + file)
+		cfg.Logger.Get().Info("adding file to watch: " + file)
 		if err := w.Add(file); err != nil {
 			panic(err)
 		}
@@ -68,7 +68,7 @@ func (fw *FileWatcher) Start() error {
 	go fw.watch()
 	go func() error {
 		if err := fw.w.Start(fw.cfg.Rate); err != nil {
-			fw.cfg.Logger.Error(err.Error())
+			fw.cfg.Logger.Get().Error(err.Error())
 			return err
 		}
 		return nil
@@ -88,7 +88,7 @@ func (fw *FileWatcher) watch() {
 		// log if debug mode
 		case e := <-fw.w.Event:
 			if fw.cfg.Debug {
-				fw.cfg.Logger.Debug(fmt.Sprintf(
+				fw.cfg.Logger.Get().Debug(fmt.Sprintf(
 					"Event received %v",
 					e,
 				))
@@ -96,7 +96,7 @@ func (fw *FileWatcher) watch() {
 			fw.watchChan <- struct{}{}
 		case err := <-fw.w.Error:
 			// log error
-			fw.cfg.Logger.Error(err.Error())
+			fw.cfg.Logger.Get().Error(err.Error())
 			fw.err = err
 			fw.Close()
 			return
@@ -118,6 +118,11 @@ func (fw *FileWatcher) Err() error {
 	return fw.err
 }
 
+<<<<<<< HEAD
 func defaultLogger() nlogger.Logger {
 	return nlogger.New(os.Stdout, "FILEWATCHER | ")
+=======
+func defaultLogger() nlogger.Provider {
+	return nlogger.NewProvider(nlogger.New(os.Stdout, "FILWATCHER | "))
+>>>>>>> change logger to use nlogger.Provider across the project
 }
