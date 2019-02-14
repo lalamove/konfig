@@ -67,7 +67,7 @@ type Config struct {
 	// Debug sets debug mode on the consulloader
 	Debug bool
 	// Logger is used across this package to produce logs
-	Logger nlogger.Logger
+	Logger nlogger.Provider
 	// StrictMode will raise error if key was not found
 	// In false state, konfig will try to reload desired key(s)
 	// up until they are not found
@@ -111,7 +111,7 @@ func New(cfg *Config) *Loader {
 		// we don't want to kill the process if there is an error
 		// in the config
 		if err := l.Load(v); err != nil {
-			cfg.Logger.Error(fmt.Sprintf("Can't read provided config: %v", err))
+			cfg.Logger.Get().Error(fmt.Sprintf("Can't read provided config: %v", err))
 		}
 
 		l.PollWatcher = kwpoll.New(&kwpoll.Config{
@@ -141,7 +141,7 @@ func (l *Loader) Load(s konfig.Values) error {
 		if kp == nil && l.cfg.StrictMode {
 			return fmt.Errorf("provided key \"%v\" was not found", k.Key)
 		} else if kp == nil {
-			l.cfg.Logger.Warn(fmt.Sprintf("provided key \"%v\" was not found", k.Key))
+			l.cfg.Logger.Get().Warn(fmt.Sprintf("provided key \"%v\" was not found", k.Key))
 			return nil
 		}
 
@@ -185,6 +185,6 @@ func (l *Loader) keyValue(k string) (pair *api.KVPair, qm *api.QueryMeta, err er
 	return l.cfg.kvClient.Get(k, nil)
 }
 
-func defaultLogger() nlogger.Logger {
-	return nlogger.New(os.Stdout, "CONSULLOADER | ")
+func defaultLogger() nlogger.Provider {
+	return nlogger.NewProvider(nlogger.New(os.Stdout, "CONSULLOADER | "))
 }

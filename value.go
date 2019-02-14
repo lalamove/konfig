@@ -238,7 +238,7 @@ func (val *value) setStruct(k string, v interface{}, targetValue interface{}) bo
 	}
 
 	if !set {
-		val.s.cfg.Logger.Debug(
+		val.s.cfg.Logger.Get().Debug(
 			fmt.Sprintf(
 				"Config key %s not found in bound value",
 				k,

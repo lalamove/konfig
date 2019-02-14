@@ -77,7 +77,7 @@ func (c *store) Load() error {
 
 	// now that we've loaded everything, let's check strict keys
 	if err := c.checkStrictKeys(); err != nil {
-		c.cfg.Logger.Error("Error while checking strict keys: " + err.Error())
+		c.cfg.Logger.Get().Error("Error while checking strict keys: " + err.Error())
 		return err
 	}
 	c.loaded = true
@@ -126,7 +126,7 @@ func (c *store) loaderLoadRetry(wl *loaderWatcher, retry int) error {
 	if err := wl.Load(v); err != nil {
 
 		if retry >= wl.MaxRetry() {
-			c.cfg.Logger.Error(err.Error())
+			c.cfg.Logger.Get().Error(err.Error())
 			return err
 		}
 
@@ -144,7 +144,7 @@ func (c *store) loaderLoadRetry(wl *loaderWatcher, retry int) error {
 	// we check those keys now, if they are not present, we will return the error.
 	if c.strictKeys != nil && c.loaded {
 		if err := c.checkStrictKeys(); err != nil {
-			c.cfg.Logger.Error("Error while checking strict keys: " + err.Error())
+			c.cfg.Logger.Get().Error("Error while checking strict keys: " + err.Error())
 			return err
 		}
 	}
@@ -153,7 +153,7 @@ func (c *store) loaderLoadRetry(wl *loaderWatcher, retry int) error {
 	if wl.loaderHooks != nil {
 		c.mut.Lock()
 		if err := wl.loaderHooks.Run(c); err != nil {
-			c.cfg.Logger.Error("Error while running loader hooks: " + err.Error())
+			c.cfg.Logger.Get().Error("Error while running loader hooks: " + err.Error())
 			c.mut.Unlock()
 			return err
 		}
@@ -167,7 +167,7 @@ func (c *store) watchLoader(wl *loaderWatcher) {
 	// if a panic occurs close everything
 	defer func() {
 		if r := recover(); r != nil {
-			c.cfg.Logger.Error(fmt.Sprintf("%v", r))
+			c.cfg.Logger.Get().Error(fmt.Sprintf("%v", r))
 			c.stop()
 			return
 		}
@@ -178,7 +178,7 @@ func (c *store) watchLoader(wl *loaderWatcher) {
 		select {
 		case <-wl.Done():
 			if err := wl.Err(); err != nil {
-				c.cfg.Logger.Error(err.Error())
+				c.cfg.Logger.Get().Error(err.Error())
 			}
 			// the watcher is closed
 			return
@@ -188,7 +188,7 @@ func (c *store) watchLoader(wl *loaderWatcher) {
 			select {
 			case <-wl.Done():
 				if err := wl.Err(); err != nil {
-					c.cfg.Logger.Error(err.Error())
+					c.cfg.Logger.Get().Error(err.Error())
 				}
 				return
 			default:
