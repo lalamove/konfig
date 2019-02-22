@@ -216,7 +216,7 @@ Watchers trigger a call on a Loader on events. A watcher is an implementation of
 type Watcher interface {
 	// Start starts the watcher, it must not be blocking.
 	Start() error
-	// Done indicate wether the watcher is done or not
+	// Done indicate whether the watcher is done or not
 	Done() <-chan struct{}
 	// Watch should block until an event unlocks it
 	Watch() <-chan struct{}
@@ -374,7 +374,7 @@ Note that you can compose your config sources. For example, have your credential
 When a Loader calls *konfig.Set()*, if the konfig store has a value bound to it, it will try to unmarshal the key to the bound value. 
 - First, it will look for field tags in the struct, if a tag matches exactly the key, it will unmarshal the key to the struct field.
 - Then, it will do a EqualFold on the field name and the key, if they match, it will unmarshal the key to the struct field.
-- Then, if the key has a dot, it will check if the tag or the field name (to lowercase) is a prefix of the key, if yes, it will check if the type of the field is a struct of pointer, if yes, it will check the struct using whats after the prefix as the key. 
+- Then, if the key has a dot, it will check if the tag or the field name (to lowercase) is a prefix of the key, if yes, it will check if the type of the field is a struct of pointer, if yes, it will check the struct using what's after the prefix as the key. 
 
 
 # Read from config
@@ -386,15 +386,15 @@ Every method to retrieve config values come in 2 flavours:
 
 All methods to read values from a Store:
 ```go
-// Exists checks wether the key k is set in the store.
+// Exists checks whether the key k is set in the store.
 Exists(k string) bool
 
-// Get gets the value with the key k fron the store. If the key is not set, Get returns nil. To check wether a value is really set, use Exists.
+// Get gets the value with the key k fron the store. If the key is not set, Get returns nil. To check whether a value is really set, use Exists.
 Get(k string) interface{}
 // MustGet tries to get the value with the key k from the store. If the key k does not exist in the store, MustGet panics.
 MustGet(k string) interface{}
 
-// MustString tries to get the value with the key k from the store and casts it to a string. If the key k does not exist in the store, MustGet panics.
+// MustString tries to get the value with the key k from the store and casts it to a string. If the key k does not exist in the store, MustString panics.
 MustString(k string) string
 // String tries to get the value with the key k from the store and casts it to a string. If the key k does not exist it returns the Zero value.
 String(k string) string
