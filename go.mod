@@ -21,7 +21,7 @@ require (
 	github.com/hashicorp/serf v0.8.2 // indirect
 	github.com/hashicorp/vault v1.0.1
 	github.com/jinzhu/copier v0.0.0-20180308034124-7e38e58719c3
-	github.com/lalamove/nui v0.0.2
+	github.com/lalamove/nui v0.0.4
 	github.com/mitchellh/go-homedir v1.0.0
 	github.com/mitchellh/mapstructure v1.1.2
 	github.com/pierrec/lz4 v0.0.0-20181005164709-635575b42742
