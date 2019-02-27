@@ -72,6 +72,8 @@ github.com/lalamove/nui v0.0.0-20190108033743-206d8659d444 h1:W6TG7IqV3wxq7XhaUL
 github.com/lalamove/nui v0.0.0-20190108033743-206d8659d444/go.mod h1:OopVZQOPFepLy2qh/ASzzQCcijBf6bNPO3369NtUGV8=
 github.com/lalamove/nui v0.0.2 h1:IRJtdO7Nozly61vVkfGUEklW7oJToIhqggX5YZLfkl4=
 github.com/lalamove/nui v0.0.2/go.mod h1:IMgw/td9JHjoU1dpHjGj6o1i7bSeG/UO1/DODuPdz+o=
+github.com/lalamove/nui v0.0.4 h1:Xi4UWfDefeWCdgLE3Y4TLm6Mnu7dSOM0XJULdYdYCN0=
+github.com/lalamove/nui v0.0.4/go.mod h1:IMgw/td9JHjoU1dpHjGj6o1i7bSeG/UO1/DODuPdz+o=
 github.com/mattn/go-colorable v0.0.9/go.mod h1:9vuHe8Xs5qXnSaW/c/ABM9alt+Vo+STaOChaDxuIBZU=
 github.com/mattn/go-isatty v0.0.3/go.mod h1:M+lRXTBqGeGNdLjl/ufCoiOlB5xdOkqRJdNxMWT7Zi4=
 github.com/matttproud/golang_protobuf_extensions v1.0.1 h1:4hp9jkHxhMHkqkrB3Ix0jegS5sx/RkqARlsWZ6pIwiU=
