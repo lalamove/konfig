@@ -18,9 +18,9 @@ type Watcher interface {
 }
 
 // NopWatcher is a nil watcher
-type NopWatcher struct {
-	Watcher
-}
+type NopWatcher struct{}
+
+var _ Watcher = NopWatcher{}
 
 // Done returns an already closed channel
 func (NopWatcher) Done() <-chan struct{} {
@@ -33,6 +33,16 @@ func (NopWatcher) Done() <-chan struct{} {
 func (NopWatcher) Watch() <-chan struct{} {
 	var c = make(chan struct{})
 	return c
+}
+
+// Close is a noop that returns nil
+func (NopWatcher) Close() error {
+	return nil
+}
+
+//Err returns nil, because nothing can go wrong when you do nothing
+func (NopWatcher) Err() error {
+	return nil
 }
 
 // Start implements watcher interface and always returns a nil error
