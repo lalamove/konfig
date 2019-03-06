@@ -35,4 +35,4 @@
 
 [[constraint]]
   name = "github.com/lalamove/nui"
-  version = "v0.0.4"
+  version = "~0.1.0"
