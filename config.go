@@ -73,7 +73,7 @@ type Store interface {
 	Name() string
 	// SetLogger sets the logger within the store
 	// it will propagate to all children groups
-	SetLogger(l nlogger.Logger)
+	SetLogger(l nlogger.Structured)
 	// RegisterLoader registers a Loader in the store and adds the given loader hooks.
 	RegisterLoader(l Loader, loaderHooks ...func(Store) error) *ConfigLoader
 	// RegisterLoaderWatcher reigsters a LoaderWatcher in the store and adds the given loader hooks.
@@ -199,10 +199,10 @@ func New(cfg *Config) Store {
 }
 
 // SetLogger sets the logger used in the global store
-func SetLogger(l nlogger.Logger) {
+func SetLogger(l nlogger.Structured) {
 	instance().SetLogger(l)
 }
-func (c *store) SetLogger(l nlogger.Logger) {
+func (c *store) SetLogger(l nlogger.Structured) {
 	c.cfg.Logger.Replace(l)
 }
 
