@@ -161,6 +161,7 @@ func (val *value) setValues(ox Values, x Values) {
 }
 
 func (val *value) setStruct(k string, v interface{}, targetValue interface{}) bool {
+
 	// is a struct, find matching tag
 	var valTypePtr = reflect.TypeOf(targetValue)
 	var valType = valTypePtr.Elem()
@@ -169,14 +170,14 @@ func (val *value) setStruct(k string, v interface{}, targetValue interface{}) bo
 	var set bool
 
 	for i := 0; i < valType.NumField(); i++ {
-		var fieldType = valType.Field(i)
-		var fieldName = fieldType.Name
-		var tag = fieldType.Tag.Get(TagKey)
+		var fieldValue = valType.Field(i)
+		var fieldName = fieldValue.Name
+		var tag = fieldValue.Tag.Get(TagKey)
 
 		// check tag, if it matches key
 		// assign v to field
 		if tag == k || strings.EqualFold(fieldName, k) {
-			var field = valValue.FieldByName(fieldType.Name)
+			var field = valValue.FieldByName(fieldValue.Name)
 			if field.CanSet() {
 				field.Set(reflect.ValueOf(castValue(field.Interface(), v)))
 			}
@@ -195,9 +196,42 @@ func (val *value) setStruct(k string, v interface{}, targetValue interface{}) bo
 				nK = k[len(fieldName+KeySep):]
 			}
 
-			switch fieldType.Type.Kind() {
+			switch fieldValue.Type.Kind() {
+			// is a map
+			case reflect.Map:
+				// if map key is a string and elem is a struct
+				if fieldValue.Type.Key().Kind() == reflect.String &&
+					fieldValue.Type.Elem().Kind() == reflect.Struct {
+					var field = valValue.FieldByName(fieldValue.Name)
+					var structType = fieldValue.Type.Elem()
+					var nVal = reflect.New(structType)
+					// cut the key until the next sep
+					var keyElt = strings.SplitN(nK, KeySep, 2)
+					if len(keyElt) == 2 {
+						var mapKey = keyElt[0]
+						// check if map is nil, if yes create new one
+						var mapVal = field
+						if mapVal.IsNil() {
+							mapVal = reflect.MakeMap(fieldValue.Type)
+							field.Set(mapVal)
+						}
+
+						var mapKeyVal = reflect.ValueOf(mapKey)
+						var ov = mapVal.MapIndex(mapKeyVal)
+
+						if ov.IsValid() {
+							copier.Copy(nVal.Interface(), ov.Interface())
+						}
+						// we set the field with the new struct
+						if ok := val.setStruct(keyElt[1], v, nVal.Interface()); ok {
+							mapVal.SetMapIndex(mapKeyVal, nVal.Elem())
+							set = true
+						}
+					}
+					continue
+				}
 			case reflect.Struct:
-				var field = valValue.FieldByName(fieldType.Name)
+				var field = valValue.FieldByName(fieldValue.Name)
 				// if field can be set
 				if field.CanSet() {
 					var structType = field.Type()
@@ -215,10 +249,10 @@ func (val *value) setStruct(k string, v interface{}, targetValue interface{}) bo
 					continue
 				}
 			case reflect.Ptr:
-				if fieldType.Type.Elem().Kind() == reflect.Struct {
-					var field = valValue.FieldByName(fieldType.Name)
+				if fieldValue.Type.Elem().Kind() == reflect.Struct {
+					var field = valValue.FieldByName(fieldValue.Name)
 					if field.CanSet() {
-						var nVal = reflect.New(fieldType.Type.Elem())
+						var nVal = reflect.New(fieldValue.Type.Elem())
 
 						// if field is not nil
 						// we copy it

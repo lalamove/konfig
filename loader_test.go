@@ -249,6 +249,104 @@ func TestLoaderLoadRetryStrictKeys(t *testing.T) {
 	require.NotNil(t, err, "err should not be nil")
 }
 
+func TestLoaderLoadRetryKeyHooks(t *testing.T) {
+	var ctrl = gomock.NewController(t)
+	defer ctrl.Finish()
+
+	reset()
+	var c = instance()
+	c.loaded = true
+	c.cfg.NoExitOnError = true
+
+	var ranTest int
+	RegisterKeyHook(
+		"test",
+		func(c Store) error {
+			ranTest++
+			return nil
+		},
+	)
+
+	var ranFoo int
+	RegisterKeyHook(
+		"foo",
+		func(c Store) error {
+			ranFoo++
+			return nil
+		},
+	)
+
+	var ranErr int
+	RegisterKeyHook(
+		"err.",
+		func(c Store) error {
+			ranErr++
+			return errors.New("")
+		},
+	)
+
+	var mockW = NewMockWatcher(ctrl)
+	var mockL = NewMockLoader(ctrl)
+
+	gomock.InOrder(
+		mockL.EXPECT().Load(Values{}).Do(func(v Values) {
+			v["test"] = "test"
+			v["foo"] = "bar"
+		}).Return(nil),
+		mockL.EXPECT().Load(Values{}).Do(func(v Values) {
+			v["test"] = "test"
+			v["foo"] = "bar"
+		}).Return(nil),
+		mockL.EXPECT().Load(Values{}).Do(func(v Values) {
+			v["test"] = "test"
+			v["test.foo"] = "foo"
+			v["foo"] = "bar"
+		}).Return(nil),
+		mockL.EXPECT().Load(Values{}).Do(func(v Values) {
+			v["test"] = "test"
+			v["test.foo"] = "foo"
+			v["foo"] = "barr"
+		}).Return(nil),
+		mockL.EXPECT().Load(Values{}).Do(func(v Values) {
+			v["test"] = "test"
+			v["test.foo"] = "foo"
+			v["err.test"] = ""
+		}).Return(nil),
+	)
+
+	var wl = &loaderWatcher{
+		Watcher: mockW,
+		Loader:  mockL,
+		loaderHooks: LoaderHooks{
+			func(Store) error {
+				return nil
+			},
+			func(Store) error {
+				return nil
+			},
+		},
+	}
+
+	var err = c.loaderLoadRetry(wl, 0)
+	require.Nil(t, err, "err should be nil")
+
+	err = c.loaderLoadRetry(wl, 0)
+	require.Nil(t, err, "err should not be nil")
+
+	err = c.loaderLoadRetry(wl, 0)
+	require.Nil(t, err, "err should not be nil")
+
+	err = c.loaderLoadRetry(wl, 0)
+	require.Nil(t, err, "err should not be nil")
+
+	err = c.loaderLoadRetry(wl, 0)
+	require.NotNil(t, err, "err should not be nil")
+
+	require.Equal(t, 2, ranTest)
+	require.Equal(t, 3, ranFoo)
+	require.Equal(t, 1, ranErr)
+}
+
 func TestLoaderLoadWatch(t *testing.T) {
 	var testCases = []struct {
 		name  string

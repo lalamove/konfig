@@ -137,7 +137,7 @@ func (c *store) loaderLoadRetry(wl *loaderWatcher, retry int) error {
 	}
 
 	// we add the values to the store
-	v.load(wl.values, c)
+	var updatedKeys = v.load(wl.values, c)
 	wl.values = v
 
 	// if we have strict keys setup on the store and we have already loaded configs
@@ -149,7 +149,12 @@ func (c *store) loaderLoadRetry(wl *loaderWatcher, retry int) error {
 		}
 	}
 
-	// we run the hooks
+	// run key hooks
+	if len(updatedKeys) != 0 && c.keyHooks != nil {
+		return c.keyHooks.runForKeys(updatedKeys, c)
+	}
+
+	// run the loader hooks
 	if wl.loaderHooks != nil {
 		c.mut.Lock()
 		if err := wl.loaderHooks.Run(c); err != nil {

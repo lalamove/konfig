@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
 
+	"github.com/lalamove/nui/ngetter"
 	"github.com/lalamove/nui/nlogger"
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -80,6 +82,10 @@ type Store interface {
 	RegisterLoaderWatcher(lw LoaderWatcher, loaderHooks ...func(Store) error) *ConfigLoader
 	// RegisterCloser registers an io.Closer in the store. A closer closes when konfig fails to load configs.
 	RegisterCloser(closer io.Closer) Store
+	// RegisterKeyHook adds a hook to be run when the key changes.
+	// If a key has the given key as path prefix, it runs the hook as well.
+	RegisterKeyHook(k string, h func(Store) error) Store
+
 	// Strict specifies mandatory keys on the konfig. When Strict is called, konfig will check that the specified keys are present, else it will return a non nil error.
 	// Then, after every following `Load` of a loader, it will check if the strict keys are still present in the konfig and consider the load a failure if a key is not present anymore.
 	Strict(...string) Store
@@ -97,6 +103,9 @@ type Store interface {
 
 	// Group lazyloads a child Store from the current store. If the group already exists, it just returns it, else it creates it and returns it. Groups are useful to namespace configs by domain.
 	Group(g string) Store
+
+	// Getter returns a GetterTyped for the given key k
+	Getter(k string) ngetter.GetterTyped
 
 	// Get gets the value with the key k fron the store. If the key is not set, Get returns nil. To check wether a value is really set, use Exists.
 	Get(k string) interface{}
@@ -177,6 +186,7 @@ type store struct {
 	metrics    map[string]prometheus.Collector
 	strictKeys []string
 	loaded     bool
+	keyHooks   keyHooks
 
 	WatcherLoaders []*loaderWatcher
 	WatcherClosers Closers
@@ -251,6 +261,42 @@ func (c *store) RegisterCloser(closer io.Closer) Store {
 	return c
 }
 
+type keyHooks map[string]LoaderHooks
+
+func (kh keyHooks) add(k string, f func(Store) error) {
+	if v, ok := kh[k]; ok {
+		v = append(v, f)
+		return
+	}
+	kh[k] = LoaderHooks{f}
+}
+
+func (kh keyHooks) runForKeys(keys []string, c *store) error {
+	for k, h := range kh {
+		for _, kk := range keys {
+			if kk == k || strings.HasPrefix(kk, k) {
+				if err := h.Run(c); err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
+// RegisterKeyHook adds a hook to be run on the given key k and all subkeys of k
+func RegisterKeyHook(k string, f func(Store) error) Store {
+	return instance().RegisterKeyHook(k, f)
+}
+func (c *store) RegisterKeyHook(k string, f func(Store) error) Store {
+	if c.keyHooks == nil {
+		c.keyHooks = keyHooks{}
+	}
+	c.keyHooks.add(k, f)
+	return c
+}
+
 // Strict specifies mandatory keys on the konfig. After strict is called, konfig will wait for the first config Load to happen and will check if the
 // specified strict keys are present, if not, Load will return a non nil error. Then, after every following `Load` of a loader, it will check if the strict keys are still present in the konfig and consider the load a failure if a key is not present anymore.
 func Strict(keys ...string) Store {
@@ -274,7 +320,14 @@ func RunHooks() error {
 	return instance().RunHooks()
 }
 func (c *store) RunHooks() error {
-	// run all hooks
+	// run all key hooks
+	for _, h := range c.keyHooks {
+		if err := h.Run(c); err != nil {
+			return err
+		}
+	}
+
+	// run all loader hooks
 	for _, wl := range c.WatcherLoaders {
 		if wl.loaderHooks != nil {
 			if err := wl.loaderHooks.Run(c); err != nil {

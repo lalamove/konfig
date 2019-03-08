@@ -470,7 +470,8 @@ func TestRunHooks(t *testing.T) {
 			reset()
 			Init(DefaultConfig())
 
-			var ran = [3]bool{}
+			var ran = [4]bool{}
+
 			RegisterLoader(
 				NewMockLoader(ctrl),
 				func(Store) error {
@@ -493,10 +494,19 @@ func TestRunHooks(t *testing.T) {
 				},
 			)
 
+			RegisterKeyHook(
+				"test",
+				func(Store) error {
+					ran[3] = true
+					return nil
+				},
+			)
+
 			require.Nil(t, RunHooks())
 			require.True(t, ran[0])
 			require.True(t, ran[1])
 			require.True(t, ran[2])
+			require.True(t, ran[3])
 		},
 	)
 
@@ -534,6 +544,46 @@ func TestRunHooks(t *testing.T) {
 
 			require.NotNil(t, RunHooks())
 			require.True(t, ran[0])
+			require.True(t, ran[1])
+			require.False(t, ran[2])
+		},
+	)
+
+	t.Run(
+		"with error key hook multiple hooks",
+		func(t *testing.T) {
+			var ctrl = gomock.NewController(t)
+			defer ctrl.Finish()
+			reset()
+			Init(DefaultConfig())
+
+			var ran = [3]bool{}
+			RegisterLoader(
+				NewMockLoader(ctrl),
+				func(Store) error {
+					ran[0] = true
+					return nil
+				},
+			)
+
+			RegisterKeyHook(
+				"test",
+				func(Store) error {
+					ran[1] = true
+					return errors.New("")
+				},
+			)
+
+			RegisterLoader(
+				NewMockLoader(ctrl),
+				func(Store) error {
+					ran[2] = true
+					return nil
+				},
+			)
+
+			require.NotNil(t, RunHooks())
+			require.False(t, ran[0])
 			require.True(t, ran[1])
 			require.False(t, ran[2])
 		},
