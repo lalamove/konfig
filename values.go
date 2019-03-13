@@ -46,11 +46,6 @@ func (x Values) load(ox Values, c *store) ([]string, error) {
 		}
 	}
 
-	// if there is a value bound we set it there also
-	if c.v != nil {
-		c.v.setValues(ox, x)
-	}
-
 	// if we have strict keys setup on the store and we have already loaded configs
 	// we check those keys now, if they are not present, we will return the error.
 	if c.strictKeys != nil && c.loaded {
@@ -59,6 +54,11 @@ func (x Values) load(ox Values, c *store) ([]string, error) {
 			c.cfg.Logger.Get().Error(err.Error())
 			return nil, err
 		}
+	}
+
+	// if there is a value bound we set it there also
+	if c.v != nil {
+		c.v.setValues(ox, x)
 	}
 
 	// we didn't get any error, store the new config state

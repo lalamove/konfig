@@ -108,7 +108,7 @@ func (val *value) set(k string, v interface{}) {
 
 	copier.Copy(nVal.Interface(), configValue)
 
-	val.setStruct(k, v, nVal.Interface())
+	val.setStruct(k, v, nVal)
 
 	val.v.Store(nVal.Elem().Interface())
 }
@@ -149,23 +149,23 @@ func (val *value) setValues(ox Values, x Values) {
 			val.setStruct(
 				kk,
 				reflect.Zero(reflect.TypeOf(vv)).Interface(),
-				nVal.Interface(),
+				nVal,
 			)
 		}
 	}
 
 	for kk, vv := range x {
-		val.setStruct(kk, vv, nVal.Interface())
+		val.setStruct(kk, vv, nVal)
 	}
 	val.v.Store(nVal.Elem().Interface())
 }
 
-func (val *value) setStruct(k string, v interface{}, targetValue interface{}) bool {
+func (val *value) setStruct(k string, v interface{}, targetValue reflect.Value) bool {
 
 	// is a struct, find matching tag
-	var valTypePtr = reflect.TypeOf(targetValue)
+	var valTypePtr = targetValue.Type()
 	var valType = valTypePtr.Elem()
-	var valValuePtr = reflect.ValueOf(targetValue)
+	var valValuePtr = targetValue
 	var valValue = valValuePtr.Elem()
 	var set bool
 
@@ -201,17 +201,33 @@ func (val *value) setStruct(k string, v interface{}, targetValue interface{}) bo
 			// Only map[string]someStruct is supported.
 			// The idea is to be able to store lists of key value where the keys are not known.
 			case reflect.Map:
+				var keyKind = fieldValue.Type.Key().Kind()
+				var eltKind = fieldValue.Type.Elem().Kind()
 				// if map key is a string and elem is a struct
 				// else we skip this field
-				if fieldValue.Type.Key().Kind() == reflect.String &&
-					fieldValue.Type.Elem().Kind() == reflect.Struct {
-					var field = valValue.FieldByName(fieldValue.Name)
-					var structType = fieldValue.Type.Elem()
+				if keyKind == reflect.String {
+
+					var structType reflect.Type
+					var ptr bool
+
+					if eltKind == reflect.Struct {
+						structType = fieldValue.Type.Elem()
+					} else if eltKind == reflect.Ptr && fieldValue.Type.Elem().Elem().Kind() == reflect.Struct {
+						structType = fieldValue.Type.Elem().Elem()
+						ptr = true
+					} else {
+						continue
+					}
+
 					var nVal = reflect.New(structType)
+					var field = valValue.FieldByName(fieldValue.Name)
+
 					// cut the key until the next sep
 					var keyElt = strings.SplitN(nK, KeySep, 2)
 					if len(keyElt) == 2 {
+
 						var mapKey = keyElt[0]
+
 						// check if map is nil, if yes create new one
 						var mapVal = field
 						if mapVal.IsNil() {
@@ -231,9 +247,13 @@ func (val *value) setStruct(k string, v interface{}, targetValue interface{}) bo
 						if ok := val.setStruct(
 							keyElt[1],
 							v,
-							nVal.Interface(),
+							nVal,
 						); ok {
-							mapVal.SetMapIndex(mapKeyVal, nVal.Elem())
+							if !ptr {
+								mapVal.SetMapIndex(mapKeyVal, nVal.Elem())
+							} else {
+								mapVal.SetMapIndex(mapKeyVal, nVal)
+							}
 							set = true
 						}
 					}
@@ -250,7 +270,7 @@ func (val *value) setStruct(k string, v interface{}, targetValue interface{}) bo
 					copier.Copy(nVal.Interface(), field.Interface())
 
 					// we set the field with the new struct
-					if ok := val.setStruct(nK, v, nVal.Interface()); ok {
+					if ok := val.setStruct(nK, v, nVal); ok {
 						field.Set(nVal.Elem())
 						set = true
 					}
@@ -269,7 +289,7 @@ func (val *value) setStruct(k string, v interface{}, targetValue interface{}) bo
 							copier.Copy(nVal.Interface(), field.Interface())
 						}
 
-						if ok := val.setStruct(nK, v, nVal.Interface()); ok {
+						if ok := val.setStruct(nK, v, nVal); ok {
 							field.Set(nVal)
 							set = true
 						}
