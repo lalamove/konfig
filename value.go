@@ -197,9 +197,12 @@ func (val *value) setStruct(k string, v interface{}, targetValue interface{}) bo
 			}
 
 			switch fieldValue.Type.Kind() {
-			// is a map
+			// Is a map.
+			// Only map[string]someStruct is supported.
+			// The idea is to be able to store lists of key value where the keys are not known.
 			case reflect.Map:
 				// if map key is a string and elem is a struct
+				// else we skip this field
 				if fieldValue.Type.Key().Kind() == reflect.String &&
 					fieldValue.Type.Elem().Kind() == reflect.Struct {
 					var field = valValue.FieldByName(fieldValue.Name)
@@ -219,11 +222,17 @@ func (val *value) setStruct(k string, v interface{}, targetValue interface{}) bo
 						var mapKeyVal = reflect.ValueOf(mapKey)
 						var ov = mapVal.MapIndex(mapKeyVal)
 
+						// we copy the old value, to make sure we don't lose anything
 						if ov.IsValid() {
 							copier.Copy(nVal.Interface(), ov.Interface())
 						}
+
 						// we set the field with the new struct
-						if ok := val.setStruct(keyElt[1], v, nVal.Interface()); ok {
+						if ok := val.setStruct(
+							keyElt[1],
+							v,
+							nVal.Interface(),
+						); ok {
 							mapVal.SetMapIndex(mapKeyVal, nVal.Elem())
 							set = true
 						}
