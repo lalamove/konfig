@@ -273,7 +273,7 @@ func (kh keyHooks) add(k string, f func(Store) error) {
 func (kh keyHooks) runForKeys(keys []string, c *store) error {
 	for k, h := range kh {
 		for _, kk := range keys {
-			if kk == k || strings.HasPrefix(kk, k) {
+			if strings.HasPrefix(kk, k) {
 				if err := h.Run(c); err != nil {
 					return err
 				}
