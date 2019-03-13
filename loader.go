@@ -136,18 +136,13 @@ func (c *store) loaderLoadRetry(wl *loaderWatcher, retry int) error {
 		return c.loaderLoadRetry(wl, retry+1)
 	}
 
-	// we add the values to the store
-	var updatedKeys = v.load(wl.values, c)
-	wl.values = v
-
-	// if we have strict keys setup on the store and we have already loaded configs
-	// we check those keys now, if they are not present, we will return the error.
-	if c.strictKeys != nil && c.loaded {
-		if err := c.checkStrictKeys(); err != nil {
-			c.cfg.Logger.Get().Error("Error while checking strict keys: " + err.Error())
-			return err
-		}
+	// we add the values to the store.
+	var updatedKeys, err = v.load(wl.values, c)
+	if err != nil {
+		return err
 	}
+
+	wl.values = v
 
 	// run key hooks
 	if len(updatedKeys) != 0 && c.keyHooks != nil {

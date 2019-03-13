@@ -2,7 +2,6 @@ package konfig
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"os"
 	"strings"
@@ -307,12 +306,8 @@ func (c *store) Strict(keys ...string) Store {
 	return c
 }
 func (c *store) checkStrictKeys() error {
-	for _, k := range c.strictKeys {
-		if !c.Exists(k) {
-			return fmt.Errorf(ErrStrictKeyNotFoundMsg, k)
-		}
-	}
-	return nil
+	var m = c.m.Load().(s)
+	return m.checkStrictKeys(c.strictKeys)
 }
 
 // RunHooks runs all hooks and child groups hooks

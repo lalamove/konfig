@@ -1,6 +1,10 @@
 package konfig
 
-import "reflect"
+import (
+	"reflect"
+
+	"github.com/pkg/errors"
+)
 
 // Values is the values attached to a loader
 type Values map[string]interface{}
@@ -10,7 +14,7 @@ func (x Values) Set(k string, v interface{}) {
 	x[k] = v
 }
 
-func (x Values) load(ox Values, c *store) []string {
+func (x Values) load(ox Values, c *store) ([]string, error) {
 	c.mut.Lock()
 	defer c.mut.Unlock()
 
@@ -47,7 +51,16 @@ func (x Values) load(ox Values, c *store) []string {
 		c.v.setValues(ox, x)
 	}
 
-	c.m.Store(nm)
+	// if we have strict keys setup on the store and we have already loaded configs
+	// we check those keys now, if they are not present, we will return the error.
+	if c.strictKeys != nil && c.loaded {
+		if err := nm.checkStrictKeys(c.strictKeys); err != nil {
+			err = errors.Wrap(err, "Error while checking strict keys")
+			c.cfg.Logger.Get().Error(err.Error())
+			return nil, err
+		}
+	}
 
-	return updatedKeys
+	c.m.Store(nm)
+	return updatedKeys, nil
 }

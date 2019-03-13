@@ -9,6 +9,22 @@ import (
 
 type s map[string]interface{}
 
+// exists returns a boolean indicating if the key exists in the map
+func (m s) exists(k string) bool {
+	_, ok := m[k]
+	return ok
+}
+
+// exists returns a boolean indicating if the key exists in the map
+func (m s) checkStrictKeys(keys []string) error {
+	for _, k := range keys {
+		if !m.exists(k) {
+			return fmt.Errorf(ErrStrictKeyNotFoundMsg, k)
+		}
+	}
+	return nil
+}
+
 // Exists checks if a config key k is set in the Store
 func Exists(k string) bool {
 	return instance().Exists(k)
