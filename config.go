@@ -265,6 +265,7 @@ type keyHooks map[string]LoaderHooks
 func (kh keyHooks) add(k string, f func(Store) error) {
 	if v, ok := kh[k]; ok {
 		v = append(v, f)
+		kh[k] = v
 		return
 	}
 	kh[k] = LoaderHooks{f}

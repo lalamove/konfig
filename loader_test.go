@@ -265,6 +265,13 @@ func TestLoaderLoadRetryKeyHooks(t *testing.T) {
 			return nil
 		},
 	)
+	c.RegisterKeyHook(
+		"test",
+		func(c Store) error {
+			ranTest++
+			return nil
+		},
+	)
 
 	var ranFoo int
 	c.RegisterKeyHook(
@@ -349,7 +356,7 @@ func TestLoaderLoadRetryKeyHooks(t *testing.T) {
 	err = c.loaderLoadRetry(wl, 0)
 	require.NotNil(t, err, "err should not be nil")
 
-	require.Equal(t, 2, ranTest, "ranTest should be 2")
+	require.Equal(t, 4, ranTest, "ranTest should be 2")
 	require.Equal(t, 3, ranFoo, "ranFoo should be 3")
 	require.Equal(t, 1, ranErr, "ranErr should be 1")
 }
