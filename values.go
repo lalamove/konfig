@@ -61,6 +61,7 @@ func (x Values) load(ox Values, c *store) ([]string, error) {
 		}
 	}
 
+	// we didn't get any error, store the new config state
 	c.m.Store(nm)
 	return updatedKeys, nil
 }
