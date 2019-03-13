@@ -200,7 +200,6 @@ func TestLoaderLoadRetryStrictKeys(t *testing.T) {
 	var ctrl = gomock.NewController(t)
 	defer ctrl.Finish()
 
-	reset()
 	var c = instance()
 	c.loaded = true
 	c.Strict("test")
@@ -254,12 +253,12 @@ func TestLoaderLoadRetryKeyHooks(t *testing.T) {
 	defer ctrl.Finish()
 
 	reset()
-	var c = instance()
+	var c = New(DefaultConfig()).(*store)
 	c.loaded = true
 	c.cfg.NoExitOnError = true
 
 	var ranTest int
-	RegisterKeyHook(
+	c.RegisterKeyHook(
 		"test",
 		func(c Store) error {
 			ranTest++
@@ -268,7 +267,7 @@ func TestLoaderLoadRetryKeyHooks(t *testing.T) {
 	)
 
 	var ranFoo int
-	RegisterKeyHook(
+	c.RegisterKeyHook(
 		"foo",
 		func(c Store) error {
 			ranFoo++
@@ -277,7 +276,7 @@ func TestLoaderLoadRetryKeyHooks(t *testing.T) {
 	)
 
 	var ranErr int
-	RegisterKeyHook(
+	c.RegisterKeyHook(
 		"err.",
 		func(c Store) error {
 			ranErr++
@@ -306,6 +305,10 @@ func TestLoaderLoadRetryKeyHooks(t *testing.T) {
 			v["test"] = "test"
 			v["test.foo"] = "foo"
 			v["foo"] = "barr"
+		}).Return(nil),
+		mockL.EXPECT().Load(Values{}).Do(func(v Values) {
+			v["test"] = "test"
+			v["test.foo"] = "foo"
 		}).Return(nil),
 		mockL.EXPECT().Load(Values{}).Do(func(v Values) {
 			v["test"] = "test"
@@ -340,11 +343,14 @@ func TestLoaderLoadRetryKeyHooks(t *testing.T) {
 	require.Nil(t, err, "err should not be nil")
 
 	err = c.loaderLoadRetry(wl, 0)
+	require.Nil(t, err, "err should not be nil")
+
+	err = c.loaderLoadRetry(wl, 0)
 	require.NotNil(t, err, "err should not be nil")
 
-	require.Equal(t, 2, ranTest)
-	require.Equal(t, 3, ranFoo)
-	require.Equal(t, 1, ranErr)
+	require.Equal(t, 2, ranTest, "ranTest should be 2")
+	require.Equal(t, 3, ranFoo, "ranFoo should be 3")
+	require.Equal(t, 1, ranErr, "ranErr should be 1")
 }
 
 func TestLoaderLoadWatch(t *testing.T) {

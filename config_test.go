@@ -135,6 +135,7 @@ func TestConfigWatcherLoader(t *testing.T) {
 				// set our expectations
 				var l = NewMockLoader(ctrl)
 
+				l.EXPECT().Name().Times(3).Return("l")
 				l.EXPECT().MaxRetry().MinTimes(1).Return(2)
 				l.EXPECT().RetryDelay().MinTimes(1).Return(1 * time.Millisecond)
 
@@ -156,6 +157,7 @@ func TestConfigWatcherLoader(t *testing.T) {
 				// set our expectations
 				var l = NewMockLoader(ctrl)
 
+				l.EXPECT().Name().Times(3).Return("l")
 				l.EXPECT().MaxRetry().MinTimes(1).Return(2)
 				l.EXPECT().RetryDelay().MinTimes(1).Return(1 * time.Millisecond)
 
@@ -178,6 +180,7 @@ func TestConfigWatcherLoader(t *testing.T) {
 				// set our expectations
 				var l = NewMockLoader(ctrl)
 
+				l.EXPECT().Name().Times(3).Return("l")
 				l.EXPECT().MaxRetry().MinTimes(1).Return(2)
 				l.EXPECT().RetryDelay().MinTimes(1).Return(1 * time.Millisecond)
 
@@ -204,6 +207,7 @@ func TestConfigWatcherLoader(t *testing.T) {
 				var c = make(chan struct{}, 1)
 				var d = make(chan struct{})
 
+				l.EXPECT().Name().Times(3).Return("l")
 				l.EXPECT().MaxRetry().MinTimes(1).Return(2)
 				l.EXPECT().RetryDelay().MinTimes(1).Return(1 * time.Millisecond)
 
@@ -249,9 +253,11 @@ func TestConfigWatcherLoader(t *testing.T) {
 				var c2 = make(chan struct{}, 1)
 				var d2 = make(chan struct{})
 
+				l.EXPECT().Name().Times(3).Return("l")
 				l.EXPECT().MaxRetry().MinTimes(1).Return(2)
 				l.EXPECT().RetryDelay().MinTimes(1).Return(1 * time.Millisecond)
 
+				l2.EXPECT().Name().Times(3).Return("l2")
 				l2.EXPECT().Load(Values{}).MinTimes(1).Return(nil)
 
 				gomock.InOrder(
@@ -314,6 +320,9 @@ func TestConfigWatcherLoader(t *testing.T) {
 				var c2 = make(chan struct{}, 1)
 				var d2 = make(chan struct{})
 
+				l.EXPECT().Name().Times(3).Return("l")
+
+				l2.EXPECT().Name().Times(3).Return("l2")
 				l2.EXPECT().Load(Values{}).MinTimes(1).Return(nil)
 
 				gomock.InOrder(
@@ -368,7 +377,11 @@ func TestConfigWatcherLoader(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			// init the test
 			reset()
-			Init(DefaultConfig())
+			Init(&Config{
+				ExitCode: 1,
+				Logger:   nlogger.NewProvider(nlogger.New(os.Stdout, "CONFIG | ")),
+				Metrics:  true,
+			})
 			var c = instance()
 			c.cfg.NoExitOnError = true
 
