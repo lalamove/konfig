@@ -113,7 +113,7 @@ func (val *value) set(k string, v interface{}) {
 	val.v.Store(nVal.Elem().Interface())
 }
 
-func (val *value) setValues(ox Values, x Values) {
+func (val *value) setValues(x s) {
 	val.mut.Lock()
 	defer val.mut.Unlock()
 
@@ -141,22 +141,10 @@ func (val *value) setValues(ox Values, x Values) {
 	var t = reflect.TypeOf(configValue)
 	var nVal = reflect.New(t)
 
-	copier.Copy(nVal.Interface(), configValue)
-
-	// reset to zero value keys not present anymore
-	for kk, vv := range ox {
-		if _, ok := x[kk]; !ok {
-			val.setStruct(
-				kk,
-				reflect.Zero(reflect.TypeOf(vv)).Interface(),
-				nVal,
-			)
-		}
-	}
-
 	for kk, vv := range x {
 		val.setStruct(kk, vv, nVal)
 	}
+
 	val.v.Store(nVal.Elem().Interface())
 }
 

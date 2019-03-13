@@ -182,7 +182,9 @@ func TestSetStruct(t *testing.T) {
 			require.Equal(t, "test", configValue.V)
 			require.Equal(t, "test2", configValue.T.VV)
 			require.Equal(t, 0, configValue.T.TT)
-			require.Equal(t, 0, configValue.SubT.TT)
+			require.Nil(t, configValue.SubT)
+			require.Nil(t, configValue.SubMapT)
+			require.Nil(t, configValue.SubMapTPtr)
 		},
 	)
 

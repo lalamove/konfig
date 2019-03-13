@@ -58,7 +58,7 @@ func (x Values) load(ox Values, c *store) ([]string, error) {
 
 	// if there is a value bound we set it there also
 	if c.v != nil {
-		c.v.setValues(ox, x)
+		c.v.setValues(nm)
 	}
 
 	// we didn't get any error, store the new config state
