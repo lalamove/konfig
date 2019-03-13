@@ -277,6 +277,8 @@ func (kh keyHooks) runForKeys(keys []string, c *store) error {
 				if err := h.Run(c); err != nil {
 					return err
 				}
+				// make sure this hook runs only once even if there's a wide range of keys matching
+				break
 			}
 		}
 	}

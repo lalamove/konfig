@@ -275,6 +275,18 @@ configLoader.AddHooks(
 )
 ```
 
+### Adding hooks on keys
+Alternatively, you can add hooks on keys. Hooks on keys will match for prefix in order to run a hook when any key with a given prefix is updated. 
+A hook can only be ran once per load event, event if multiple keys match that hook.   
+```go
+konfig.RegisterKeyHook(
+    "db.",
+    func(s konfig.Store) error {
+        return nil
+    },
+)
+```
+
 # Closers
 *Closers* can be added to konfig so that if konfig fails to load, it will execute `Close()` on the registered *Closers*.
 ```go

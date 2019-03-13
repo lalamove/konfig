@@ -304,6 +304,7 @@ func TestLoaderLoadRetryKeyHooks(t *testing.T) {
 		mockL.EXPECT().Load(Values{}).Do(func(v Values) {
 			v["test"] = "test"
 			v["test.foo"] = "foo"
+			v["foo.test"] = "barr"
 			v["foo"] = "barr"
 		}).Return(nil),
 		mockL.EXPECT().Load(Values{}).Do(func(v Values) {
