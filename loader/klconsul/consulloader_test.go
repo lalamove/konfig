@@ -231,11 +231,12 @@ func TestLoad(t *testing.T) {
 				err := hl.Start()
 				require.Nil(t, err)
 
-				var timer = time.NewTimer(200 * time.Millisecond)
+				var timer = time.NewTimer(150 * time.Millisecond)
 				var watched bool
 				select {
 				case <-hl.Watch():
 					watched = true
+					hl.Close()
 				case <-timer.C:
 					hl.Close()
 					require.True(t, watched)
