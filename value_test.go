@@ -118,6 +118,7 @@ func TestSetStruct(t *testing.T) {
 				"submaptptr.bar.tt": 1,
 				"submaptptr.foo.vv": "woop",
 				"submaptptr.foo.tt": 1,
+				"subt.notfound":     1,
 			}
 
 			v.load(Values{

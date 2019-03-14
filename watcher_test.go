@@ -13,14 +13,20 @@ func TestWatcher(t *testing.T) {
 		func(t *testing.T) {
 			var w = NopWatcher{}
 			require.Nil(t, w.Start())
+
 			var ctrl = gomock.NewController(t)
 			defer ctrl.Finish()
+
 			var mockL = NewMockLoader(ctrl)
+
 			var c = New(&Config{})
+
 			c.RegisterLoaderWatcher(
 				NewLoaderWatcher(mockL, w),
 			)
+
 			c.Watch()
+			require.Nil(t, w.Err())
 			time.Sleep(100 * time.Millisecond)
 		},
 	)
