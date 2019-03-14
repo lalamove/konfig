@@ -100,7 +100,9 @@ func New(cfg *Config) *Loader {
 		cfg.Name = defaultName
 	}
 
-	cfg.kvClient = cfg.Client.KV()
+	if cfg.kvClient == nil {
+		cfg.kvClient = cfg.Client.KV()
+	}
 
 	var l = &Loader{
 		cfg: cfg,

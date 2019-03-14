@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/consul/api"
 	"github.com/lalamove/konfig"
 	"github.com/lalamove/konfig/mocks"
+	"github.com/lalamove/konfig/watcher/kwpoll"
 	"github.com/stretchr/testify/require"
 )
 
@@ -168,6 +169,80 @@ func TestLoad(t *testing.T) {
 				return hl
 			},
 			err: false,
+		},
+		{
+			name: "with watcher no error multiple keys",
+			run: func(t *testing.T, ctrl *gomock.Controller) *Loader {
+
+				c, _ := api.NewClient(&api.Config{Address: "http://localhost"})
+
+				var kvClient = mocks.NewMockConsulKV(ctrl)
+
+				gomock.InOrder(
+					kvClient.EXPECT().Get("key1", nil).Return(
+						&api.KVPair{
+							Key:   "key1",
+							Value: []byte(`test1`),
+						},
+						&api.QueryMeta{},
+						nil,
+					),
+					kvClient.EXPECT().Get("key2", nil).Return(
+						&api.KVPair{
+							Key:   "key2",
+							Value: []byte(`test2`),
+						},
+						&api.QueryMeta{},
+						nil,
+					),
+					kvClient.EXPECT().Get("key1", nil).Return(
+						&api.KVPair{
+							Key:   "key1",
+							Value: []byte(`test11`),
+						},
+						&api.QueryMeta{},
+						nil,
+					),
+					kvClient.EXPECT().Get("key2", nil).Return(
+						&api.KVPair{
+							Key:   "key2",
+							Value: []byte(`test22`),
+						},
+						&api.QueryMeta{},
+						nil,
+					),
+				)
+
+				var hl = New(&Config{
+					Client:     c,
+					kvClient:   kvClient,
+					StrictMode: false,
+					Watch:      true,
+					Rater:      kwpoll.Time(100 * time.Millisecond),
+					Keys: []Key{
+						{
+							Key: "key1",
+						},
+						{
+							Key: "key2",
+						}},
+				})
+
+				err := hl.Start()
+				require.Nil(t, err)
+
+				var timer = time.NewTimer(200 * time.Millisecond)
+				var watched bool
+				select {
+				case <-hl.Watch():
+					watched = true
+				case <-timer.C:
+					hl.Close()
+					require.True(t, watched)
+				}
+
+				return hl
+			},
 		},
 	}
 
