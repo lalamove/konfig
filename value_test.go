@@ -54,9 +54,11 @@ func TestSetStruct(t *testing.T) {
 				I64 int64   `konfig:"int64"`
 			}
 			type TestConfig struct {
-				V    string        `konfig:"v"`
-				T    TestConfigSub `konfig:"sub"`
-				SubT *TestConfigSub
+				V          string        `konfig:"v"`
+				T          TestConfigSub `konfig:"sub"`
+				SubT       *TestConfigSub
+				SubMapTPtr map[string]*TestConfigSub `konfig:"submaptptr"`
+				SubMapT    map[string]TestConfigSub  `konfig:"submapt"`
 			}
 
 			var expectedConfig = TestConfig{
@@ -72,6 +74,26 @@ func TestSetStruct(t *testing.T) {
 					VV: "",
 					TT: 2,
 				},
+				SubMapTPtr: map[string]*TestConfigSub{
+					"foo": &TestConfigSub{
+						VV: "woop",
+						TT: 1,
+					},
+					"bar": &TestConfigSub{
+						VV: "hello",
+						TT: 1,
+					},
+				},
+				SubMapT: map[string]TestConfigSub{
+					"foo": TestConfigSub{
+						VV: "woop",
+						TT: 1,
+					},
+					"bar": TestConfigSub{
+						VV: "hello",
+						TT: 1,
+					},
+				},
 			}
 
 			Init(DefaultConfig())
@@ -79,14 +101,24 @@ func TestSetStruct(t *testing.T) {
 			var tc TestConfig
 			require.NotPanics(t, func() { Bind(tc) })
 
+			// new values
 			var v = Values{
-				"v":           "test",
-				"sub.vv":      "test2",
-				"sub.tt":      1,
-				"subt.tt":     2,
-				"sub.bool":    true,
-				"sub.float64": 1.9,
-				"sub.int64":   int64(1),
+				"v":                 "test",
+				"sub.vv":            "test2",
+				"sub.tt":            1,
+				"subt.tt":           2,
+				"sub.bool":          true,
+				"sub.float64":       1.9,
+				"sub.int64":         int64(1),
+				"submapt.bar.vv":    "hello",
+				"submapt.bar.tt":    1,
+				"submapt.foo.vv":    "woop",
+				"submapt.foo.tt":    1,
+				"submaptptr.bar.vv": "hello",
+				"submaptptr.bar.tt": 1,
+				"submaptptr.foo.vv": "woop",
+				"submaptptr.foo.tt": 1,
+				"subt.notfound":     1,
 			}
 
 			v.load(Values{
@@ -101,6 +133,42 @@ func TestSetStruct(t *testing.T) {
 			require.Equal(t, true, configValue.T.B)
 			require.Equal(t, 1.9, configValue.T.F)
 			require.Equal(t, int64(1), configValue.T.I64)
+			require.Equal(
+				t,
+				&TestConfigSub{
+					VV: "woop",
+					TT: 1,
+				},
+				configValue.SubMapTPtr["foo"],
+				"SubMapT['foo'] should be equal",
+			)
+			require.Equal(
+				t,
+				&TestConfigSub{
+					VV: "hello",
+					TT: 1,
+				},
+				configValue.SubMapTPtr["bar"],
+				"SubMapT['bar'] should be equal",
+			)
+			require.Equal(
+				t,
+				TestConfigSub{
+					VV: "woop",
+					TT: 1,
+				},
+				configValue.SubMapT["foo"],
+				"SubMapT['foo'] should be equal",
+			)
+			require.Equal(
+				t,
+				TestConfigSub{
+					VV: "hello",
+					TT: 1,
+				},
+				configValue.SubMapT["bar"],
+				"SubMapT['bar'] should be equal",
+			)
 
 			require.Equal(t, expectedConfig, Value())
 
@@ -115,7 +183,9 @@ func TestSetStruct(t *testing.T) {
 			require.Equal(t, "test", configValue.V)
 			require.Equal(t, "test2", configValue.T.VV)
 			require.Equal(t, 0, configValue.T.TT)
-			require.Equal(t, 0, configValue.SubT.TT)
+			require.Nil(t, configValue.SubT)
+			require.Nil(t, configValue.SubMapT)
+			require.Nil(t, configValue.SubMapTPtr)
 		},
 	)
 

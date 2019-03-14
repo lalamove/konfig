@@ -5,7 +5,7 @@
 )](https://godoc.org/github.com/lalamove/konfig)
 
 # Konfig
-Composable, observable and performant config handling for Go. Written for larger distributed systems where you may have plenty of configuration sources - it allows you to compose configurations from multiple sources with reload hooks making it simple to build apps that lives in a highly dynamic environment.
+Composable, observable and performant config handling for Go. Written for larger distributed systems where you may have plenty of configuration sources - it allows you to compose configurations from multiple sources with reload hooks making it simple to build apps that live in a highly dynamic environment.
 
 ## What's up with the name?
 The name is Swedish for "config". We have a lot of nationalities here at Lalamove and to celebrate cultural diversity most of our open source packages will carry a name derived from a non-English language that is perhaps spoken by at least one of our employees(?).
@@ -272,6 +272,18 @@ configLoader.AddHooks(
 		// Here you should reload the state of your app	
 		return nil
 	},
+)
+```
+
+### Adding hooks on keys
+Alternatively, you can add hooks on keys. Hooks on keys will match for prefix in order to run a hook when any key with a given prefix is updated. 
+A hook can only be run once per load event, even if multiple keys match that hook.   
+```go
+konfig.RegisterKeyHook(
+    "db.",
+    func(s konfig.Store) error {
+        return nil
+    },
 )
 ```
 
