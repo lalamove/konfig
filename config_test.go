@@ -379,7 +379,7 @@ func TestConfigWatcherLoader(t *testing.T) {
 			reset()
 			Init(&Config{
 				ExitCode: 1,
-				Logger:   nlogger.NewProvider(nlogger.New(os.Stdout, "CONFIG | ")),
+				Logger:   nlogger.NewProvider(nlogger.New(os.Stdout, "KONFIG | ")),
 				Metrics:  true,
 			})
 			var c = instance()

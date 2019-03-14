@@ -46,7 +46,7 @@ func (e ErrMissingConfig) Error() string {
 func DefaultConfig() *Config {
 	return &Config{
 		ExitCode: 1,
-		Logger:   nlogger.NewProvider(nlogger.New(os.Stdout, "CONFIG | ")),
+		Logger:   nlogger.NewProvider(nlogger.New(os.Stdout, "KONFIG | ")),
 		Name:     defaultName,
 	}
 }

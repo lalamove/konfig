@@ -15,7 +15,8 @@ func (m s) exists(k string) bool {
 	return ok
 }
 
-// exists returns a boolean indicating if the key exists in the map
+// checkStrictKeys checks if the given keys are present in the map. If a key is not
+// found checkStrictKeys returns a non nil error.
 func (m s) checkStrictKeys(keys []string) error {
 	for _, k := range keys {
 		if !m.exists(k) {

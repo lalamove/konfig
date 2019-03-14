@@ -277,7 +277,7 @@ configLoader.AddHooks(
 
 ### Adding hooks on keys
 Alternatively, you can add hooks on keys. Hooks on keys will match for prefix in order to run a hook when any key with a given prefix is updated. 
-A hook can only be ran once per load event, event if multiple keys match that hook.   
+A hook can only be run once per load event, even if multiple keys match that hook.   
 ```go
 konfig.RegisterKeyHook(
     "db.",
