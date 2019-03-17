@@ -13,7 +13,7 @@ type Watcher interface {
 	// Close closes the watcher, it returns a non nil error if it is already closed
 	// or something prevents it from closing properly.
 	Close() error
-	// Err returns telling why the watcher closed
+	// Err returns the error attached to the watcher
 	Err() error
 }
 
