@@ -14,7 +14,7 @@ func (x Values) Set(k string, v interface{}) {
 	x[k] = v
 }
 
-func (x Values) load(ox Values, c *store) ([]string, error) {
+func (x Values) load(ox Values, c *S) ([]string, error) {
 	c.mut.Lock()
 	defer c.mut.Unlock()
 

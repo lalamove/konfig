@@ -6,11 +6,11 @@ func Group(groupName string) Store {
 }
 
 // Group gets a group of configs
-func (c *store) Group(groupName string) Store {
+func (c *S) Group(groupName string) Store {
 	return c.lazyGroup(groupName)
 }
 
-func (c *store) lazyGroup(groupName string) Store {
+func (c *S) lazyGroup(groupName string) Store {
 	c.mut.Lock()
 	defer c.mut.Unlock()
 	if v, ok := c.groups[groupName]; ok {

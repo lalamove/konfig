@@ -48,7 +48,7 @@ func (lw *loaderWatcher) setMetrics() {
 	}
 }
 
-func (c *store) initMetrics() {
+func (c *S) initMetrics() {
 	c.metrics = map[string]prometheus.Collector{
 		MetricsConfigReload: prometheus.NewCounterVec(
 			prometheus.CounterOpts{
@@ -68,7 +68,7 @@ func (c *store) initMetrics() {
 	}
 }
 
-func (c *store) registerMetrics() error {
+func (c *S) registerMetrics() error {
 	for _, metric := range c.metrics {
 		var err = prometheus.Register(metric)
 		if err != nil && err != err.(prometheus.AlreadyRegisteredError) {

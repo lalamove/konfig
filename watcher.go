@@ -56,7 +56,7 @@ func Watch() error {
 }
 
 // Watch starts the watchers on loaders
-func (c *store) Watch() error {
+func (c *S) Watch() error {
 
 	// if metrics are enabled, we register them in prometheus
 	if c.cfg.Metrics {

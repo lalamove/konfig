@@ -26,7 +26,7 @@ var (
 )
 
 type value struct {
-	s     *store
+	s     *S
 	v     *atomic.Value
 	vt    reflect.Type
 	mut   *sync.Mutex
@@ -44,12 +44,12 @@ func Bind(v interface{}) {
 }
 
 // Value returns the value bound to the config store
-func (c *store) Value() interface{} {
+func (c *S) Value() interface{} {
 	return c.v.v.Load()
 }
 
 // Bind binds a value (either a map[string]interface{} or a struct) to the config store. When config values are set on the config store, they are also set on the bound value.
-func (c *store) Bind(v interface{}) {
+func (c *S) Bind(v interface{}) {
 	var t = reflect.TypeOf(v)
 	var k = t.Kind()
 	//  if it is neither a map nor a struct
