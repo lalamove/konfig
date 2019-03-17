@@ -253,7 +253,7 @@ func TestLoaderLoadRetryKeyHooks(t *testing.T) {
 	defer ctrl.Finish()
 
 	reset()
-	var c = New(DefaultConfig()).(*store)
+	var c = New(DefaultConfig())
 	c.loaded = true
 	c.cfg.NoExitOnError = true
 
@@ -427,7 +427,7 @@ func TestLoaderLoadWatch(t *testing.T) {
 				c.RegisterLoaderWatcher(
 					testCase.build(ctrl),
 				)
-				c.(*store).cfg.NoExitOnError = true
+				c.cfg.NoExitOnError = true
 
 				var err = c.LoadWatch()
 

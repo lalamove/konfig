@@ -14,7 +14,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-var _ Store = (*store)(nil)
+var _ Store = (*S)(nil)
 
 var (
 	// ErrInvalidConfigFileFormat is the error returned when a problem is encountered when parsing the
@@ -174,13 +174,13 @@ type Store interface {
 	Value() interface{}
 }
 
-// store is the concrete implementation of the Store
-type store struct {
+// S is the concrete implementation of the Store
+type S struct {
 	name       string
 	cfg        *Config
 	m          *atomic.Value
 	mut        *sync.Mutex
-	groups     map[string]*store
+	groups     map[string]*S
 	v          *value
 	metrics    map[string]prometheus.Collector
 	strictKeys []string
@@ -193,7 +193,7 @@ type store struct {
 }
 
 var (
-	c    *store
+	c    *S
 	once sync.Once
 )
 
@@ -203,7 +203,7 @@ func Init(cfg *Config) {
 }
 
 // New returns a new Store with the given config
-func New(cfg *Config) Store {
+func New(cfg *Config) *S {
 	return newStore(cfg)
 }
 
@@ -211,11 +211,11 @@ func New(cfg *Config) Store {
 func SetLogger(l nlogger.Structured) {
 	instance().SetLogger(l)
 }
-func (c *store) SetLogger(l nlogger.Structured) {
+func (c *S) SetLogger(l nlogger.Structured) {
 	c.cfg.Logger.Replace(l)
 }
 
-func (c *store) Name() string {
+func (c *S) Name() string {
 	return c.name
 }
 
@@ -223,7 +223,7 @@ func (c *store) Name() string {
 func RegisterLoader(l Loader, loaderHooks ...func(Store) error) *ConfigLoader {
 	return instance().RegisterLoader(l, loaderHooks...)
 }
-func (c *store) RegisterLoader(l Loader, loaderHooks ...func(Store) error) *ConfigLoader {
+func (c *S) RegisterLoader(l Loader, loaderHooks ...func(Store) error) *ConfigLoader {
 	var lw = c.newLoaderWatcher(l, NopWatcher{}, loaderHooks)
 
 	c.WatcherLoaders = append(
@@ -238,7 +238,7 @@ func (c *store) RegisterLoader(l Loader, loaderHooks ...func(Store) error) *Conf
 func RegisterLoaderWatcher(lw LoaderWatcher, loaderHooks ...func(Store) error) *ConfigLoader {
 	return instance().RegisterLoaderWatcher(lw, loaderHooks...)
 }
-func (c *store) RegisterLoaderWatcher(lw LoaderWatcher, loaderHooks ...func(Store) error) *ConfigLoader {
+func (c *S) RegisterLoaderWatcher(lw LoaderWatcher, loaderHooks ...func(Store) error) *ConfigLoader {
 	var lwatcher = c.newLoaderWatcher(lw, lw, loaderHooks)
 
 	c.WatcherClosers = append(c.WatcherClosers, lw)
@@ -255,7 +255,7 @@ func (c *store) RegisterLoaderWatcher(lw LoaderWatcher, loaderHooks ...func(Stor
 func RegisterCloser(closer io.Closer) Store {
 	return instance().RegisterCloser(closer)
 }
-func (c *store) RegisterCloser(closer io.Closer) Store {
+func (c *S) RegisterCloser(closer io.Closer) Store {
 	c.Closers = append(c.Closers, closer)
 	return c
 }
@@ -271,7 +271,7 @@ func (kh keyHooks) add(k string, f func(Store) error) {
 	kh[k] = LoaderHooks{f}
 }
 
-func (kh keyHooks) runForKeys(keys []string, c *store) error {
+func (kh keyHooks) runForKeys(keys []string, c *S) error {
 	for k, h := range kh {
 		for _, kk := range keys {
 			if strings.HasPrefix(kk, k) {
@@ -291,7 +291,7 @@ func (kh keyHooks) runForKeys(keys []string, c *store) error {
 func RegisterKeyHook(k string, f func(Store) error) Store {
 	return instance().RegisterKeyHook(k, f)
 }
-func (c *store) RegisterKeyHook(k string, f func(Store) error) Store {
+func (c *S) RegisterKeyHook(k string, f func(Store) error) Store {
 	if c.keyHooks == nil {
 		c.keyHooks = keyHooks{}
 	}
@@ -304,11 +304,11 @@ func (c *store) RegisterKeyHook(k string, f func(Store) error) Store {
 func Strict(keys ...string) Store {
 	return instance().Strict(keys...)
 }
-func (c *store) Strict(keys ...string) Store {
+func (c *S) Strict(keys ...string) Store {
 	c.strictKeys = keys
 	return c
 }
-func (c *store) checkStrictKeys() error {
+func (c *S) checkStrictKeys() error {
 	var m = c.m.Load().(s)
 	return m.checkStrictKeys(c.strictKeys)
 }
@@ -317,7 +317,7 @@ func (c *store) checkStrictKeys() error {
 func RunHooks() error {
 	return instance().RunHooks()
 }
-func (c *store) RunHooks() error {
+func (c *S) RunHooks() error {
 	// run all key hooks
 	for _, h := range c.keyHooks {
 		if err := h.Run(c); err != nil {
@@ -355,7 +355,7 @@ func Instance() Store {
 }
 
 // Stop stops the config store
-func (c *store) stop() {
+func (c *S) stop() {
 	if err := c.WatcherClosers.Close(); err != nil {
 		c.cfg.Logger.Get().Error(err.Error())
 	}
@@ -370,7 +370,7 @@ func (c *store) stop() {
 	}
 }
 
-func instance() *store {
+func instance() *S {
 	if c == nil {
 		c = newStore(DefaultConfig())
 	}
@@ -384,7 +384,7 @@ func reset() {
 	}
 }
 
-func newStore(cfg *Config) *store {
+func newStore(cfg *Config) *S {
 	// check if logger exists, else set default logger
 	if cfg.Logger == nil {
 		cfg.Logger = defaultLogger()
@@ -394,12 +394,12 @@ func newStore(cfg *Config) *store {
 	var m = make(s)
 	mValue.Store(m)
 
-	var s = &store{
+	var s = &S{
 		name:           cfg.Name,
 		m:              &mValue,
 		cfg:            cfg,
 		mut:            &sync.Mutex{},
-		groups:         make(map[string]*store),
+		groups:         make(map[string]*S),
 		WatcherLoaders: make([]*loaderWatcher, 0, 10),
 		WatcherClosers: make(Closers, 0, 10),
 		Closers:        make(Closers, 0, 10),

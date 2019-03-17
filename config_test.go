@@ -656,7 +656,7 @@ func TestStop(t *testing.T) {
 	t.Run(
 		"no error, 2 closers",
 		func(t *testing.T) {
-			var c = New(DefaultConfig()).(*store)
+			var c = New(DefaultConfig())
 			var testCloser = &TestCloser{}
 			c.RegisterCloser(testCloser)
 			c.cfg.NoExitOnError = true
@@ -673,8 +673,8 @@ func TestStop(t *testing.T) {
 				err: errors.New("foo"),
 			}
 			c.RegisterCloser(testCloser)
-			c.(*store).cfg.NoExitOnError = true
-			c.(*store).stop()
+			c.cfg.NoExitOnError = true
+			c.stop()
 			require.Equal(t, true, testCloser.closed)
 		},
 	)

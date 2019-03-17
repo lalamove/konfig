@@ -7,7 +7,7 @@ func Getter(k string) ngetter.GetterTyped {
 	return instance().Getter(k)
 }
 
-func (c *store) Getter(k string) ngetter.GetterTyped {
+func (c *S) Getter(k string) ngetter.GetterTyped {
 	return ngetter.GetterTypedFunc(func() interface{} {
 		return c.Get(k)
 	})

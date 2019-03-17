@@ -11,7 +11,7 @@ type loaderWatcher struct {
 	Watcher
 	values      Values
 	name        string
-	s           *store
+	s           *S
 	metrics     *loaderMetrics
 	loaderHooks LoaderHooks
 }
@@ -24,7 +24,7 @@ func NewLoaderWatcher(l Loader, w Watcher) LoaderWatcher {
 	}
 }
 
-func (c *store) newLoaderWatcher(l Loader, w Watcher, loaderHooks LoaderHooks) *loaderWatcher {
+func (c *S) newLoaderWatcher(l Loader, w Watcher, loaderHooks LoaderHooks) *loaderWatcher {
 	var lw = &loaderWatcher{
 		Loader:      l,
 		Watcher:     w,

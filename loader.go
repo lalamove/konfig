@@ -43,7 +43,7 @@ func (l LoaderHooks) Run(cfg Store) error {
 func LoadWatch() error {
 	return instance().LoadWatch()
 }
-func (c *store) LoadWatch() error {
+func (c *S) LoadWatch() error {
 	if err := c.Load(); err != nil {
 		return err
 	} else if err := c.Watch(); err != nil {
@@ -57,7 +57,7 @@ func Load() error {
 	return instance().Load()
 }
 
-func (c *store) Load() error {
+func (c *S) Load() error {
 	if len(c.WatcherLoaders) == 0 {
 		panic(ErrNoLoaders)
 	}
@@ -91,7 +91,7 @@ type ConfigLoader struct {
 	mut *sync.Mutex
 }
 
-func (c *store) newConfigLoader(lw *loaderWatcher) *ConfigLoader {
+func (c *S) newConfigLoader(lw *loaderWatcher) *ConfigLoader {
 	var cl = &ConfigLoader{
 		loaderWatcher: lw,
 		mut:           &sync.Mutex{},
@@ -118,7 +118,7 @@ func (cl *ConfigLoader) AddHooks(loaderHooks ...func(Store) error) *ConfigLoader
 }
 
 // We don't look for Done on the watcher here as the NopWatcher needs to run load at least once
-func (c *store) loaderLoadRetry(wl *loaderWatcher, retry int) error {
+func (c *S) loaderLoadRetry(wl *loaderWatcher, retry int) error {
 	// we create a new Values
 	var v = make(Values, len(wl.values))
 
@@ -163,7 +163,7 @@ func (c *store) loaderLoadRetry(wl *loaderWatcher, retry int) error {
 	return nil
 }
 
-func (c *store) watchLoader(wl *loaderWatcher) {
+func (c *S) watchLoader(wl *loaderWatcher) {
 	// if a panic occurs close everything
 	defer func() {
 		if r := recover(); r != nil {
