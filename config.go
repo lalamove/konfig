@@ -211,10 +211,13 @@ func New(cfg *Config) *S {
 func SetLogger(l nlogger.Structured) {
 	instance().SetLogger(l)
 }
+
+// SetLogger sets the logger used in the store
 func (c *S) SetLogger(l nlogger.Structured) {
 	c.cfg.Logger.Replace(l)
 }
 
+// Name returns the name of the store. The name for the root store is "root".
 func (c *S) Name() string {
 	return c.name
 }
@@ -223,6 +226,8 @@ func (c *S) Name() string {
 func RegisterLoader(l Loader, loaderHooks ...func(Store) error) *ConfigLoader {
 	return instance().RegisterLoader(l, loaderHooks...)
 }
+
+// RegisterLoader registers a Loader l with a given Watcher w.
 func (c *S) RegisterLoader(l Loader, loaderHooks ...func(Store) error) *ConfigLoader {
 	var lw = c.newLoaderWatcher(l, NopWatcher{}, loaderHooks)
 
@@ -238,6 +243,8 @@ func (c *S) RegisterLoader(l Loader, loaderHooks ...func(Store) error) *ConfigLo
 func RegisterLoaderWatcher(lw LoaderWatcher, loaderHooks ...func(Store) error) *ConfigLoader {
 	return instance().RegisterLoaderWatcher(lw, loaderHooks...)
 }
+
+// RegisterLoaderWatcher registers a WatcherLoader to the config.
 func (c *S) RegisterLoaderWatcher(lw LoaderWatcher, loaderHooks ...func(Store) error) *ConfigLoader {
 	var lwatcher = c.newLoaderWatcher(lw, lw, loaderHooks)
 
@@ -255,6 +262,9 @@ func (c *S) RegisterLoaderWatcher(lw LoaderWatcher, loaderHooks ...func(Store) e
 func RegisterCloser(closer io.Closer) Store {
 	return instance().RegisterCloser(closer)
 }
+
+// RegisterCloser adds a closer to the list of closers.
+// Closers are closed when an error occured while reloading a config and the ExitOnError config is set to true
 func (c *S) RegisterCloser(closer io.Closer) Store {
 	c.Closers = append(c.Closers, closer)
 	return c
@@ -291,6 +301,8 @@ func (kh keyHooks) runForKeys(keys []string, c *S) error {
 func RegisterKeyHook(k string, f func(Store) error) Store {
 	return instance().RegisterKeyHook(k, f)
 }
+
+// RegisterKeyHook adds a hook to be run on the given key k and all subkeys of k
 func (c *S) RegisterKeyHook(k string, f func(Store) error) Store {
 	if c.keyHooks == nil {
 		c.keyHooks = keyHooks{}
@@ -304,6 +316,9 @@ func (c *S) RegisterKeyHook(k string, f func(Store) error) Store {
 func Strict(keys ...string) Store {
 	return instance().Strict(keys...)
 }
+
+// Strict specifies mandatory keys on the konfig. After strict is called, konfig will wait for the first config Load to happen and will check if the
+// specified strict keys are present, if not, Load will return a non nil error. Then, after every following `Load` of a loader, it will check if the strict keys are still present in the konfig and consider the load a failure if a key is not present anymore.
 func (c *S) Strict(keys ...string) Store {
 	c.strictKeys = keys
 	return c
@@ -317,6 +332,8 @@ func (c *S) checkStrictKeys() error {
 func RunHooks() error {
 	return instance().RunHooks()
 }
+
+// RunHooks runs all hooks and child groups hooks
 func (c *S) RunHooks() error {
 	// run all key hooks
 	for _, h := range c.keyHooks {

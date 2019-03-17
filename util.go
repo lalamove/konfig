@@ -30,6 +30,8 @@ func (m s) checkStrictKeys(keys []string) error {
 func Exists(k string) bool {
 	return instance().Exists(k)
 }
+
+// Exists checks if a config key k is set in the Store
 func (c *S) Exists(k string) bool {
 	var m = c.m.Load().(s)
 	_, ok := m[k]
@@ -98,6 +100,8 @@ func MustInt(k string) int {
 	return instance().MustInt(k)
 }
 
+// MustInt gets the config k and tries to convert it to an int
+// it panics if the config does not exist or it fails to convert it to an int.
 func (c *S) MustInt(k string) int {
 	return cast.ToInt(c.MustGet(k))
 }
@@ -107,6 +111,9 @@ func (c *S) MustInt(k string) int {
 func Int(k string) int {
 	return instance().Int(k)
 }
+
+// Int gets the config k and tries to convert it to an int
+// It returns the zero value if it doesn't find the config.
 func (c *S) Int(k string) int {
 	return cast.ToInt(c.Get(k))
 }
@@ -116,6 +123,9 @@ func (c *S) Int(k string) int {
 func MustFloat(k string) float64 {
 	return instance().MustFloat(k)
 }
+
+// MustFloat gets the config k and tries to convert it to a float64
+// it panics if it fails.
 func (c *S) MustFloat(k string) float64 {
 	return cast.ToFloat64(c.MustGet(k))
 }
@@ -125,6 +135,9 @@ func (c *S) MustFloat(k string) float64 {
 func Float(k string) float64 {
 	return instance().Float(k)
 }
+
+// Float gets the config k and tries to convert it to float64
+// It returns the zero value if it doesn't find the config.
 func (c *S) Float(k string) float64 {
 	return cast.ToFloat64(c.Get(k))
 }
@@ -135,6 +148,8 @@ func MustString(k string) string {
 	return instance().MustString(k)
 }
 
+// MustString gets the config k and tries to convert it to a string
+// it panics if it fails.
 func (c *S) MustString(k string) string {
 	return cast.ToString(c.MustGet(k))
 }
@@ -144,6 +159,9 @@ func (c *S) MustString(k string) string {
 func String(k string) string {
 	return instance().String(k)
 }
+
+// String gets the config k and tries to convert it to a string
+// It returns the zero value if it doesn't find the config.
 func (c *S) String(k string) string {
 	return cast.ToString(c.Get(k))
 }
@@ -154,6 +172,8 @@ func MustBool(k string) bool {
 	return instance().MustBool(k)
 }
 
+// MustBool gets the config k and tries to convert it to a bool
+// it panics if it fails.
 func (c *S) MustBool(k string) bool {
 	return cast.ToBool(c.MustGet(k))
 }
@@ -164,6 +184,8 @@ func Bool(k string) bool {
 	return instance().Bool(k)
 }
 
+// Bool gets the config k and converts it to a bool.
+// It returns the zero value if it doesn't find the config.
 func (c *S) Bool(k string) bool {
 	return cast.ToBool(c.Get(k))
 }
@@ -174,6 +196,8 @@ func MustDuration(k string) time.Duration {
 	return instance().MustDuration(k)
 }
 
+// MustDuration gets the config k and tries to convert it to a duration
+// it panics if it fails.
 func (c *S) MustDuration(k string) time.Duration {
 	return cast.ToDuration(c.MustGet(k))
 }
@@ -184,6 +208,8 @@ func Duration(k string) time.Duration {
 	return instance().Duration(k)
 }
 
+// Duration gets the config k and converts it to a duration.
+// It returns the zero value if it doesn't find the config.
 func (c *S) Duration(k string) time.Duration {
 	return cast.ToDuration(c.Get(k))
 }
@@ -194,6 +220,8 @@ func MustTime(k string) time.Time {
 	return instance().MustTime(k)
 }
 
+// MustTime gets the config k and tries to convert it to a time.Time
+// it panics if it fails.
 func (c *S) MustTime(k string) time.Time {
 	return cast.ToTime(c.MustGet(k))
 }
@@ -204,6 +232,8 @@ func Time(k string) time.Time {
 	return instance().Time(k)
 }
 
+// Time gets the config k and converts it to a time.Time.
+// It returns the zero value if it doesn't find the config.
 func (c *S) Time(k string) time.Time {
 	return cast.ToTime(c.Get(k))
 }
@@ -213,6 +243,9 @@ func (c *S) Time(k string) time.Time {
 func MustStringSlice(k string) []string {
 	return instance().MustStringSlice(k)
 }
+
+// MustStringSlice gets the config k and tries to convert it to a []string
+// it panics if it fails.
 func (c *S) MustStringSlice(k string) []string {
 	return cast.ToStringSlice(c.MustGet(k))
 }
@@ -222,6 +255,9 @@ func (c *S) MustStringSlice(k string) []string {
 func StringSlice(k string) []string {
 	return instance().StringSlice(k)
 }
+
+// StringSlice gets the config k and converts it to a []string.
+// It returns the zero value if it doesn't find the config.
 func (c *S) StringSlice(k string) []string {
 	return cast.ToStringSlice(c.Get(k))
 }
@@ -231,6 +267,9 @@ func (c *S) StringSlice(k string) []string {
 func MustIntSlice(k string) []int {
 	return instance().MustIntSlice(k)
 }
+
+// MustIntSlice gets the config k and tries to convert it to a []int
+// it panics if it fails.
 func (c *S) MustIntSlice(k string) []int {
 	return cast.ToIntSlice(c.MustGet(k))
 }
@@ -240,6 +279,9 @@ func (c *S) MustIntSlice(k string) []int {
 func IntSlice(k string) []int {
 	return instance().IntSlice(k)
 }
+
+// IntSlice gets the config k and converts it to a []int.
+// it returns the zero value if it doesn't find the config.
 func (c *S) IntSlice(k string) []int {
 	return cast.ToIntSlice(c.Get(k))
 }
@@ -249,6 +291,9 @@ func (c *S) IntSlice(k string) []int {
 func MustStringMap(k string) map[string]interface{} {
 	return instance().MustStringMap(k)
 }
+
+// MustStringMap gets the config k and tries to convert it to a map[string]interface{}
+// it panics if it fails.
 func (c *S) MustStringMap(k string) map[string]interface{} {
 	return cast.ToStringMap(c.MustGet(k))
 }
@@ -258,6 +303,9 @@ func (c *S) MustStringMap(k string) map[string]interface{} {
 func StringMap(k string) map[string]interface{} {
 	return instance().StringMap(k)
 }
+
+// StringMap gets the config k and converts it to a map[string]interface{}.
+// it returns the zero value if it doesn't find the config.
 func (c *S) StringMap(k string) map[string]interface{} {
 	return cast.ToStringMap(c.Get(k))
 }
@@ -267,6 +315,9 @@ func (c *S) StringMap(k string) map[string]interface{} {
 func MustStringMapString(k string) map[string]string {
 	return instance().MustStringMapString(k)
 }
+
+// MustStringMapString gets the config k and tries to convert it to a map[string]string
+// it panics if it fails.
 func (c *S) MustStringMapString(k string) map[string]string {
 	return cast.ToStringMapString(c.MustGet(k))
 }
@@ -276,6 +327,9 @@ func (c *S) MustStringMapString(k string) map[string]string {
 func StringMapString(k string) map[string]string {
 	return instance().StringMapString(k)
 }
+
+// StringMapString gets the config k and converts it to a map[string]string.
+// it returns the zero value if it doesn't find the config.
 func (c *S) StringMapString(k string) map[string]string {
 	return cast.ToStringMapString(c.Get(k))
 }

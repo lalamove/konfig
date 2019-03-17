@@ -43,6 +43,8 @@ func (l LoaderHooks) Run(cfg Store) error {
 func LoadWatch() error {
 	return instance().LoadWatch()
 }
+
+// LoadWatch loads the config then starts watching it
 func (c *S) LoadWatch() error {
 	if err := c.Load(); err != nil {
 		return err
@@ -57,6 +59,7 @@ func Load() error {
 	return instance().Load()
 }
 
+// Load is a function running load on the global config instance
 func (c *S) Load() error {
 	if len(c.WatcherLoaders) == 0 {
 		panic(ErrNoLoaders)
