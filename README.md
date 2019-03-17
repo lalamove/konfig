@@ -116,6 +116,10 @@ if err := konfig.Watch(); err != nil {
 Loaders load config values into the store. A loader is an implementation of the loader interface. 
 ```go
 type Loader interface {
+    // Name return the name of the load, it is used to create labeled vectors metrics per loader
+    Name() string
+    // StopOnFailure indicates if a failure of the loader should trigger a stop
+    StopOnFailure() bool
 	// Loads the config and add it to the Store
 	Load(Store) error
 	// MaxRetry returns the maximum number of times to allow retrying on load failure
@@ -223,6 +227,8 @@ type Watcher interface {
 	// Close closes the watcher, it returns a non nil error if it is already closed
 	// or something prevents it from closing properly.
 	Close() error
+    // Err returns the error attached to the watcher
+    Err() error
 }
 ```
 ### Built in watchers
@@ -393,8 +399,8 @@ When a Loader calls *konfig.Set()*, if the konfig store has a value bound to it,
 Apart from reading from the bound config value, konfig provides several methods to read values.
 
 Every method to retrieve config values come in 2 flavours:
-- **Get** reads a the value at the given key. If key is not present it returns the zero value of the type.
-- **MustGet**  reads a the value at the given key. If key is not present it panics.
+- **Get** reads a value at the given key. If key is not present it returns the zero value of the type.
+- **MustGet**  reads a value at the given key. If key is not present it panics.
 
 All methods to read values from a Store:
 ```go
