@@ -14,13 +14,13 @@ The name is Swedish for "config". We have a lot of nationalities here at Lalamov
 Most config packages for Golang are not very extensible and rarely expose interfaces. This makes it complex to build apps which can reload their state dynamically and difficult to mock. Fewer still come with sources such as Vault, Etcd and multiple encoding formats.
 In short, we didn't find a package that satisfied all of our requirements when we started out.
 
-konfig is built around 4 small interfaces: 
+konfig is built around 4 small interfaces:
 - Loader
-- Watcher 
-- Parser 
-- Closer  
+- Watcher
+- Parser
+- Closer
 
-Konfig features include: 
+Konfig features include:
 - **Dynamic** configuration loading
 - **Composable** load configs from multiple sources, such as vault, files and etcd
 - **Polyglot** load configs from multiple format. Konfig supports JSON, YAML, TOML, Key=Value
@@ -29,16 +29,16 @@ Konfig features include:
 - **Typed Read** get typed values from config or bind a struct
 - **Metrics** exposed prometheus metrics telling you how many times a config is reloaded, if it failed, and how long it takes to reload
 
-# Get started 
+# Get started
 ```sh
 go get github.com/lalamove/konfig
 ```
 
-Load and watch a json formatted config file. 
+Load and watch a json formatted config file.
 ```go
 var configFiles = []klfile.File{
 	{
-		Path: "./config.json",
+		Path:   "./config.json",
 		Parser: kpjson.Parser,
 	},
 }
@@ -48,15 +48,15 @@ func init() {
 }
 
 func main() {
-	// load from json file	
+	// load from json file
 	konfig.RegisterLoaderWatcher(
 		klfile.New(&klfile.Config{
-			Files: 			configFiles,
-			Watch: 			true,
+			Files: configFiles,
+			Watch: true,
 		}),
 		// optionally you can pass config hooks to run when a file is changed
-		func(c Store) error {
-			return nil	
+		func(c konfig.Store) error {
+			return nil
 		},
 	)
 
@@ -73,7 +73,7 @@ func main() {
 The Store is the base of the config package. It holds and gives access to values stored by keys.
 
 ## Creating a Store
-You can create a global Store by calling `konfig.Init(*konfig.Config)`: 
+You can create a global Store by calling `konfig.Init(*konfig.Config)`:
 ```go
 konfig.Init(konfig.DefaultConfig())
 ```
@@ -88,38 +88,38 @@ s := konfig.New(konfig.DefaultConfig())
 ```
 
 ## Loading and Watching a Store
-After registering Loaders and Watchers in the `konfig.Store`, you must load and watch the store. 
+After registering Loaders and Watchers in the `konfig.Store`, you must load and watch the store.
 
 You can do both by calling `LoadWatch`:
 ```go
 if err := konfig.LoadWatch(); err != nil {
-    log.Fatal(err)
+	log.Fatal(err)
 }
 ```
 
 You can call `Load` only, it will load all loaders and return:
 ```go
 if err := konfig.Load(); err != nil {
-    log.Fatal(err)
+	log.Fatal(err)
 }
 ```
 
-And finally you can call `Watch` only, it will start all watchers and return: 
+And finally you can call `Watch` only, it will start all watchers and return:
 ```go
 if err := konfig.Watch(); err != nil {
-    log.Fatal(err)
+	log.Fatal(err)
 }
 ```
 
 
 # Loaders
-Loaders load config values into the store. A loader is an implementation of the loader interface. 
+Loaders load config values into the store. A loader is an implementation of the loader interface.
 ```go
 type Loader interface {
-    // Name return the name of the load, it is used to create labeled vectors metrics per loader
-    Name() string
-    // StopOnFailure indicates if a failure of the loader should trigger a stop
-    StopOnFailure() bool
+	// Name return the name of the load, it is used to create labeled vectors metrics per loader
+	Name() string
+	// StopOnFailure indicates if a failure of the loader should trigger a stop
+	StopOnFailure() bool
 	// Loads the config and add it to the Store
 	Load(Store) error
 	// MaxRetry returns the maximum number of times to allow retrying on load failure
@@ -134,11 +134,11 @@ You can register loaders in the config individually or with a watcher.
 ```go
 configLoader := konfig.RegisterLoader(
 	klfile.New(
- 		&klfile.Config{
+		&klfile.Config{
 			Files: []klfile.File{
 				{
 					Parser: kpjson.Parser,
-					Path: "./konfig.json",
+					Path:   "./konfig.json",
 				},
 			},
 		},
@@ -146,16 +146,16 @@ configLoader := konfig.RegisterLoader(
 )
 ```
 
-### Register a loader with a watcher:  
+### Register a loader with a watcher:
 To register a loader and a watcher together, you must register a `LoaderWatcher` which is an interface that implements both the `Loader` and the `Watcher` interface.
 ```go
 configLoader := konfig.RegisterLoaderWatcher(
 	klfile.New(
- 		&klfile.Config{
+		&klfile.Config{
 			Files: []klfile.File{
 				{
 					Parser: kpjson.Parser,
-					Path: "./konfig.json",
+					Path:   "./konfig.json",
 				},
 			},
 			Watch: true,
@@ -163,7 +163,7 @@ configLoader := konfig.RegisterLoaderWatcher(
 	),
 )
 ```
-You can also compose a loader and a watcher to create a `LoaderWatcher`: 
+You can also compose a loader and a watcher to create a `LoaderWatcher`:
 ```go
 configLoader := konfig.RegisterLoaderWatcher(
 	// it creates a LoaderWatcher from a loader and a watcher
@@ -173,11 +173,12 @@ configLoader := konfig.RegisterLoaderWatcher(
 	),
 )
 ```
+
 ### Built in loaders
 Konfig already has the following loaders, they all have a built in watcher:
 - [File Loader](loader/klfile/README.md)
 
-Loads configs from files which can be watched. Files can have different parsers to load different formats. It has a built in file watcher which triggers a config reload (running hooks) when files are modified. 
+Loads configs from files which can be watched. Files can have different parsers to load different formats. It has a built in file watcher which triggers a config reload (running hooks) when files are modified.
 
 - [Vault Loader](loader/klvault/README.md)
 
@@ -185,7 +186,7 @@ Loads configs from vault secrets. It has a built in Poll Watcher which triggers 
 
 - [HTTP Loader](loader/klhttp/README.md)
 
-Loads configs from HTTP sources. Sources can have different parsers to load different formats. It has a built in Poll Diff Watcher which triggers a config reload (running hooks) if data is different.  
+Loads configs from HTTP sources. Sources can have different parsers to load different formats. It has a built in Poll Diff Watcher which triggers a config reload (running hooks) if data is different.
 
 - [Etcd Loader](loader/kletcd/README.md)
 
@@ -193,7 +194,7 @@ Loads configs from Etcd keys. Keys can have different parser to load different f
 
 - [Consul loader](loader/klconsul/README.md)
 
-Loads configs from Consul KV. Keys can have different parser to load different formats. It has built in Poll Diff Watcher which triggers a config reload (running hooks) if data is different. 
+Loads configs from Consul KV. Keys can have different parser to load different formats. It has built in Poll Diff Watcher which triggers a config reload (running hooks) if data is different.
 
 - [ENV Loader](loader/klenv/README.md)
 
@@ -205,13 +206,13 @@ Loads configs from command line flags.
 
 
 ### Parsers
-Parsers parse an `io.Reader` into a `konfig.Store`. These are used by some loaders to parse the data they fetch into the config store. the File Loader, Etcd Loader and HTTP Loader use Parsers. 
+Parsers parse an `io.Reader` into a `konfig.Store`. These are used by some loaders to parse the data they fetch into the config store. The File Loader, Etcd Loader and HTTP Loader use Parsers.
 
-Config already has the following parsers: 
+Config already has the following parsers:
 - [JSON Parser](parser/kpjson/README.md)
 - [TOML Parser](parser/kptoml/README.md)
 - [YAML Parser](parser/kpyaml/README.md)
-- [KV Parser](parser/kpkeyval/README.md) 
+- [KV Parser](parser/kpkeyval/README.md)
 - [Map Parser](parser/kpmap/README.md)
 
 # Watchers
@@ -227,19 +228,20 @@ type Watcher interface {
 	// Close closes the watcher, it returns a non nil error if it is already closed
 	// or something prevents it from closing properly.
 	Close() error
-    // Err returns the error attached to the watcher
-    Err() error
+	// Err returns the error attached to the watcher
+	Err() error
 }
 ```
+
 ### Built in watchers
-Konfig already has the following watchers: 
-- [File Watcher](watcher/filewatcher/README.md)
+Konfig already has the following watchers:
+- [File Watcher](watcher/kwfile/README.md)
 
-Watches files for changes. 
+Watches files for changes.
 
-- [Poll Watcher](watcher/filewatcher/README.md)
+- [Poll Watcher](watcher/kwpoll/README.md)
 
-Sends events at a given rate, or if diff is enabled. It takes a Getter and fetches the data at a given rate. If data is different, it sends an event. 
+Sends events at a given rate, or if diff is enabled. It takes a Getter and fetches the data at a given rate. If data is different, it sends an event.
 
 # Hooks
 Hooks are functions ran after a successful loader `Load()` call. They are used to reload the state of the application on a config change.
@@ -249,11 +251,11 @@ You can register a loader or a loader watcher with hooks.
 ```go
 configLoader := konfig.RegisterLoaderWatcher(
 	klfile.New(
- 		&klfile.Config{
+		&klfile.Config{
 			Files: []klfile.File{
 				{
-					Parser: yamlparser.Parser,
-					Path: "./konfig.yaml",
+					Parser: kpyaml.Parser,
+					Path:   "./konfig.yaml",
 				},
 			},
 			Watch: true,
@@ -271,25 +273,25 @@ You can register a *Loader* or a *LoaderWatcher* with hooks.
 ```go
 configLoader.AddHooks(
 	func(s konfig.Store) error {
-		// Here you should reload the state of your app	
+		// Here you should reload the state of your app
 		return nil
 	},
 	func(s konfig.Store) error {
-		// Here you should reload the state of your app	
+		// Here you should reload the state of your app
 		return nil
 	},
 )
 ```
 
 ### Adding hooks on keys
-Alternatively, you can add hooks on keys. Hooks on keys will match for prefix in order to run a hook when any key with a given prefix is updated. 
-A hook can only be run once per load event, even if multiple keys match that hook.   
+Alternatively, you can add hooks on keys. Hooks on keys will match for prefix in order to run a hook when any key with a given prefix is updated.
+A hook can only be run once per load event, even if multiple keys match that hook.
 ```go
 konfig.RegisterKeyHook(
-    "db.",
-    func(s konfig.Store) error {
-        return nil
-    },
+	"db.",
+	func(s konfig.Store) error {
+		return nil
+	},
 )
 ```
 
@@ -299,22 +301,23 @@ konfig.RegisterKeyHook(
 type Closer interface {
 	Close() error
 }
-``` 
+```
+
 ## Register a Closer
 ```go
 konfig.RegisterCloser(closer)
 ```
 
 # Config Groups
-You can namespace your configs using config Groups. 
+You can namespace your configs using config Groups.
 ```go
-konfig.Group("db").RegisterLoaderWatcher(	
+konfig.Group("db").RegisterLoaderWatcher(
 	klfile.New(
- 		&klfile.Config{
+		&klfile.Config{
 			Files: []klfile.File{
 				{
-					Parser: yamlparser.Parser,
-					Path: "./db.yaml",
+					Parser: kpyaml.Parser,
+					Path:   "./db.yaml",
 				},
 			},
 			Watch: true,
@@ -322,14 +325,14 @@ konfig.Group("db").RegisterLoaderWatcher(
 	),
 )
 
-// accessing grouped config 
+// accessing grouped config
 dbHost := konfig.Group("db").MustString("credentials.host")
 ```
 
 # Binding a Type to a Store
 You can bind a type to the konfig store if you want your config values to be unmarshaled to a **struct** or a **map[string]interface{}**. Then you can access an instance of that type in a thread safe manner (in order to be safe for dynamic config updates).
 
-Let's see with an example of a json config file: 
+Let's see with an example of a json config file:
 ```json
 {
     "addr": ":8080",
@@ -345,13 +348,13 @@ Let's see with an example of a json config file:
 
 ```go
 type DBConfig struct {
-    Username string
+	Username string
 }
 type Config struct {
-    Addr        string
-    Debug       string
-    DB          DBConfig `konfig:"db"`
-    RedisHost   string `konfig:"redis.host"`
+	Addr      string
+	Debug     string
+	DB        DBConfig `konfig:"db"`
+	RedisHost string   `konfig:"redis.host"`
 }
 
 // we init the root konfig store
@@ -363,11 +366,11 @@ konfig.Bind(Config{})
 // we register our config file
 konfig.RegisterLoaderWatcher(
 	klfile.New(
- 		&klfile.Config{
+		&klfile.Config{
 			Files: []klfile.File{
 				{
 					Parser: kpjson.Parser,
-					Path: "./config.json",
+					Path:   "./config.json",
 				},
 			},
 			Watch: true,
@@ -377,7 +380,7 @@ konfig.RegisterLoaderWatcher(
 
 // we load our config and start watching
 if err := konfig.LoadWatch(); err != nil {
-    log.Fatal(err)
+	log.Fatal(err)
 }
 
 // Get our config value
@@ -386,13 +389,13 @@ c := konfig.Value().(Config)
 fmt.Println(c.Addr) // :8080
 ```
 
-Note that you can compose your config sources. For example, have your credentials come from Vault and be renewed often and have the rest of your config loaded from a file and be updated on file change. 
+Note that you can compose your config sources. For example, have your credentials come from Vault and be renewed often and have the rest of your config loaded from a file and be updated on file change.
 
 **It is important to understand how Konfig unmarshals your config values into your struct.**
-When a Loader calls *konfig.Set()*, if the konfig store has a value bound to it, it will try to unmarshal the key to the bound value. 
+When a Loader calls *konfig.Set()*, if the konfig store has a value bound to it, it will try to unmarshal the key to the bound value.
 - First, it will look for field tags in the struct, if a tag matches exactly the key, it will unmarshal the key to the struct field.
 - Then, it will do a EqualFold on the field name and the key, if they match, it will unmarshal the key to the struct field.
-- Then, if the key has a dot, it will check if the tag or the field name (to lowercase) is a prefix of the key, if yes, it will check if the type of the field is a struct of pointer, if yes, it will check the struct using what's after the prefix as the key. 
+- Then, if the key has a dot, it will check if the tag or the field name (to lowercase) is a prefix of the key, if yes, it will check if the type of the field is a struct of pointer, if yes, it will check the struct using what's after the prefix as the key.
 
 
 # Read from config
@@ -407,7 +410,7 @@ All methods to read values from a Store:
 // Exists checks whether the key k is set in the store.
 Exists(k string) bool
 
-// Get gets the value with the key k fron the store. If the key is not set, Get returns nil. To check whether a value is really set, use Exists.
+// Get gets the value with the key k from the store. If the key is not set, Get returns nil. To check whether a value is really set, use Exists.
 Get(k string) interface{}
 // MustGet tries to get the value with the key k from the store. If the key k does not exist in the store, MustGet panics.
 MustGet(k string) interface{}
@@ -460,11 +463,11 @@ StringMap(k string) map[string]interface{}
 // MustStringMapString tries to get the value with the key k from the store and casts it to a map[string]string. If the key k does not exist in the store, MustStringMapString panics.
 MustStringMapString(k string) map[string]string
 // StringMapString tries to get the value with the key k from the store and casts it to a map[string]string. If the key k does not exist it returns the Zero value.
-StringMapString(k string) map[string]string 
+StringMapString(k string) map[string]string
 ```
 
 # Strict Keys
-You can define required keys on the `konfig.Store` by calling the `Strict` method. When calling strict method, konfig will set required keys on the store and during the first `Load` call on the store it will check if the keys are present, if not, Load will return a non nil error. Then, after every `Load` on a loader, konfig will check again if the keys are still present, if not, the loader Load will be considered a failure.
+You can define required keys on the `konfig.Store` by calling the `Strict` method. When calling strict method, konfig will set required keys on the store and during the first `Load` call on the store it will check if the keys are present, if not, Load will return a non nil error. Then, after every `Load` on a loader, konfig will check again if the keys are still present, if not, the loader `Load` will be considered a failure.
 
 Usage:
 ```
@@ -475,16 +478,16 @@ konfig.Init(konfig.DefaultConfig()).Strict("debug", "username")
 ...
 
 // We load our config and start watching.
-// If strict keys are not found after the load operation, LoadWatch will return a non nil error. 
+// If strict keys are not found after the load operation, LoadWatch will return a non nil error.
 if err := konfig.LoadWatch(); err != nil {
-    log.Fatal(err)
+	log.Fatal(err)
 }
 ```
 
 # Getter
 To easily build services which can use dynamically loaded configs you can create getters for specific keys. A getter implements `ngetter.GetterTyped` from [nui](github.com/lalamove/nui) package. It is useful when building apps in larger distributed environments.
 
-Example with a config value set for the debug key: 
+Example with a config value set for the debug key:
 ```go
 debug := konfig.Getter("debug")
 
@@ -494,11 +497,11 @@ debug.Bool() // true
 # Metrics
 Konfig comes with prometheus metrics.
 
-Two metrics are exposed: 
-- Config reloads counter vector with labels 
+Two metrics are exposed:
+- Config reloads counter vector with labels
 - Config reload duration summary vector with labels
 
-Example of metrics: 
+Example of metrics:
 ```
 # HELP konfig_loader_reload Number of config loader reload
 # TYPE konfig_loader_reload counter
@@ -514,16 +517,16 @@ konfig_loader_reload_duration_sum{loader="config-files",store=""} 0.001227641
 konfig_loader_reload_duration_count{loader="config-files",store=""} 1.0
 ```
 
-To enable metrics, you must pass a custom config when creating a config store: 
+To enable metrics, you must pass a custom config when creating a config store:
 ```go
 konfig.Init(&konfig.Config{
-    Metrics: true,
-    Name: "root",
+	Metrics: true,
+	Name: "root",
 })
 ```
 
 # Benchmark
-Benchmarks are run on `viper`, `go-config` and `konfig`. Benchmark are done on reading ops and show that Konfig is 0 allocs on read and at leat 3x fastet than Viper:
+Benchmarks are run on `viper`, `go-config` and `konfig`. Benchmark are done on reading ops and show that Konfig is 0 allocs on read and at leat 3x faster than Viper:
 ```
 cd benchmarks && go test -bench . && cd ../
 goos: linux
@@ -539,6 +542,6 @@ PASS
 ```
 
 
-# Contributing 
+# Contributing
 
-Contributions are welcome. To make contributions, fork the repository, create a branch and submit a Pull Request to the master branch. 
+Contributions are welcome. To make contributions, fork the repository, create a branch and submit a Pull Request to the master branch.
