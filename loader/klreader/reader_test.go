@@ -3,9 +3,12 @@ package klreader
 import (
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/golang/mock/gomock"
+	"github.com/lalamove/konfig"
 	"github.com/lalamove/konfig/mocks"
+	"github.com/stretchr/testify/require"
 )
 
 func TestLoader(t *testing.T) {
