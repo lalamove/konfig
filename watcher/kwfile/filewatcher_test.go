@@ -18,7 +18,7 @@ func TestWatcher(t *testing.T) {
 				func() {
 					New(&Config{
 						Files: []string{"donotexist"},
-						Rate:  10 * time.Second,
+						Rate:  0, // using default rate
 					})
 				},
 			)
@@ -62,6 +62,7 @@ func TestWatcher(t *testing.T) {
 			}
 
 			require.True(t, watched)
+			require.Nil(t, n.Err())
 		},
 	)
 
@@ -104,7 +105,7 @@ func TestWatcher(t *testing.T) {
 				Debug: true,
 			})
 
-			n.cfg.Rate = 0
+			n.cfg.Rate = 0 // duration is less than 1ns
 
 			n.Start()
 		},
