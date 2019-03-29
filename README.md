@@ -204,6 +204,10 @@ Loads configs from environment variables.
 
 Loads configs from command line flags.
 
+- [io.Reader Loader](loader/klreader/README.md)
+
+Loads configs from an io.Reader.
+
 
 ### Parsers
 Parsers parse an `io.Reader` into a `konfig.Store`. These are used by some loaders to parse the data they fetch into the config store. The File Loader, Etcd Loader and HTTP Loader use Parsers.
