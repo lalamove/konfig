@@ -190,7 +190,7 @@ func (vl *Loader) Load(cs konfig.Values) error {
 	}
 
 	// reset the ttl for renewal
-	vl.resetTTL(time.Duration(vl.cfg.TTLRatio), ttl, time.Duration(leaseDuration)*time.Second)
+	vl.resetTTL(vl.cfg.TTLRatio, ttl, time.Duration(leaseDuration)*time.Second)
 	return nil
 }
 
@@ -205,12 +205,12 @@ func (vl *Loader) StopOnFailure() bool {
 	return vl.cfg.StopOnFailure
 }
 
-func (vl *Loader) resetTTL(ttlFac, tokenTTL, secretTTL time.Duration) {
+func (vl *Loader) resetTTL(ttlFac int, tokenTTL, secretTTL time.Duration) {
 	var ttl = tokenTTL
 	if secretTTL < tokenTTL {
 		ttl = secretTTL
 	}
-	ttl = ttl * ttlFac / 100
+	ttl = ttl * time.Duration(ttlFac) / 100
 	vl.mut.Lock()
 	if ttl != vl.ttl {
 		vl.ttl = ttl
