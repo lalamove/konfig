@@ -17,7 +17,8 @@ import (
 var _ konfig.Loader = (*Loader)(nil)
 
 var (
-	defaultTTL = 45 * time.Minute
+	defaultTTL      = 45 * time.Minute
+	defaultTTLRatio = 75
 	// ErrNoClient is the error thrown when trying to create a Loader without vault.Client
 	ErrNoClient = errors.New("No vault client provided")
 	// ErrNoAuthProvider is the error thrown when trying to create a Loader without an AuthProvider
@@ -65,6 +66,10 @@ type Config struct {
 	Debug bool
 	// Logger is the logger used for debug logs
 	Logger nlogger.Provider
+	// TTLRatio is the factor to multiply the key's TTL by to deduce the moment
+	// the Loader should ask vault for new credentials. Default value is 75.
+	// Example: ttl = 1h, ttl * 75 / 100 = 45m, the loader will refresh key after 45m
+	TTLRatio int
 	// Renew sets wether the vault loader should renew it self
 	Renew bool
 }
@@ -94,6 +99,9 @@ func New(cfg *Config) *Loader {
 	}
 	if cfg.Name == "" {
 		cfg.Name = defaultName
+	}
+	if cfg.TTLRatio == 0 {
+		cfg.TTLRatio = defaultTTLRatio
 	}
 	var vl = &Loader{
 		cfg:           cfg,
@@ -182,7 +190,7 @@ func (vl *Loader) Load(cs konfig.Values) error {
 	}
 
 	// reset the ttl for renewal
-	vl.resetTTL(ttl, time.Duration(leaseDuration)*time.Second)
+	vl.resetTTL(vl.cfg.TTLRatio, ttl, time.Duration(leaseDuration)*time.Second)
 	return nil
 }
 
@@ -197,12 +205,12 @@ func (vl *Loader) StopOnFailure() bool {
 	return vl.cfg.StopOnFailure
 }
 
-func (vl *Loader) resetTTL(tokenTTL, secretTTL time.Duration) {
+func (vl *Loader) resetTTL(ttlFac int, tokenTTL, secretTTL time.Duration) {
 	var ttl = tokenTTL
 	if secretTTL < tokenTTL {
 		ttl = secretTTL
 	}
-	ttl = (ttl * 75) / 100
+	ttl = ttl * time.Duration(ttlFac) / 100
 	vl.mut.Lock()
 	if ttl != vl.ttl {
 		vl.ttl = ttl
