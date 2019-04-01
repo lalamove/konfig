@@ -187,7 +187,7 @@ func TestResetTTL(t *testing.T) {
 				var vl = &Loader{
 					mut: &sync.Mutex{},
 				}
-				vl.resetTTL(testCase.tokenTTL, testCase.secretTTL)
+				vl.resetTTL(75, testCase.tokenTTL, testCase.secretTTL)
 				require.Equal(t, testCase.expectedTTL, vl.ttl)
 			},
 		)
