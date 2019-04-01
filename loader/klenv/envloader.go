@@ -37,6 +37,9 @@ type Config struct {
 	MaxRetry int
 	// RetryDelay is the time betweel each retry
 	RetryDelay time.Duration
+	// SliceSeparator contains separator for values like `item1,item2,item3`.
+	// Such values will be loaded as string slice if separator is not empty.
+	SliceSeparator string
 }
 
 // Loader is the structure representing the environment loader
@@ -65,6 +68,19 @@ func New(cfg *Config) *Loader {
 // Name returns the name of the loader
 func (l *Loader) Name() string { return l.cfg.Name }
 
+func (l *Loader) convertValue(v string) interface{} {
+	if l.cfg.SliceSeparator != "" {
+		// do not load value as slice if it contains only one item
+		// to avoid situation when all string values will be string slice values
+		// binding mechanism correctly works when we try to bind one string to string slice
+		if strings.Contains(v, l.cfg.SliceSeparator) {
+			return strings.Split(v, l.cfg.SliceSeparator)
+		}
+	}
+
+	return v
+}
+
 // Load implements konfig.Loader, it loads environment variables into the konfig.Store
 // based on config passed to the loader
 func (l *Loader) Load(s konfig.Values) error {
@@ -82,7 +98,7 @@ func (l *Loader) Load(s konfig.Values) error {
 			k = l.cfg.Replacer.Replace(k)
 		}
 		k = l.cfg.Prefix + k
-		s.Set(k, spl[1])
+		s.Set(k, l.convertValue(spl[1]))
 	}
 
 	return nil
@@ -105,7 +121,7 @@ func (l *Loader) loadVars(s konfig.Values) error {
 			k = l.cfg.Replacer.Replace(k)
 		}
 		k = l.cfg.Prefix + k
-		s.Set(k, v)
+		s.Set(k, l.convertValue(v))
 	}
 	return nil
 }

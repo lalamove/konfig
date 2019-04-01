@@ -33,6 +33,28 @@ func TestEnvLoader(t *testing.T) {
 	)
 
 	t.Run(
+		"load string slice values from defined env vars",
+		func(t *testing.T) {
+			os.Setenv("FOO", "BAR1,BAR2,BAR3")
+			os.Setenv("BAR", "FOO") // we should get "string" value in store
+
+			var l = New(&Config{
+				Vars: []string{
+					"FOO",
+					"BAR",
+				},
+				SliceSeparator: ",",
+			})
+
+			var v = konfig.Values{}
+			l.Load(v)
+
+			require.Equal(t, []string{"BAR1", "BAR2", "BAR3"}, v["FOO"])
+			require.Equal(t, "FOO", v["BAR"])
+		},
+	)
+
+	t.Run(
 		"load env vars regexp",
 		func(t *testing.T) {
 			konfig.Init(konfig.DefaultConfig())
@@ -48,6 +70,30 @@ func TestEnvLoader(t *testing.T) {
 			l.Load(v)
 
 			require.Equal(t, "BAR", v["FOO"])
+			var _, ok = v["BAR"]
+			require.Equal(t, false, ok)
+		},
+	)
+
+	t.Run(
+		"load string slice values from env vars regexp",
+		func(t *testing.T) {
+			konfig.Init(konfig.DefaultConfig())
+
+			os.Setenv("FOO", "BAR1,BAR2,BAR3")
+			os.Setenv("FAA", "VAL")
+			os.Setenv("BAR", "FOO")
+
+			var l = New(&Config{
+				Regexp:         "^F.*",
+				SliceSeparator: ",",
+			})
+
+			var v = konfig.Values{}
+			l.Load(v)
+
+			require.Equal(t, []string{"BAR1", "BAR2", "BAR3"}, v["FOO"])
+			require.Equal(t, "VAL", v["FAA"])
 			var _, ok = v["BAR"]
 			require.Equal(t, false, ok)
 		},
