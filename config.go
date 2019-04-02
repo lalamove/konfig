@@ -66,6 +66,8 @@ type Config struct {
 	Logger nlogger.Provider
 	// Metrics sets whether a konfig.Store should record metrics for config loaders
 	Metrics bool
+	// MaxWatcherPanics is the maximum number of times to restart a watcher when it panics, default is 0.
+	MaxWatcherPanics int
 }
 
 // Store is the interface
