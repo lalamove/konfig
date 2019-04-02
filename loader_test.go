@@ -81,12 +81,13 @@ func TestLoaderLoadRetry(t *testing.T) {
 			},
 		},
 		{
-			name: "success, no loader hooks, 1 retrty",
+			name: "success, no loader hooks, 1 retry",
 			build: func(ctrl *gomock.Controller) *loaderWatcher {
 				var mockW = NewMockWatcher(ctrl)
 				var mockL = NewMockLoader(ctrl)
 				gomock.InOrder(
 					mockL.EXPECT().Load(Values{}).Return(errors.New("")),
+					mockL.EXPECT().Name().Return("l"),
 					mockL.EXPECT().MaxRetry().Return(1),
 					mockL.EXPECT().RetryDelay().Return(1*time.Millisecond),
 					mockL.EXPECT().Load(Values{}).Return(nil),
@@ -107,9 +108,11 @@ func TestLoaderLoadRetry(t *testing.T) {
 				var mockL = NewMockLoader(ctrl)
 				gomock.InOrder(
 					mockL.EXPECT().Load(Values{}).Return(errors.New("")),
+					mockL.EXPECT().Name().Return("l"),
 					mockL.EXPECT().MaxRetry().Return(1),
 					mockL.EXPECT().RetryDelay().Return(1*time.Millisecond),
 					mockL.EXPECT().Load(Values{}).Return(errors.New("")),
+					mockL.EXPECT().Name().Return("l"),
 					mockL.EXPECT().MaxRetry().Return(1),
 				)
 				var wl = &loaderWatcher{
@@ -127,6 +130,7 @@ func TestLoaderLoadRetry(t *testing.T) {
 				var mockL = NewMockLoader(ctrl)
 				gomock.InOrder(
 					mockL.EXPECT().Load(Values{}).Return(errors.New("")),
+					mockL.EXPECT().Name().Return("l"),
 					mockL.EXPECT().MaxRetry().Return(1),
 					mockL.EXPECT().RetryDelay().Return(1*time.Millisecond),
 					mockL.EXPECT().Load(Values{}).Return(nil),
@@ -154,6 +158,7 @@ func TestLoaderLoadRetry(t *testing.T) {
 				var mockL = NewMockLoader(ctrl)
 				gomock.InOrder(
 					mockL.EXPECT().Load(Values{}).Return(errors.New("")),
+					mockL.EXPECT().Name().Return("l"),
 					mockL.EXPECT().MaxRetry().Return(1),
 					mockL.EXPECT().RetryDelay().Return(1*time.Millisecond),
 					mockL.EXPECT().Load(Values{}).Return(nil),
@@ -212,6 +217,7 @@ func TestLoaderLoadRetryStrictKeys(t *testing.T) {
 		mockL.EXPECT().Load(Values{}).Do(func(v Values) {
 			v["test"] = "test"
 		}).Return(errors.New("")),
+		mockL.EXPECT().Name().Return("l"),
 		mockL.EXPECT().MaxRetry().Return(1),
 		mockL.EXPECT().RetryDelay().Return(1*time.Millisecond),
 		mockL.EXPECT().Load(Values{}).Do(func(v Values) {
@@ -221,6 +227,7 @@ func TestLoaderLoadRetryStrictKeys(t *testing.T) {
 		mockL.EXPECT().Load(Values{}).Do(func(v Values) {
 			v["test"] = "test"
 		}).Return(errors.New("")),
+		mockL.EXPECT().Name().Return("l"),
 		mockL.EXPECT().MaxRetry().Return(1),
 		mockL.EXPECT().RetryDelay().Return(1*time.Millisecond),
 		mockL.EXPECT().Load(Values{}).Do(func(v Values) {
@@ -363,9 +370,10 @@ func TestLoaderLoadRetryKeyHooks(t *testing.T) {
 
 func TestLoaderLoadWatch(t *testing.T) {
 	var testCases = []struct {
-		name  string
-		err   bool
-		build func(ctrl *gomock.Controller) *loaderWatcher
+		name      string
+		err       bool
+		maxPanics int
+		build     func(ctrl *gomock.Controller) *loaderWatcher
 	}{
 		{
 			name: "success, no errors",
@@ -395,7 +403,7 @@ func TestLoaderLoadWatch(t *testing.T) {
 				var mockL = NewMockLoader(ctrl)
 
 				mockL.EXPECT().Name().MinTimes(1).Return("test")
-				mockL.EXPECT().Load(Values{}).Times(4).Return(errors.New(""))
+				mockL.EXPECT().Load(Values{}).Times(4).Return(errors.New("some err"))
 				mockL.EXPECT().MaxRetry().Times(4).Return(3)
 				mockL.EXPECT().RetryDelay().Times(3).Return(50 * time.Millisecond)
 				mockL.EXPECT().StopOnFailure().Return(true)
@@ -409,6 +417,78 @@ func TestLoaderLoadWatch(t *testing.T) {
 				return wl
 			},
 		},
+		{
+			name: "panic load after watch, maxPanics 0",
+			build: func(ctrl *gomock.Controller) *loaderWatcher {
+				var mockW = NewMockWatcher(ctrl)
+				var mockL = NewMockLoader(ctrl)
+
+				var c = make(chan struct{}, 1)
+				var d = make(chan struct{})
+
+				mockL.EXPECT().Name().MinTimes(1).Return("test")
+				mockL.EXPECT().Load(Values{}).Return(nil)
+				mockW.EXPECT().Start().Return(nil)
+				mockW.EXPECT().Watch().MinTimes(1).Return(c)
+				mockW.EXPECT().Done().MinTimes(1).Return(d)
+
+				mockL.EXPECT().Load(Values{}).Do(func(Values) error {
+					panic(errors.New("some err"))
+				}).Return(nil)
+				mockL.EXPECT().StopOnFailure().Return(false)
+				mockW.EXPECT().Close().Return(nil)
+
+				var wl = &loaderWatcher{
+					Watcher:     mockW,
+					Loader:      mockL,
+					loaderHooks: nil,
+				}
+				// trigger a watch
+				c <- struct{}{}
+				return wl
+			},
+		},
+		{
+
+			name:      "panic load after watch, maxPanics 2",
+			maxPanics: 2,
+			build: func(ctrl *gomock.Controller) *loaderWatcher {
+				var mockW = NewMockWatcher(ctrl)
+				var mockL = NewMockLoader(ctrl)
+
+				var c = make(chan struct{}, 3)
+				var d = make(chan struct{})
+
+				mockL.EXPECT().Name().MinTimes(1).Return("test")
+				mockL.EXPECT().Load(Values{}).Return(nil)
+				mockW.EXPECT().Start().Return(nil)
+				mockW.EXPECT().Watch().MinTimes(1).Return(c)
+				mockW.EXPECT().Done().MinTimes(1).Return(d)
+
+				gomock.InOrder(
+					mockL.EXPECT().Load(Values{}).Do(func(Values) error {
+						panic(errors.New("some err"))
+					}).Return(nil),
+					mockL.EXPECT().StopOnFailure().Return(false),
+					mockL.EXPECT().Load(Values{}).Do(func(Values) error {
+						panic(errors.New("some err"))
+					}).Return(nil),
+					mockL.EXPECT().StopOnFailure().Return(false),
+					mockW.EXPECT().Close().Return(nil),
+				)
+
+				var wl = &loaderWatcher{
+					Watcher:     mockW,
+					Loader:      mockL,
+					loaderHooks: nil,
+				}
+				// trigger a watch
+				c <- struct{}{}
+				c <- struct{}{}
+				c <- struct{}{}
+				return wl
+			},
+		},
 	}
 
 	for _, testCase := range testCases {
@@ -418,10 +498,9 @@ func TestLoaderLoadWatch(t *testing.T) {
 				var ctrl = gomock.NewController(t)
 				defer ctrl.Finish()
 
-				reset()
-
 				var c = New(&Config{
-					Metrics: true,
+					Metrics:          true,
+					MaxWatcherPanics: testCase.maxPanics,
 				})
 
 				c.RegisterLoaderWatcher(

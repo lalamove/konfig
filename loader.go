@@ -128,8 +128,14 @@ func (c *S) loaderLoadRetry(wl *loaderWatcher, retry int) error {
 	// we call the loader
 	if err := wl.Load(v); err != nil {
 
+		c.cfg.Logger.Get().Error(fmt.Sprintf(
+			"Error %d in loader %s: %s",
+			retry,
+			wl.Name(),
+			err.Error(),
+		))
+
 		if retry >= wl.MaxRetry() {
-			c.cfg.Logger.Get().Error(err.Error())
 			return err
 		}
 
@@ -166,17 +172,28 @@ func (c *S) loaderLoadRetry(wl *loaderWatcher, retry int) error {
 	return nil
 }
 
-func (c *S) watchLoader(wl *loaderWatcher) {
-	// if a panic occurs close everything
+func (c *S) watchLoader(wl *loaderWatcher, panics int) {
+	// if a panic occurs we log it
+	// then, if the current loader requires a to stop on failure, we stop everything,
+	// else, we restart the watcher.
 	defer func() {
 		if r := recover(); r != nil {
-			c.cfg.Logger.Get().Error(fmt.Sprintf("%v", r))
-			c.stop()
-			return
+			c.cfg.Logger.Get().Error(
+				fmt.Sprintf(
+					"Panic %d in loader %s: %v",
+					panics,
+					wl.Name(),
+					r,
+				),
+			)
+			if wl.StopOnFailure() || panics >= c.cfg.MaxWatcherPanics {
+				c.stop()
+				return
+			}
+			go c.watchLoader(wl, panics+1)
 		}
 	}()
 
-	// make sure we recover from panics
 	for {
 		select {
 		case <-wl.Done():

@@ -141,6 +141,7 @@ func TestConfigWatcherLoader(t *testing.T) {
 
 				gomock.InOrder(
 					l.EXPECT().Load(Values{}).Return(errors.New("")),
+					l.EXPECT().Name().Return("foo"),
 					l.EXPECT().Load(Values{}).Return(nil),
 				)
 
@@ -163,6 +164,7 @@ func TestConfigWatcherLoader(t *testing.T) {
 
 				gomock.InOrder(
 					l.EXPECT().Load(Values{}).Return(errors.New("")),
+					l.EXPECT().Name().Return("l"),
 					l.EXPECT().Load(Values{}).Return(nil),
 				)
 
@@ -186,8 +188,11 @@ func TestConfigWatcherLoader(t *testing.T) {
 
 				gomock.InOrder(
 					l.EXPECT().Load(Values{}).Return(errors.New("")),
+					l.EXPECT().Name().Return("l"),
 					l.EXPECT().Load(Values{}).Return(errors.New("")),
+					l.EXPECT().Name().Return("l"),
 					l.EXPECT().Load(Values{}).Return(errors.New("")),
+					l.EXPECT().Name().Return("l"),
 					l.EXPECT().StopOnFailure().Return(false),
 				)
 
@@ -214,8 +219,11 @@ func TestConfigWatcherLoader(t *testing.T) {
 				gomock.InOrder(
 					l.EXPECT().Load(Values{}).Return(nil),
 					l.EXPECT().Load(Values{}).Return(errors.New("")),
+					l.EXPECT().Name().Return("l"),
 					l.EXPECT().Load(Values{}).Return(errors.New("")),
+					l.EXPECT().Name().Return("l"),
 					l.EXPECT().Load(Values{}).Return(errors.New("")),
+					l.EXPECT().Name().Return("l"),
 					l.EXPECT().StopOnFailure().Return(true),
 				)
 				wl.EXPECT().Start().Times(1).Return(nil)
@@ -263,8 +271,11 @@ func TestConfigWatcherLoader(t *testing.T) {
 				gomock.InOrder(
 					l.EXPECT().Load(Values{}).Return(nil),
 					l.EXPECT().Load(Values{}).Return(errors.New("")),
+					l.EXPECT().Name().Return("l"),
 					l.EXPECT().Load(Values{}).Return(errors.New("")),
+					l.EXPECT().Name().Return("l"),
 					l.EXPECT().Load(Values{}).Return(errors.New("")),
+					l.EXPECT().Name().Return("l"),
 					l.EXPECT().StopOnFailure().Return(true),
 				)
 				wl2.EXPECT().Start().Times(1).Return(nil)

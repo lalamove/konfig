@@ -69,7 +69,7 @@ func (c *S) Watch() error {
 		if err := wl.Start(); err != nil {
 			return err
 		}
-		go c.watchLoader(wl)
+		go c.watchLoader(wl, 1)
 	}
 	return nil
 }
