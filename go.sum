@@ -209,6 +209,8 @@ github.com/hashicorp/errwrap v1.0.0 h1:hLrqtEDnRye3+sgx6z4qVLNuviH3MR5aQ0ykNJa/U
 github.com/hashicorp/errwrap v1.0.0/go.mod h1:YH+1FKiLXxHSkmPseP+kNlulaMuP3n2brvKWEqk/Jc4=
 github.com/hashicorp/go-cleanhttp v0.5.0 h1:wvCrVc9TjDls6+YGAF2hAifE1E5U1+b4tH6KdvN3Gig=
 github.com/hashicorp/go-cleanhttp v0.5.0/go.mod h1:JpRdi6/HCYpAwUzNwuwqhbovhLtngrth3wmdIIUrZ80=
+github.com/hashicorp/go-cleanhttp v0.5.1 h1:dH3aiDG9Jvb5r5+bYHsikaOUIpcM0xvgMXVoDkXMzJM=
+github.com/hashicorp/go-cleanhttp v0.5.1/go.mod h1:JpRdi6/HCYpAwUzNwuwqhbovhLtngrth3wmdIIUrZ80=
 github.com/hashicorp/go-gcp-common v0.0.0-20180425173946-763e39302965 h1:CRWAJ7atEOq9OfAa5rBKvL4wFNbUrPil8hN1knLuEG0=
 github.com/hashicorp/go-gcp-common v0.0.0-20180425173946-763e39302965/go.mod h1:LNbios2fdMAuLA1dsYUvUcoCYIfywcCEK8/ooaWjoOA=
 github.com/hashicorp/go-hclog v0.0.0-20180709165350-ff2cf002a8dd/go.mod h1:9bjs9uLqI8l75knNv3lV1kA55veR+WUPSiKIWcQHudI=
@@ -313,6 +315,8 @@ github.com/kr/text v0.1.0 h1:45sCR5RtlFHMR4UwH9sdQ5TC8v0qDQCHnXt+kaKSTVE=
 github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=
 github.com/lalamove/nui v0.1.0 h1:dG/KfB4IoFejTUuOZ+fR+f98p9V1HVBXQ6LYWtdT7NM=
 github.com/lalamove/nui v0.1.0/go.mod h1:IMgw/td9JHjoU1dpHjGj6o1i7bSeG/UO1/DODuPdz+o=
+github.com/lalamove/nui v0.2.0 h1:IG6BxqLcIvMB2kdw0kBfm8ZKxlAmedJWgChZXdvIYso=
+github.com/lalamove/nui v0.2.0/go.mod h1:IMgw/td9JHjoU1dpHjGj6o1i7bSeG/UO1/DODuPdz+o=
 github.com/lib/pq v1.0.0 h1:X5PMW56eZitiTeO7tKzZxFCSpbFZJtkMMooicw2us9A=
 github.com/lib/pq v1.0.0/go.mod h1:5WUZQaWbwv1U+lTReE5YruASi9Al49XbQIvNi/34Woo=
 github.com/magiconair/properties v1.8.0 h1:LLgXmsheXeRoUOBOjtwPQCWIYqM/LU1ayDtDePerRcY=
