@@ -1,6 +1,7 @@
 package klconsul
 
 import (
+	"errors"
 	"testing"
 	"time"
 
@@ -8,7 +9,9 @@ import (
 	"github.com/hashicorp/consul/api"
 	"github.com/lalamove/konfig"
 	"github.com/lalamove/konfig/mocks"
+	"github.com/lalamove/konfig/parser"
 	"github.com/lalamove/konfig/watcher/kwpoll"
+	"github.com/lalamove/nui/nstrings"
 	"github.com/stretchr/testify/require"
 )
 
@@ -28,6 +31,7 @@ func TestLoad(t *testing.T) {
 					Keys: []Key{{
 						Key: "foo",
 					}},
+					Replacer: nstrings.ReplacerToUpper,
 				})
 
 				var kvClient = mocks.NewMockConsulKV(ctrl)
@@ -48,7 +52,7 @@ func TestLoad(t *testing.T) {
 				if err != nil {
 					t.Fatal(err)
 				}
-				require.Equal(t, "bar", v["foo"])
+				require.Equal(t, "bar", v["FOO"])
 				return hl
 			},
 			err: false,
@@ -244,6 +248,38 @@ func TestLoad(t *testing.T) {
 
 				return hl
 			},
+		},
+		{
+			name: "parse value fail",
+			run: func(t *testing.T, ctrl *gomock.Controller) *Loader {
+				c, _ := api.NewClient(&api.Config{Address: "http://localhost"})
+
+				var hl = New(&Config{
+					Client: c,
+					Keys: []Key{{
+						Key:    "foo",
+						Parser: parser.NopParser{Err: errors.New("parse fail")},
+					}},
+				})
+
+				var kvClient = mocks.NewMockConsulKV(ctrl)
+				kvClient.EXPECT().Get("foo", nil).Times(1).Return(
+					&api.KVPair{
+						Key:   "foo",
+						Value: []byte(`bar`),
+					},
+					&api.QueryMeta{},
+					nil,
+				)
+
+				hl.cfg.kvClient = kvClient
+
+				var v = konfig.Values{}
+				var err = hl.Load(v)
+				require.Error(t, err)
+				return hl
+			},
+			err: true,
 		},
 	}
 

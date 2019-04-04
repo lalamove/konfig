@@ -8,9 +8,10 @@ import (
 	"time"
 
 	"github.com/coreos/etcd/mvcc/mvccpb"
-	gomock "github.com/golang/mock/gomock"
+	"github.com/golang/mock/gomock"
 	"github.com/lalamove/konfig"
 	"github.com/lalamove/konfig/mocks"
+	"github.com/lalamove/konfig/parser"
 	"github.com/lalamove/konfig/watcher/kwpoll"
 	"github.com/stretchr/testify/require"
 	"go.etcd.io/etcd/clientv3"
@@ -36,10 +37,11 @@ func TestEtcdLoader(t *testing.T) {
 			var mockClient = mocks.NewMockKV(ctrl)
 			var mockContexter = mocks.NewMockContexter(ctrl)
 
-			var ctx, _ = context.WithTimeout(
+			var ctx, cancel = context.WithTimeout(
 				context.Background(),
 				5*time.Second,
 			)
+			defer cancel()
 
 			mockContexter.EXPECT().WithTimeout(
 				context.Background(),
@@ -100,10 +102,11 @@ func TestEtcdLoader(t *testing.T) {
 			var mockClient = mocks.NewMockKV(ctrl)
 			var mockContexter = mocks.NewMockContexter(ctrl)
 
-			var ctx, _ = context.WithTimeout(
+			var ctx, cancel = context.WithTimeout(
 				context.Background(),
 				5*time.Second,
 			)
+			defer cancel()
 
 			mockContexter.EXPECT().
 				WithTimeout(
@@ -158,15 +161,18 @@ func TestEtcdLoader(t *testing.T) {
 			var mockClient = mocks.NewMockKV(ctrl)
 			var mockContexter = mocks.NewMockContexter(ctrl)
 
-			var ctx, _ = context.WithTimeout(
+			var timeout = time.Second
+
+			var ctx, cancel = context.WithTimeout(
 				context.Background(),
-				5*time.Second,
+				timeout,
 			)
+			defer cancel()
 
 			mockContexter.EXPECT().
 				WithTimeout(
 					context.Background(),
-					5*time.Second,
+					timeout,
 				).
 				MinTimes(1).
 				Return(ctx, context.CancelFunc(func() {}))
@@ -197,6 +203,7 @@ func TestEtcdLoader(t *testing.T) {
 				Rater:     kwpoll.Time(100 * time.Millisecond),
 				Contexter: mockContexter,
 				Debug:     true,
+				Timeout:   timeout,
 			})
 
 			mockClient.EXPECT().Get(ctx, "key1").MinTimes(1).Return(
@@ -241,10 +248,11 @@ func TestEtcdLoader(t *testing.T) {
 			var mockClient = mocks.NewMockKV(ctrl)
 			var mockContexter = mocks.NewMockContexter(ctrl)
 
-			var ctx, _ = context.WithTimeout(
+			var ctx, cancel = context.WithTimeout(
 				context.Background(),
 				5*time.Second,
 			)
+			defer cancel()
 
 			mockContexter.EXPECT().
 				WithTimeout(
@@ -300,10 +308,11 @@ func TestEtcdLoader(t *testing.T) {
 			var mockClient = mocks.NewMockKV(ctrl)
 			var mockContexter = mocks.NewMockContexter(ctrl)
 
-			var ctx, _ = context.WithTimeout(
+			var ctx, cancel = context.WithTimeout(
 				context.Background(),
 				5*time.Second,
 			)
+			defer cancel()
 
 			mockContexter.EXPECT().
 				WithTimeout(
@@ -330,6 +339,56 @@ func TestEtcdLoader(t *testing.T) {
 			err := l.Load(konfig.Values{})
 
 			require.NotNil(t, err)
+		},
+	)
+
+	t.Run(
+		"parse value fail",
+		func(t *testing.T) {
+			konfig.Init(konfig.DefaultConfig())
+
+			var ctrl = gomock.NewController(t)
+			defer ctrl.Finish()
+
+			var mockClient = mocks.NewMockKV(ctrl)
+			var mockContexter = mocks.NewMockContexter(ctrl)
+
+			var ctx, cancel = context.WithTimeout(
+				context.Background(),
+				5*time.Second,
+			)
+			defer cancel()
+
+			mockContexter.EXPECT().WithTimeout(
+				context.Background(),
+				5*time.Second,
+			).Times(1).Return(ctx, context.CancelFunc(func() {}))
+
+			mockClient.EXPECT().Get(ctx, "key1").Return(
+				&clientv3.GetResponse{
+					Kvs: []*mvccpb.KeyValue{
+						&mvccpb.KeyValue{
+							Key:   []byte(`key1`),
+							Value: []byte(`bar`),
+						},
+					},
+				},
+				nil,
+			)
+
+			var l = New(&Config{
+				Client:   newClient(),
+				kvClient: mockClient,
+				Keys: []Key{
+					{Key: "key1", Parser: parser.NopParser{Err: errors.New("parse fail")}},
+					{Key: "key2"},
+				},
+				Contexter: mockContexter,
+			})
+
+			var v = konfig.Values{}
+			var err = l.Load(v)
+			require.Error(t, err)
 		},
 	)
 }
