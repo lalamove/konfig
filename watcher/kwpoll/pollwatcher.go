@@ -45,7 +45,7 @@ type Config struct {
 	Debug bool
 	// Logger is the logger used to log debug messages
 	Logger nlogger.Provider
-	// Diff tells wether we should check for diffs
+	// Diff tells whether we should check for diffs
 	// If diff is set, a Getter is required
 	Diff bool
 	// Loader is a loader to fetch data to check diff
@@ -83,7 +83,7 @@ func New(cfg *Config) *PollWatcher {
 	}
 }
 
-// Done indicates wether the watcher is done or not
+// Done indicates whether the watcher is done or not
 func (t *PollWatcher) Done() <-chan struct{} {
 	return t.done
 }

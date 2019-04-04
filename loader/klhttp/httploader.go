@@ -43,7 +43,7 @@ type Source struct {
 type Config struct {
 	// Name is the name of the loader
 	Name string
-	// StopOnFailure tells wether a failure to load configs should closed the config and all registered closers
+	// StopOnFailure tells whether a failure to load configs should closed the config and all registered closers
 	StopOnFailure bool
 	// Sources is a list of remote sources
 	Sources []Source
@@ -53,7 +53,7 @@ type Config struct {
 	MaxRetry int
 	// RetryDelay is the delay between each retry
 	RetryDelay time.Duration
-	// Watch sets the wether changes should be watched
+	// Watch sets the whether changes should be watched
 	Watch bool
 	// Rater is the rater to pass to the poll write
 	Rater kwpoll.Rater
@@ -137,7 +137,7 @@ func (r *Loader) RetryDelay() time.Duration {
 	return r.cfg.RetryDelay
 }
 
-// StopOnFailure returns wether a load failure should stop the config and the registered closers
+// StopOnFailure returns whether a load failure should stop the config and the registered closers
 func (r *Loader) StopOnFailure() bool {
 	return r.cfg.StopOnFailure
 }

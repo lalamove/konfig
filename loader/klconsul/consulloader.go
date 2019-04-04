@@ -46,7 +46,7 @@ type Config struct {
 	Name string
 	// Client is the consul KV client
 	Client *api.Client
-	// StopOnFailure tells wether a load failure(after the retries) leads to closing the config and all registered closers
+	// StopOnFailure tells whether a load failure(after the retries) leads to closing the config and all registered closers
 	StopOnFailure bool
 	// Keys is the list of keys to fetch
 	Keys []Key
@@ -176,7 +176,7 @@ func (l *Loader) RetryDelay() time.Duration {
 	return l.cfg.RetryDelay
 }
 
-// StopOnFailure returns wether a load failure should stop the config and the registered closers
+// StopOnFailure returns whether a load failure should stop the config and the registered closers
 func (l *Loader) StopOnFailure() bool {
 	return l.cfg.StopOnFailure
 }

@@ -6,7 +6,7 @@ package konfig
 type Watcher interface {
 	// Start starts the watcher, it must no be blocking.
 	Start() error
-	// Done indicate wether the watcher is done or not
+	// Done indicate whether the watcher is done or not
 	Done() <-chan struct{}
 	// Watch should block until an event unlocks it
 	Watch() <-chan struct{}

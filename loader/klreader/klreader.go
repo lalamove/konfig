@@ -58,7 +58,7 @@ func (l *Loader) Load(cfg konfig.Values) error {
 	return l.cfg.Parser.Parse(l.cfg.Reader, cfg)
 }
 
-// StopOnFailure returns wether a load failure should stop the config and the registered closers
+// StopOnFailure returns whether a load failure should stop the config and the registered closers
 func (l *Loader) StopOnFailure() bool {
 	return l.cfg.StopOnFailure
 }

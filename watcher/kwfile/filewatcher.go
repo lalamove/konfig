@@ -58,7 +58,7 @@ func New(cfg *Config) *FileWatcher {
 	}
 }
 
-// Done indicates wether the filewatcher is done
+// Done indicates whether the filewatcher is done
 func (fw *FileWatcher) Done() <-chan struct{} {
 	return fw.w.Closed
 }
