@@ -34,14 +34,6 @@ const (
 	defaultName    = "root"
 )
 
-// ErrMissingConfig is the type representing an error when a required config is missing
-type ErrMissingConfig string
-
-// Error implements the error interface
-func (e ErrMissingConfig) Error() string {
-	return string(e)
-}
-
 // DefaultConfig returns a default Config
 func DefaultConfig() *Config {
 	return &Config{
