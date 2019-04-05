@@ -23,6 +23,15 @@ func TestWatcher(t *testing.T) {
 		},
 	)
 	t.Run(
+		"panics nil watcher",
+		func(t *testing.T) {
+			require.Panics(t, func() {
+				var w *PollWatcher
+				w.Start()
+			})
+		},
+	)
+	t.Run(
 		"close error",
 		func(t *testing.T) {
 			var w = New(&Config{})

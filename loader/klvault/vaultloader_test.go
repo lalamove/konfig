@@ -39,6 +39,7 @@ func TestVaultLoader(t *testing.T) {
 						{Key: "/dummy/secret/path2"},
 					},
 					AuthProvider: aP,
+					Debug:        true,
 				})
 
 				var lC = mocks.NewMockLogicalClient(ctrl)
@@ -68,8 +69,8 @@ func TestVaultLoader(t *testing.T) {
 			asserts: func(t *testing.T, vl *Loader, cfg konfig.Values) {
 				require.Equal(
 					t,
-					vl.ttl,
 					45*time.Minute,
+					vl.Time(),
 				)
 				require.Equal(
 					t,
@@ -80,6 +81,11 @@ func TestVaultLoader(t *testing.T) {
 					t,
 					"FOO",
 					cfg["BAR"],
+				)
+				require.Equal(
+					t,
+					defaultName,
+					vl.Name(),
 				)
 			},
 		},
@@ -97,8 +103,7 @@ func TestVaultLoader(t *testing.T) {
 				var c, _ = vault.NewClient(vault.DefaultConfig())
 
 				var vl = New(&Config{
-					Client: c,
-
+					Client:       c,
 					Secrets:      []Secret{{Key: "/dummy/secret/path"}},
 					AuthProvider: aP,
 				})
@@ -188,7 +193,7 @@ func TestResetTTL(t *testing.T) {
 					mut: &sync.Mutex{},
 				}
 				vl.resetTTL(75, testCase.tokenTTL, testCase.secretTTL)
-				require.Equal(t, testCase.expectedTTL, vl.ttl)
+				require.Equal(t, testCase.expectedTTL, vl.Time())
 			},
 		)
 	}

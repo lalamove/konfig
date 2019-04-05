@@ -50,7 +50,7 @@ type Secret struct {
 type Config struct {
 	// Name is the name of the loader
 	Name string
-	// StopOnFailure tells wether a failure to load configs should closed the config and all registered closers
+	// StopOnFailure tells whether a failure to load configs should closed the config and all registered closers
 	StopOnFailure bool
 	// Secrets is the list of secrets to load
 	Secrets []Secret
@@ -70,7 +70,7 @@ type Config struct {
 	// the Loader should ask vault for new credentials. Default value is 75.
 	// Example: ttl = 1h, ttl * 75 / 100 = 45m, the loader will refresh key after 45m
 	TTLRatio int
-	// Renew sets wether the vault loader should renew it self
+	// Renew sets whether the vault loader should renew it self
 	Renew bool
 }
 
@@ -200,7 +200,7 @@ func (vl *Loader) Time() time.Duration {
 	return vl.ttl
 }
 
-// StopOnFailure returns wether a load failure should stop the config and the registered closers
+// StopOnFailure returns whether a load failure should stop the config and the registered closers
 func (vl *Loader) StopOnFailure() bool {
 	return vl.cfg.StopOnFailure
 }

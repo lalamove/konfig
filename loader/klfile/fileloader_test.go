@@ -90,6 +90,8 @@ func TestFileLoader(t *testing.T) {
 				return
 			}
 			require.Nil(t, err, "err should be nil")
+			require.Equal(t, defaultName, fl.Name())
+			require.False(t, fl.StopOnFailure())
 		})
 	}
 

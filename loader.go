@@ -14,7 +14,7 @@ var ErrNoLoaders = errors.New("No loaders in config")
 
 // Loader is the interface a config loader must implement to be used withint the package
 type Loader interface {
-	// StopOnFailure tells wether a loader failure should lead to closing config and the registered closers.
+	// StopOnFailure tells whether a loader failure should lead to closing config and the registered closers.
 	StopOnFailure() bool
 	// Name returns the name of the loader
 	Name() string

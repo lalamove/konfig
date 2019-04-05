@@ -34,14 +34,6 @@ const (
 	defaultName    = "root"
 )
 
-// ErrMissingConfig is the type representing an error when a required config is missing
-type ErrMissingConfig string
-
-// Error implements the error interface
-func (e ErrMissingConfig) Error() string {
-	return string(e)
-}
-
 // DefaultConfig returns a default Config
 func DefaultConfig() *Config {
 	return &Config{
@@ -108,13 +100,13 @@ type Store interface {
 	// Getter returns a GetterTyped for the given key k
 	Getter(k string) ngetter.GetterTyped
 
-	// Get gets the value with the key k fron the store. If the key is not set, Get returns nil. To check wether a value is really set, use Exists.
+	// Get gets the value with the key k fron the store. If the key is not set, Get returns nil. To check whether a value is really set, use Exists.
 	Get(k string) interface{}
 	// MustGet tries to get the value with the key k from the store. If the key k does not exist in the store, MustGet panics.
 	MustGet(k string) interface{}
 	// Set sets the key k with the value v in the store.
 	Set(k string, v interface{})
-	// Exists checks wether the key k is set in the store.
+	// Exists checks whether the key k is set in the store.
 	Exists(k string) bool
 	// MustString tries to get the value with the key k from the store and casts it to a string. If the key k does not exist in the store, MustGet panics.
 	MustString(k string) string

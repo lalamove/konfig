@@ -2,12 +2,10 @@ package klreader
 
 import (
 	"io"
-	"os"
 	"time"
 
 	"github.com/lalamove/konfig"
 	"github.com/lalamove/konfig/parser"
-	"github.com/lalamove/nui/nlogger"
 )
 
 const (
@@ -58,11 +56,7 @@ func (l *Loader) Load(cfg konfig.Values) error {
 	return l.cfg.Parser.Parse(l.cfg.Reader, cfg)
 }
 
-// StopOnFailure returns wether a load failure should stop the config and the registered closers
+// StopOnFailure returns whether a load failure should stop the config and the registered closers
 func (l *Loader) StopOnFailure() bool {
 	return l.cfg.StopOnFailure
-}
-
-func defaultLogger() nlogger.Provider {
-	return nlogger.NewProvider(nlogger.New(os.Stdout, "READER | "))
 }

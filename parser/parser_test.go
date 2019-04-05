@@ -1,7 +1,7 @@
 package parser
 
 import (
-	io "io"
+	"io"
 	"testing"
 
 	"github.com/lalamove/konfig"
@@ -15,5 +15,10 @@ func TestParserFunc(t *testing.T) {
 		return nil
 	})
 	f.Parse(nil, nil)
-	require.Equal(t, true, ran)
+	require.True(t, ran)
+}
+
+func TestNopParser(t *testing.T) {
+	var p = NopParser{}
+	require.Nil(t, p.Parse(nil, nil))
 }

@@ -36,7 +36,7 @@ type Key struct {
 type Config struct {
 	// Name is the name of the loader
 	Name string
-	// StopOnFailure tells wether a failure to load configs should closed the config and all registered closers
+	// StopOnFailure tells whether a failure to load configs should closed the config and all registered closers
 	StopOnFailure bool
 	// Client is the etcd client
 	Client *clientv3.Client
@@ -48,7 +48,7 @@ type Config struct {
 	Prefix string
 	// Replacer is a Replacer for the key before adding to the konfig.Store
 	Replacer nstrings.Replacer
-	// Watch tells wether there should be a watcher with the loader
+	// Watch tells whether there should be a watcher with the loader
 	Watch bool
 	// Rater is the rater to pass to the poll watcher
 	Rater kwpoll.Rater
@@ -168,7 +168,7 @@ func (l *Loader) keyValue(k string) ([]*mvccpb.KeyValue, error) {
 	return values.Kvs, nil
 }
 
-// StopOnFailure returns wether a load failure should stop the config and the registered closers
+// StopOnFailure returns whether a load failure should stop the config and the registered closers
 func (l *Loader) StopOnFailure() bool {
 	return l.cfg.StopOnFailure
 }

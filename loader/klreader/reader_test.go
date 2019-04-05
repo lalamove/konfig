@@ -33,4 +33,5 @@ func TestLoader(t *testing.T) {
 	require.Equal(t, defaultName, loader.Name())
 	require.Equal(t, 5*time.Minute, loader.RetryDelay())
 	require.Equal(t, 5, loader.MaxRetry())
+	require.False(t, loader.StopOnFailure())
 }

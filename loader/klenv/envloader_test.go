@@ -22,13 +22,15 @@ func TestEnvLoader(t *testing.T) {
 					"FOO",
 					"BAR",
 				},
+				Replacer: nstrings.ReplacerToLower,
 			})
 
 			var v = konfig.Values{}
 			l.Load(v)
 
-			require.Equal(t, "BAR", v["FOO"])
-			require.Equal(t, "FOO", v["BAR"])
+			require.Equal(t, "BAR", v["foo"])
+			require.Equal(t, "FOO", v["bar"])
+			require.Equal(t, defaultName, l.Name())
 		},
 	)
 
@@ -71,7 +73,7 @@ func TestEnvLoader(t *testing.T) {
 
 			require.Equal(t, "BAR", v["FOO"])
 			var _, ok = v["BAR"]
-			require.Equal(t, false, ok)
+			require.False(t, ok)
 		},
 	)
 
@@ -95,7 +97,7 @@ func TestEnvLoader(t *testing.T) {
 			require.Equal(t, []string{"BAR1", "BAR2", "BAR3"}, v["FOO"])
 			require.Equal(t, "VAL", v["FAA"])
 			var _, ok = v["BAR"]
-			require.Equal(t, false, ok)
+			require.False(t, ok)
 		},
 	)
 
@@ -118,7 +120,7 @@ func TestEnvLoader(t *testing.T) {
 			require.Equal(t, "BAR", v["KONFIG_FOO"])
 
 			var _, ok = v["KONFIG_BAR"]
-			require.Equal(t, false, ok)
+			require.False(t, ok)
 		},
 	)
 
@@ -142,7 +144,7 @@ func TestEnvLoader(t *testing.T) {
 			require.Equal(t, "BAR", v["KONFIG_foo"])
 
 			var _, ok = v["KONFIG_bar"]
-			require.Equal(t, false, ok)
+			require.False(t, ok)
 		},
 	)
 

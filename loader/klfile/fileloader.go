@@ -38,7 +38,7 @@ type File struct {
 type Config struct {
 	// Name is the name of the loader
 	Name string
-	// StopOnFailure tells wether a failure to load configs should closed the config and all registered closers
+	// StopOnFailure tells whether a failure to load configs should closed the config and all registered closers
 	StopOnFailure bool
 	// Files is the path to the files to load
 	Files []File
@@ -176,7 +176,7 @@ func (f *Loader) Load(cfg konfig.Values) error {
 	return nil
 }
 
-// StopOnFailure returns wether a load failure should stop the config and the registered closers
+// StopOnFailure returns whether a load failure should stop the config and the registered closers
 func (f *Loader) StopOnFailure() bool {
 	return f.cfg.StopOnFailure
 }

@@ -27,6 +27,7 @@ func TestFlagLoader(t *testing.T) {
 
 			loader.Load(v)
 			require.Equal(t, "true", v["foo"])
+			require.Equal(t, defaultName, loader.Name())
 		},
 	)
 
