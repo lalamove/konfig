@@ -44,7 +44,7 @@ func TestVaultLoader(t *testing.T) {
 
 				var lC = mocks.NewMockLogicalClient(ctrl)
 				vl.logicalClient = lC
-				lC.EXPECT().ReadWithData("dummy/secret/path", nil).Return(
+				lC.EXPECT().ReadWithData("dummy/secret/path", map[string][]string{}).Return(
 					&vault.Secret{
 						Data: map[string]interface{}{
 							"FOO": "BAR",
@@ -54,7 +54,7 @@ func TestVaultLoader(t *testing.T) {
 					nil,
 				)
 
-				lC.EXPECT().ReadWithData("dummy/secret/path2", nil).Return(
+				lC.EXPECT().ReadWithData("dummy/secret/path2", map[string][]string{}).Return(
 					&vault.Secret{
 						Data: map[string]interface{}{
 							"BAR": "FOO",
@@ -132,7 +132,7 @@ func TestVaultLoader(t *testing.T) {
 
 				var lC = mocks.NewMockLogicalClient(ctrl)
 				vl.logicalClient = lC
-				lC.EXPECT().ReadWithData("dummy/secret/path", nil).Return(
+				lC.EXPECT().ReadWithData("dummy/secret/path", map[string][]string{}).Return(
 					nil,
 					errors.New(""),
 				)
