@@ -2,7 +2,6 @@ package klvault
 
 import (
 	"errors"
-	"fmt"
 	"sync"
 	"testing"
 	"time"
@@ -45,7 +44,6 @@ func TestVaultLoader(t *testing.T) {
 
 				var lC = mocks.NewMockLogicalClient(ctrl)
 				vl.logicalClient = lC
-				fmt.Println("here")
 				lC.EXPECT().ReadWithData("dummy/secret/path", nil).Return(
 					&vault.Secret{
 						Data: map[string]interface{}{
@@ -134,7 +132,7 @@ func TestVaultLoader(t *testing.T) {
 
 				var lC = mocks.NewMockLogicalClient(ctrl)
 				vl.logicalClient = lC
-				lC.EXPECT().Read("/dummy/secret/path").Return(
+				lC.EXPECT().ReadWithData("dummy/secret/path", nil).Return(
 					nil,
 					errors.New(""),
 				)
