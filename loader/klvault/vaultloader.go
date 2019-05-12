@@ -3,7 +3,9 @@ package klvault
 import (
 	"errors"
 	"fmt"
+	"net/url"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -38,7 +40,7 @@ type LogicalClient interface {
 
 // Secret is a secret to load
 type Secret struct {
-	// SecretKey is the URL to fetch the secret from (e.g. /v1/database/creds/mydb)
+	// Key is the URL to fetch the secret from (e.g. /v1/database/creds/mydb)
 	Key string
 	// KeysPrefix sets a prefix to be prepended to all keys in the config store
 	KeysPrefix string
@@ -162,11 +164,26 @@ func (vl *Loader) Load(cs konfig.Values) error {
 	for _, secret := range vl.cfg.Secrets {
 		// we fetch our secret
 		var s *vault.Secret
-		s, err = vl.logicalClient.Read(secret.Key)
-		if err != nil {
+		var sData map[string]interface{}
+
+		k := strings.TrimSpace(secret.Key)
+		k = strings.Trim(k, "/")
+		if k == "" {
 			return err
 		}
 
+		p, err := url.Parse(k)
+		if err != nil {
+			return err
+		}
+		s, err = vl.logicalClient.ReadWithData(k, p.Query())
+		if err != nil {
+			return err
+		}
+		sData, ok := s.Data["data"].(map[string]interface{})
+		if !ok {
+			sData = s.Data
+		}
 		if vl.cfg.Debug {
 			vl.cfg.Logger.Get().Debug(
 				fmt.Sprintf("Got secret, expiring in: %d", s.LeaseDuration),
@@ -178,9 +195,8 @@ func (vl *Loader) Load(cs konfig.Values) error {
 		if s.LeaseDuration != 0 && (leaseDuration == 0 || s.LeaseDuration < leaseDuration) {
 			leaseDuration = s.LeaseDuration
 		}
-
 		// we set our data on the config store
-		for k, v := range s.Data {
+		for k, v := range sData {
 			var nK = secret.KeysPrefix + k
 			if secret.Replacer != nil {
 				nK = secret.Replacer.Replace(nK)
