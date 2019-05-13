@@ -37,6 +37,8 @@ func TestVaultLoader(t *testing.T) {
 					Secrets: []Secret{
 						{Key: "/dummy/secret/path"},
 						{Key: "/dummy/secret/path2"},
+						{Key: "/dummy/secret/data/path3"},
+						{Key: "/dummy/secret/data/path3?version=1"},
 					},
 					AuthProvider: aP,
 					Debug:        true,
@@ -63,6 +65,28 @@ func TestVaultLoader(t *testing.T) {
 					},
 					nil,
 				)
+				lC.EXPECT().ReadWithData("dummy/secret/data/path3", map[string][]string{}).Return(
+					&vault.Secret{
+						Data: map[string]interface{}{
+							"data": map[string]interface{}{
+								"VERSIONEDFOO": "FOO2",
+							},
+						},
+						LeaseDuration: int(1 * time.Hour / time.Second),
+					},
+					nil,
+				)
+				lC.EXPECT().ReadWithData("dummy/secret/data/path3?version=1", map[string][]string{"version": []string{"1"}}).Return(
+					&vault.Secret{
+						Data: map[string]interface{}{
+							"data": map[string]interface{}{
+								"OLDFOO": "FOO1",
+							},
+						},
+						LeaseDuration: int(1 * time.Hour / time.Second),
+					},
+					nil,
+				)
 
 				return vl
 			},
@@ -81,6 +105,16 @@ func TestVaultLoader(t *testing.T) {
 					t,
 					"FOO",
 					cfg["BAR"],
+				)
+				require.Equal(
+					t,
+					"FOO2",
+					cfg["VERSIONEDFOO"],
+				)
+				require.Equal(
+					t,
+					"FOO1",
+					cfg["OLDFOO"],
 				)
 				require.Equal(
 					t,
