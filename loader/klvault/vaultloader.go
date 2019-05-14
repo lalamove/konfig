@@ -180,8 +180,15 @@ func (vl *Loader) Load(cs konfig.Values) error {
 		if err != nil {
 			return err
 		}
-		sData, ok := s.Data["data"].(map[string]interface{})
-		if !ok {
+		// checking for KV V2 for vault secret store
+		// confirming version exists on metadata and it is an int
+		if m, ok := s.Data["metadata"].(map[string]interface{}); ok {
+			kvData, dataOK := s.Data["data"].(map[string]interface{})
+			_, versionOK := m["version"].(int)
+			if versionOK && dataOK {
+				sData = kvData
+			}
+		} else {
 			sData = s.Data
 		}
 		if vl.cfg.Debug {
