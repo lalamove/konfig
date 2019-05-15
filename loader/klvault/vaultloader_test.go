@@ -37,6 +37,8 @@ func TestVaultLoader(t *testing.T) {
 					Secrets: []Secret{
 						{Key: "/dummy/secret/path"},
 						{Key: "/dummy/secret/path2"},
+						{Key: "/dummy/secret/data/path3"},
+						{Key: "/dummy/secret/data/path3?version=1"},
 					},
 					AuthProvider: aP,
 					Debug:        true,
@@ -44,7 +46,7 @@ func TestVaultLoader(t *testing.T) {
 
 				var lC = mocks.NewMockLogicalClient(ctrl)
 				vl.logicalClient = lC
-				lC.EXPECT().Read("/dummy/secret/path").Return(
+				lC.EXPECT().ReadWithData("dummy/secret/path", map[string][]string{}).Return(
 					&vault.Secret{
 						Data: map[string]interface{}{
 							"FOO": "BAR",
@@ -54,10 +56,44 @@ func TestVaultLoader(t *testing.T) {
 					nil,
 				)
 
-				lC.EXPECT().Read("/dummy/secret/path2").Return(
+				lC.EXPECT().ReadWithData("dummy/secret/path2", map[string][]string{}).Return(
 					&vault.Secret{
 						Data: map[string]interface{}{
 							"BAR": "FOO",
+						},
+						LeaseDuration: int(1 * time.Hour / time.Second),
+					},
+					nil,
+				)
+				lC.EXPECT().ReadWithData("dummy/secret/data/path3", map[string][]string{}).Return(
+					&vault.Secret{
+						Data: map[string]interface{}{
+							"data": map[string]interface{}{
+								"VERSIONEDFOO": "FOO2",
+							},
+							"metadata": map[string]interface{}{
+								"created_time":  "2018-03-22T02:24:06.945319214Z",
+								"deletion_time": "",
+								"destroyed":     false,
+								"version":       1,
+							},
+						},
+						LeaseDuration: int(1 * time.Hour / time.Second),
+					},
+					nil,
+				)
+				lC.EXPECT().ReadWithData("dummy/secret/data/path3?version=1", map[string][]string{"version": []string{"1"}}).Return(
+					&vault.Secret{
+						Data: map[string]interface{}{
+							"data": map[string]interface{}{
+								"OLDFOO": "FOO1",
+							},
+							"metadata": map[string]interface{}{
+								"created_time":  "2018-03-22T02:24:06.945319214Z",
+								"deletion_time": "",
+								"destroyed":     false,
+								"version":       1,
+							},
 						},
 						LeaseDuration: int(1 * time.Hour / time.Second),
 					},
@@ -81,6 +117,16 @@ func TestVaultLoader(t *testing.T) {
 					t,
 					"FOO",
 					cfg["BAR"],
+				)
+				require.Equal(
+					t,
+					"FOO2",
+					cfg["VERSIONEDFOO"],
+				)
+				require.Equal(
+					t,
+					"FOO1",
+					cfg["OLDFOO"],
 				)
 				require.Equal(
 					t,
@@ -132,7 +178,7 @@ func TestVaultLoader(t *testing.T) {
 
 				var lC = mocks.NewMockLogicalClient(ctrl)
 				vl.logicalClient = lC
-				lC.EXPECT().Read("/dummy/secret/path").Return(
+				lC.EXPECT().ReadWithData("dummy/secret/path", map[string][]string{}).Return(
 					nil,
 					errors.New(""),
 				)
