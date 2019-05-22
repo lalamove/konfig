@@ -1,6 +1,7 @@
 package klvault
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/url"
@@ -184,8 +185,8 @@ func (vl *Loader) Load(cs konfig.Values) error {
 		// confirming version exists on metadata and it is an int
 		if m, ok := s.Data["metadata"].(map[string]interface{}); ok {
 			kvData, dataOK := s.Data["data"].(map[string]interface{})
-			_, versionOK := m["version"].(int)
-			if versionOK && dataOK {
+			_, versionJSONNumberOK := m["version"].(json.Number)
+			if versionJSONNumberOK && dataOK {
 				sData = kvData
 			}
 		} else {
