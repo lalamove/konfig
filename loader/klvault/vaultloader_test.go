@@ -1,6 +1,7 @@
 package klvault
 
 import (
+	"encoding/json"
 	"errors"
 	"sync"
 	"testing"
@@ -75,7 +76,7 @@ func TestVaultLoader(t *testing.T) {
 								"created_time":  "2018-03-22T02:24:06.945319214Z",
 								"deletion_time": "",
 								"destroyed":     false,
-								"version":       1,
+								"version":       json.Number("1"),
 							},
 						},
 						LeaseDuration: int(1 * time.Hour / time.Second),
@@ -92,7 +93,7 @@ func TestVaultLoader(t *testing.T) {
 								"created_time":  "2018-03-22T02:24:06.945319214Z",
 								"deletion_time": "",
 								"destroyed":     false,
-								"version":       1,
+								"version":       json.Number("1"),
 							},
 						},
 						LeaseDuration: int(1 * time.Hour / time.Second),

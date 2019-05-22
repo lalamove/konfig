@@ -189,10 +189,6 @@ func (vl *Loader) Load(cs konfig.Values) error {
 			if versionJSONNumberOK && dataOK {
 				sData = kvData
 			}
-			_, versionIntOK := m["version"].(int)
-			if versionIntOK && dataOK {
-				sData = kvData
-			}
 		} else {
 			sData = s.Data
 		}
