@@ -177,7 +177,7 @@ func (vl *Loader) Load(cs konfig.Values) error {
 		if err != nil {
 			return err
 		}
-		s, err = vl.logicalClient.ReadWithData(k, p.Query())
+		s, err = vl.logicalClient.ReadWithData(p.Path, p.Query())
 		if err != nil {
 			return err
 		}
