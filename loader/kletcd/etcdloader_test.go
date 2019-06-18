@@ -227,12 +227,15 @@ func TestEtcdLoader(t *testing.T) {
 
 			var timer = time.NewTimer(300 * time.Millisecond)
 			var watched bool
-			select {
-			case <-timer.C:
-				l.Close()
-				require.True(t, watched)
-			case <-l.Watch():
-				watched = true
+			for {
+				select {
+				case <-timer.C:
+					l.Close()
+					require.True(t, watched)
+					return
+				case <-l.Watch():
+					watched = true
+				}
 			}
 		},
 	)
