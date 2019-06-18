@@ -3,10 +3,10 @@ package kptoml
 import (
 	"io"
 
+	"github.com/BurntSushi/toml"
 	"github.com/lalamove/konfig"
 	"github.com/lalamove/konfig/parser"
 	"github.com/lalamove/konfig/parser/kpmap"
-	"github.com/BurntSushi/toml"
 )
 
 // Parser parses the given json io.Reader and adds values in dot.path notation into the konfig.Store
