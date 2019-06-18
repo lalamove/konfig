@@ -51,7 +51,7 @@ func TestEtcdLoader(t *testing.T) {
 			mockClient.EXPECT().Get(ctx, "key1").Return(
 				&clientv3.GetResponse{
 					Kvs: []*mvccpb.KeyValue{
-						&mvccpb.KeyValue{
+						{
 							Key:   []byte(`key1`),
 							Value: []byte(`bar`),
 						},
@@ -63,7 +63,7 @@ func TestEtcdLoader(t *testing.T) {
 			mockClient.EXPECT().Get(ctx, "key2").Return(
 				&clientv3.GetResponse{
 					Kvs: []*mvccpb.KeyValue{
-						&mvccpb.KeyValue{
+						{
 							Key:   []byte(`key2`),
 							Value: []byte(`foo`),
 						},
@@ -119,11 +119,11 @@ func TestEtcdLoader(t *testing.T) {
 			mockClient.EXPECT().Get(ctx, "key1").Return(
 				&clientv3.GetResponse{
 					Kvs: []*mvccpb.KeyValue{
-						&mvccpb.KeyValue{
+						{
 							Key:   []byte(`key1`),
 							Value: []byte(`bar`),
 						},
-						&mvccpb.KeyValue{
+						{
 							Key:   []byte(`key2`),
 							Value: []byte(`foo`),
 						},
@@ -180,11 +180,11 @@ func TestEtcdLoader(t *testing.T) {
 			mockClient.EXPECT().Get(ctx, "key1").Times(1).Return(
 				&clientv3.GetResponse{
 					Kvs: []*mvccpb.KeyValue{
-						&mvccpb.KeyValue{
+						{
 							Key:   []byte(`key1`),
 							Value: []byte(`bar`),
 						},
-						&mvccpb.KeyValue{
+						{
 							Key:   []byte(`key2`),
 							Value: []byte(`foo`),
 						},
@@ -209,11 +209,11 @@ func TestEtcdLoader(t *testing.T) {
 			mockClient.EXPECT().Get(ctx, "key1").MinTimes(1).Return(
 				&clientv3.GetResponse{
 					Kvs: []*mvccpb.KeyValue{
-						&mvccpb.KeyValue{
+						{
 							Key:   []byte(`key1`),
 							Value: []byte(`bar`),
 						},
-						&mvccpb.KeyValue{
+						{
 							Key:   []byte(`key`),
 							Value: []byte(`foo`),
 						},
@@ -265,11 +265,11 @@ func TestEtcdLoader(t *testing.T) {
 			mockClient.EXPECT().Get(ctx, "key1").Return(
 				&clientv3.GetResponse{
 					Kvs: []*mvccpb.KeyValue{
-						&mvccpb.KeyValue{
+						{
 							Key:   []byte(`key1`),
 							Value: []byte(`bar`),
 						},
-						&mvccpb.KeyValue{
+						{
 							Key:   []byte(`key2`),
 							Value: []byte(`foo`),
 						},
@@ -367,7 +367,7 @@ func TestEtcdLoader(t *testing.T) {
 			mockClient.EXPECT().Get(ctx, "key1").Return(
 				&clientv3.GetResponse{
 					Kvs: []*mvccpb.KeyValue{
-						&mvccpb.KeyValue{
+						{
 							Key:   []byte(`key1`),
 							Value: []byte(`bar`),
 						},

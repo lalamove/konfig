@@ -83,7 +83,7 @@ func TestVaultLoader(t *testing.T) {
 					},
 					nil,
 				)
-				lC.EXPECT().ReadWithData("dummy/secret/data/path3", map[string][]string{"version": []string{"1"}}).Return(
+				lC.EXPECT().ReadWithData("dummy/secret/data/path3", map[string][]string{"version": {"1"}}).Return(
 					&vault.Secret{
 						Data: map[string]interface{}{
 							"data": map[string]interface{}{

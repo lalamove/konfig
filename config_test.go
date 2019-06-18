@@ -85,7 +85,7 @@ func TestConfigWatcherLoader(t *testing.T) {
 				RegisterLoader(
 					&DummyLoader{
 						[][2]string{
-							[2]string{
+							{
 								"foo", "bar",
 							},
 						},
@@ -110,7 +110,7 @@ func TestConfigWatcherLoader(t *testing.T) {
 				RegisterLoader(
 					&DummyLoader{
 						[][2]string{
-							[2]string{
+							{
 								"foo", "bar",
 							},
 						},

@@ -75,21 +75,21 @@ func TestSetStruct(t *testing.T) {
 					TT: 2,
 				},
 				SubMapTPtr: map[string]*TestConfigSub{
-					"foo": &TestConfigSub{
+					"foo": {
 						VV: "woop",
 						TT: 1,
 					},
-					"bar": &TestConfigSub{
+					"bar": {
 						VV: "hello",
 						TT: 1,
 					},
 				},
 				SubMapT: map[string]TestConfigSub{
-					"foo": TestConfigSub{
+					"foo": {
 						VV: "woop",
 						TT: 1,
 					},
-					"bar": TestConfigSub{
+					"bar": {
 						VV: "hello",
 						TT: 1,
 					},
