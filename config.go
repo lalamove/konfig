@@ -252,7 +252,7 @@ func (c *S) RegisterLoaderWatcher(lw LoaderWatcher, loaderHooks ...func(Store) e
 }
 
 // RegisterCloser adds a closer to the list of closers.
-// Closers are closed when an error occured while reloading a config and the ExitOnError config is set to true
+// Closers are closed when an error occurred while reloading a config and the ExitOnError config is set to true
 func RegisterCloser(closer io.Closer) Store {
 	return instance().RegisterCloser(closer)
 }
