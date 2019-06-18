@@ -237,13 +237,17 @@ func TestLoad(t *testing.T) {
 
 				var timer = time.NewTimer(150 * time.Millisecond)
 				var watched bool
-				select {
-				case <-hl.Watch():
-					watched = true
-					hl.Close()
-				case <-timer.C:
-					hl.Close()
-					require.True(t, watched)
+			outer:
+				for {
+					select {
+					case <-hl.Watch():
+						watched = true
+						hl.Close()
+					case <-timer.C:
+						hl.Close()
+						require.True(t, watched)
+						break outer
+					}
 				}
 
 				return hl
