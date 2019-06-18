@@ -70,7 +70,7 @@ func TestYAMLFile(t *testing.T) {
 	konfig.RegisterLoader(
 		klfile.New(&klfile.Config{
 			Files: []klfile.File{
-				klfile.File{
+				{
 					Path:   "./data/cfg.yml",
 					Parser: kpyaml.Parser,
 				},
