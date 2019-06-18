@@ -17,7 +17,7 @@ var defaultRate = 10 * time.Second
 type Config struct {
 	// Files is the path to the files to watch
 	Files []string
-	// Rate is the rate at wich the file is watched
+	// Rate is the rate at which the file is watched
 	Rate time.Duration
 	// Debug sets the debug mode on the filewatcher
 	Debug bool
