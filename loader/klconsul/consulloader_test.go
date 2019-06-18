@@ -237,6 +237,7 @@ func TestLoad(t *testing.T) {
 
 				var timer = time.NewTimer(150 * time.Millisecond)
 				var watched bool
+			outer:
 				for {
 					select {
 					case <-hl.Watch():
@@ -245,7 +246,7 @@ func TestLoad(t *testing.T) {
 					case <-timer.C:
 						hl.Close()
 						require.True(t, watched)
-						return
+						break outer
 					}
 				}
 
