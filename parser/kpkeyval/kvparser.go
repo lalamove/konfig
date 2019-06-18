@@ -56,8 +56,5 @@ func (k *Parser) Parse(r io.Reader, cfg konfig.Values) error {
 		}
 		cfg.Set(cfgKey[0], strings.Join(cfgKey[1:], k.cfg.Sep))
 	}
-	if err := scanner.Err(); err != nil {
-		return err
-	}
-	return nil
+	return scanner.Err()
 }
