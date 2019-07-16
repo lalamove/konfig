@@ -40,6 +40,102 @@ func TestBind(t *testing.T) {
 
 }
 
+func TestBindStrict(t *testing.T) {
+
+	t.Run(
+		"panic type map",
+		func(t *testing.T) {
+			var s = Instance()
+			var m = make(map[string]interface{})
+			require.Panics(t, func() { s.BindStrict(m) })
+		},
+	)
+
+	t.Run(
+		"valid type struct",
+		func(t *testing.T) {
+			type testConfig struct {
+				v string `konfig:"v"`
+			}
+			var s = Instance()
+			var tc testConfig
+			require.NotPanics(t, func() { s.BindStrict(tc) })
+		},
+	)
+
+	t.Run(
+		"should use konfig tag value",
+		func(t *testing.T) {
+			type testConfig struct {
+				x string `konfig:"a"`
+				y string `konfig:"b"`
+				z string `konfig:"v"`
+			}
+			reset()
+			Init(DefaultConfig())
+			var tc testConfig
+			BindStrict(tc)
+
+			require.Equal(t, []string{"a", "b", "v"}, c.strictKeys)
+		},
+	)
+
+	t.Run(
+		"should use struct field name as keys",
+		func(t *testing.T) {
+			type testConfig struct {
+				c string
+				d string
+				e string
+			}
+			reset()
+			Init(DefaultConfig())
+			var tc testConfig
+			BindStrict(tc)
+
+			require.Equal(t, []string{"c", "d", "e"}, c.strictKeys)
+		},
+	)
+
+	t.Run(
+		"should recursively add fields with struct type as keys",
+		func(t *testing.T) {
+			type testConfig struct {
+				c string `konfig:"c"`
+				d string
+				e struct {
+					a string `konfig:"b"`
+					c string
+				}
+			}
+			reset()
+			Init(DefaultConfig())
+			var tc testConfig
+			BindStrict(tc)
+
+			require.Equal(t, []string{"c", "d", "e.b", "e.c"}, c.strictKeys)
+		},
+	)
+
+	t.Run(
+		"should skip - field tag",
+		func(t *testing.T) {
+			type testConfig struct {
+				a string `konfig:"a"`
+				b string `konfig:"b"`
+				v string `konfig:"-"`
+			}
+			reset()
+			Init(DefaultConfig())
+			var tc testConfig
+			BindStrict(tc)
+
+			require.Equal(t, []string{"a", "b"}, c.strictKeys)
+		},
+	)
+
+}
+
 func TestSetStruct(t *testing.T) {
 
 	t.Run(

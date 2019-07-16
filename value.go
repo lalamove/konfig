@@ -23,6 +23,8 @@ const (
 var (
 	// ErrIncorrectValue is the error thrown when trying to bind an invalid type to a config store
 	ErrIncorrectValue = errors.New("Bind takes a map[string]interface{} or a struct")
+	// ErrIncorrectStructValue is the error thrown when trying to bind a non struct value with the BindStrict method
+	ErrIncorrectStructValue = errors.New("BindStrict takes a struct")
 )
 
 type value struct {
@@ -41,6 +43,11 @@ func Value() interface{} {
 // Bind binds a value to the root config store
 func Bind(v interface{}) {
 	instance().Bind(v)
+}
+
+// BindStrict binds a value to the root config store and adds the exposed keys as strict keys
+func BindStrict(v interface{}) {
+	instance().BindStrict(v)
 }
 
 // Value returns the value bound to the config store
@@ -78,6 +85,49 @@ func (c *S) Bind(v interface{}) {
 	val.v = &atomicValue
 
 	c.v = val
+}
+
+// BindStrict binds a value (must a struct) to the config store and adds the exposed fields as strick keys.
+func (c *S) BindStrict(v interface{}) {
+	var t = reflect.TypeOf(v)
+	var k = t.Kind()
+	//  if it not a struct
+	if k != reflect.Struct {
+		panic(ErrIncorrectStructValue)
+	}
+
+	c.Bind(v)
+	keys := getStructKeys(t, "")
+	c.Strict(keys...)
+}
+
+func getStructKeys(t reflect.Type, prefix string) []string {
+	var keys []string
+	for i := 0; i < t.NumField(); i++ {
+		var fieldValue = t.Field(i)
+		var tag = fieldValue.Tag.Get(TagKey)
+
+		if tag == "-" {
+			continue
+		}
+
+		// use field name when konfig tag is not specified
+		if tag == "" {
+			tag = strings.ToLower(fieldValue.Name)
+		}
+
+		if fieldValue.Type.Kind() == reflect.Struct {
+			structKeys := getStructKeys(fieldValue.Type, tag+KeySep)
+			keys = append(keys, structKeys...)
+
+			// don't add the parent tag
+			continue
+		}
+
+		keys = append(keys, prefix+tag)
+	}
+
+	return keys
 }
 
 func (val *value) set(k string, v interface{}) {
