@@ -163,6 +163,9 @@ type Store interface {
 	// Bind binds a value (either a map[string]interface{} or a struct) to the config store. When config values are set on the config store, they are also set on the bound value.
 	Bind(interface{})
 
+	// BindStrict binds a value (must be a struct) to the config store and add's the struct's exposed fields as strict keys.
+	BindStrict(interface{})
+
 	// Value returns the value bound to the config store.
 	// It panics if no bound value has been set
 	Value() interface{}
