@@ -488,6 +488,34 @@ if err := konfig.LoadWatch(); err != nil {
 }
 ```
 
+Alternatively, `BindStructStrict` can be used to strictly bind config.
+Usage:
+```
+type DBConfig struct {
+	Username string
+}
+type Config struct {
+	Addr      string    `konfig:"-"` // this key will be non-strict
+	DB        DBConfig  `konfig:"db"`
+	RedisHost string    `konfig:"redis.host"`
+}
+
+// we init the root konfig store
+konfig.Init(konfig.DefaultConfig())
+
+// we bind the Config struct to the konfig.Store
+konfig.BindStructStrict(Config{})
+
+// Register our loaders
+...
+
+// We load our config and start watching.
+// If any strict key is not found after the load operation, LoadWatch will return a non nil error.
+if err := konfig.LoadWatch(); err != nil {
+	log.Fatal(err)
+}
+```
+
 # Getter
 To easily build services which can use dynamically loaded configs you can create getters for specific keys. A getter implements `ngetter.GetterTyped` from [nui](github.com/lalamove/nui) package. It is useful when building apps in larger distributed environments.
 

@@ -40,14 +40,13 @@ func TestBind(t *testing.T) {
 
 }
 
-func TestBindStrict(t *testing.T) {
-
+func TestBindStructStrict(t *testing.T) {
 	t.Run(
 		"panic type map",
 		func(t *testing.T) {
 			var s = Instance()
 			var m = make(map[string]interface{})
-			require.Panics(t, func() { s.BindStrict(m) })
+			require.Panics(t, func() { s.BindStructStrict(m) })
 		},
 	)
 
@@ -59,7 +58,7 @@ func TestBindStrict(t *testing.T) {
 			}
 			var s = Instance()
 			var tc testConfig
-			require.NotPanics(t, func() { s.BindStrict(tc) })
+			require.NotPanics(t, func() { s.BindStructStrict(tc) })
 		},
 	)
 
@@ -74,7 +73,7 @@ func TestBindStrict(t *testing.T) {
 			reset()
 			Init(DefaultConfig())
 			var tc testConfig
-			BindStrict(tc)
+			BindStructStrict(tc)
 
 			require.Equal(t, []string{"a", "b", "v"}, c.strictKeys)
 		},
@@ -91,7 +90,7 @@ func TestBindStrict(t *testing.T) {
 			reset()
 			Init(DefaultConfig())
 			var tc testConfig
-			BindStrict(tc)
+			BindStructStrict(tc)
 
 			require.Equal(t, []string{"c", "d", "e"}, c.strictKeys)
 		},
@@ -111,7 +110,7 @@ func TestBindStrict(t *testing.T) {
 			reset()
 			Init(DefaultConfig())
 			var tc testConfig
-			BindStrict(tc)
+			BindStructStrict(tc)
 
 			require.Equal(t, []string{"c", "d", "e.b", "e.c"}, c.strictKeys)
 		},
@@ -128,7 +127,7 @@ func TestBindStrict(t *testing.T) {
 			reset()
 			Init(DefaultConfig())
 			var tc testConfig
-			BindStrict(tc)
+			BindStructStrict(tc)
 
 			require.Equal(t, []string{"a", "b"}, c.strictKeys)
 		},

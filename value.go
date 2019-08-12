@@ -23,8 +23,8 @@ const (
 var (
 	// ErrIncorrectValue is the error thrown when trying to bind an invalid type to a config store
 	ErrIncorrectValue = errors.New("Bind takes a map[string]interface{} or a struct")
-	// ErrIncorrectStructValue is the error thrown when trying to bind a non struct value with the BindStrict method
-	ErrIncorrectStructValue = errors.New("BindStrict takes a struct")
+	// ErrIncorrectStructValue is the error thrown when trying to bind a non struct value with the BindStructStrict method
+	ErrIncorrectStructValue = errors.New("BindStructStrict takes a struct")
 )
 
 type value struct {
@@ -45,9 +45,9 @@ func Bind(v interface{}) {
 	instance().Bind(v)
 }
 
-// BindStrict binds a value to the root config store and adds the exposed keys as strict keys
-func BindStrict(v interface{}) {
-	instance().BindStrict(v)
+// BindStructStrict binds a value to the root config store and adds the exposed keys as strict keys
+func BindStructStrict(v interface{}) {
+	instance().BindStructStrict(v)
 }
 
 // Value returns the value bound to the config store
@@ -55,7 +55,8 @@ func (c *S) Value() interface{} {
 	return c.v.v.Load()
 }
 
-// Bind binds a value (either a map[string]interface{} or a struct) to the config store. When config values are set on the config store, they are also set on the bound value.
+// Bind binds a value (either a map[string]interface{} or a struct) to the config store.
+// When config values are set on the config store, they are also set on the bound value.
 func (c *S) Bind(v interface{}) {
 	var t = reflect.TypeOf(v)
 	var k = t.Kind()
@@ -87,8 +88,8 @@ func (c *S) Bind(v interface{}) {
 	c.v = val
 }
 
-// BindStrict binds a value (must a struct) to the config store and adds the exposed fields as strick keys.
-func (c *S) BindStrict(v interface{}) {
+// BindStructStrict binds a value (must a struct) to the config store and adds the exposed fields as strick keys.
+func (c *S) BindStructStrict(v interface{}) {
 	var t = reflect.TypeOf(v)
 	var k = t.Kind()
 	//  if it not a struct
@@ -96,9 +97,9 @@ func (c *S) BindStrict(v interface{}) {
 		panic(ErrIncorrectStructValue)
 	}
 
-	c.Bind(v)
 	keys := getStructKeys(t, "")
 	c.Strict(keys...)
+	c.Bind(v)
 }
 
 func getStructKeys(t reflect.Type, prefix string) []string {
