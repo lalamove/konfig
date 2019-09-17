@@ -304,27 +304,27 @@
   version = "v1.0.1"
 
 [[projects]]
-  digest = "1:fe5503ff1a1bf5fd2b9b6b744274bd7b1c20acb012182ca3da0ff4528cb885f6"
-  name = "github.com/micro/go-config"
+  digest = "1:66319a781634b2272e48c9bf891f37d674ea57294835184c394e04bdae7adfd2"
+  name = "github.com/micro/go-micro"
   packages = [
-    ".",
-    "encoder",
-    "encoder/hcl",
-    "encoder/json",
-    "encoder/toml",
-    "encoder/xml",
-    "encoder/yaml",
-    "loader",
-    "loader/memory",
-    "reader",
-    "reader/json",
-    "source",
-    "source/file",
-    "source/memory",
+    "config",
+    "config/encoder",
+    "config/encoder/hcl",
+    "config/encoder/json",
+    "config/encoder/toml",
+    "config/encoder/xml",
+    "config/encoder/yaml",
+    "config/loader",
+    "config/loader/memory",
+    "config/reader",
+    "config/reader/json",
+    "config/source",
+    "config/source/file",
+    "config/source/memory",
   ]
   pruneopts = ""
-  revision = "2a4da1fca4d75c5e1fb254a60b4aa987c73fab08"
-  version = "v1.0.0"
+  revision = "6ec32805d013ec219796b2c5c25186372b0b20c1"
+  version = "v1.10.0"
 
 [[projects]]
   digest = "1:6dbb0eb72090871f2e58d1e37973fe3cb8c0f45f49459398d3fc740cb30e13bd"
@@ -349,14 +349,6 @@
   pruneopts = ""
   revision = "3536a929edddb9a5b34bd6861dc4a9647cb459fe"
   version = "v1.1.2"
-
-[[projects]]
-  digest = "1:a5484d4fa43127138ae6e7b2299a6a52ae006c7f803d98d717f60abf3e97192e"
-  name = "github.com/pborman/uuid"
-  packages = ["."]
-  pruneopts = ""
-  revision = "adf5a7427709b9deb95d29d3fa8a2bf9cfd388f1"
-  version = "v1.2"
 
 [[projects]]
   digest = "1:894aef961c056b6d85d12bac890bf60c44e99b46292888bfa66caf529f804457"
@@ -641,8 +633,8 @@
     "github.com/lalamove/nui/ngetter",
     "github.com/lalamove/nui/nlogger",
     "github.com/lalamove/nui/nstrings",
-    "github.com/micro/go-config",
-    "github.com/micro/go-config/source/memory",
+    "github.com/micro/go-micro/config",
+    "github.com/micro/go-micro/config/source/memory",
     "github.com/pkg/errors",
     "github.com/prometheus/client_golang/prometheus",
     "github.com/radovskyb/watcher",

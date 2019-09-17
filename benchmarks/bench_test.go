@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	"github.com/lalamove/konfig"
-	config "github.com/micro/go-config"
-	"github.com/micro/go-config/source/memory"
+	config "github.com/micro/go-micro/config"
+	"github.com/micro/go-micro/config/source/memory"
 	"github.com/spf13/viper"
 )
 
@@ -60,7 +60,7 @@ var data = []byte(`{
 
 func newGoConfig() config.Config {
 	memorySource := memory.NewSource(
-		memory.WithData(data),
+		memory.WithJSON(data),
 	)
 	// Create new config
 	conf := config.NewConfig()
