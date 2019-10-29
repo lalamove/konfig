@@ -192,10 +192,14 @@ type S struct {
 var (
 	c    *S
 	once sync.Once
+	mu sync.Mutex
 )
 
 // Init initiates the global config store with the given Config cfg
 func Init(cfg *Config) {
+	mu.Lock()
+	defer mu.Unlock()
+
 	c = newStore(cfg)
 }
 
@@ -362,9 +366,13 @@ func (c *S) RunHooks() error {
 
 // Instance returns the singleton global config store
 func Instance() Store {
+	mu.Lock()
+	defer mu.Unlock()
+
 	if c == nil {
 		c = newStore(DefaultConfig())
 	}
+
 	return c
 }
 
@@ -385,16 +393,24 @@ func (c *S) stop() {
 }
 
 func instance() *S {
+	mu.Lock()
+	defer mu.Unlock()
+
 	if c == nil {
 		c = newStore(DefaultConfig())
 	}
+
 	return c
 }
 
 func reset() {
-	var cc = instance()
-	if cc != nil {
+	mu.Lock()
+	defer mu.Unlock()
+
+	if c != nil {
 		c = newStore(c.cfg)
+	} else {
+		c = newStore(DefaultConfig())
 	}
 }
 
